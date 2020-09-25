@@ -1,0 +1,148 @@
+name: looper
+description: A new Flutter project.
+
+# The following defines the version and build number for your application.
+# A version number is three numbers separated by dots, like 1.2.43
+# followed by an optional build number separated by a +.
+# Both the version and the builder number may be overridden in flutter
+# build by specifying --build-name and --build-number, respectively.
+# In Android, build-name is used as versionName while build-number used as versionCode.
+# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
+# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
+# Read more about iOS versioning at
+# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.3.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^0.1.2
+  material_design_icons_flutter: ^3.4.4795
+  font_awesome_flutter: ^8.8.1
+  google_fonts: ^0.2.0
+  firebase_storage: ^4.0.0
+  firebase_core: ^0.5.0
+  cloud_firestore: ^0.14.0+2
+  firebase_messaging: ^7.0.0
+  firebase_auth: ^0.18.0+1
+  flutter_native_admob: ^2.1.0+3
+  firebase_ml_vision: ^0.9.5
+  camera: ^0.5.8+7
+  video_player: ^0.10.11+1
+  path_provider: ^1.1.0
+  image_picker: ^0.6.7+1
+  fluttertoast: ^3.1.0
+  permission_handler: ^5.0.1
+  flutter_launcher_icons: ^0.8.0
+  uuid: ^2.0.4
+  flutter_svg: ^0.18.0
+  shimmer: ^1.0.1
+  bubble: ^1.1.9+1
+  badges: ^1.1.1
+  superellipse_shape: ^0.1.5
+  carousel_slider: ^1.3.1
+  flutter_swiper: ^1.1.6  
+  shifting_tabbar: ^0.3.1
+  fab_circular_menu: ^0.1.5
+  flutter_snake_navigationbar: ^0.2.0
+  flutter_spinkit: "^4.1.2"
+  cool_nav: ^0.0.3
+  flashy_tab_bar: ^0.0.3
+  flutter_chat_bubble: ^1.0.2
+  flutter_toggle_tab: ^0.0.3+2
+  flushbar: ^1.10.4
+  flutter_bounce: ^1.0.8
+  flutter_page_transition: ^0.1.6
+  validators: ^2.0.0+1
+  string_validator: ^0.1.3
+  email_validator: ^1.0.0
+  stop_watch_timer: ^0.2.0+2
+  shared_preferences: ^0.5.6+1
+  enhanced_future_builder: ^1.0.2
+  cached_network_image: ^2.2.0+1
+  flutter_image_compress: ^0.6.5+1
+  flutter_video_compress: ^0.3.7+8
+  audioplayers: ^0.15.1
+  record_mp3: ^2.1.0
+  location: ^3.0.2
+  geocoder: ^0.2.1
+  giphy_picker: ^01.0.4
+  flutter_linkify: ^3.1.3
+  dots_indicator: ^1.1.0
+  url_launcher: ^5.4.10
+  intl: ^0.16.1
+  stringprocess: ^1.0.10
+  visibility_detector: ^0.1.5
+  esys_flutter_share: ^1.0.2
+  dotted_border: ^1.0.5
+  video_thumbnail: ^0.2.1
+  file_picker: ^1.9.0+1
+  photo_manager: ^0.5.3
+  export_video_frame: ^0.0.5+4
+  http: ^0.12.0+2
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/looper-icon.jpg" 
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_datetime_picker:
+   git:
+     url: https://github.com/ditheshthegreat/flutter_datetime_picker # Repo
+     ref: patch-1 # Branch name
+# For information on the generic Dart part of this file, see the
+# following page: https://www.dartlang.org/tools/pub/pubspec
+
+# The following section is specific to Flutter.
+flutter:
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/social-media (2).jpg
+    - assets/tiger.jpg   
+    - assets/love.png
+    - assets/sport.jpg
+    - assets/talents.jpg
+    - assets/challenges.jpg  
+    - assets/comedy.jpg
+    - assets/eye.png
+    - assets/clap.png
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware.
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  fonts:
+    - family: Quicksand
+      fonts:
+        - asset: fonts/quicksand-bold.ttf
+        - asset: fonts/quicksand-bold.ttf
+    #         style: italic
+    - family: Montserrat
+      fonts:
+        - asset: fonts/montserrat.bold.ttf
+        - asset: fonts/montserrat.bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages

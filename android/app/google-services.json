@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1069509624849",
+    "firebase_url": "https://looper-4519f.firebaseio.com",
+    "project_id": "looper-4519f",
+    "storage_bucket": "looper-4519f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1069509624849:android:d6aebd9b477184062a1db0",
+        "android_client_info": {
+          "package_name": "com.example.looper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1069509624849-meppjvj5irj69bgn7i1i7sifcc0jhq0m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKJmzxGeYBA9HB7ON5WtJaih4q0ieFky0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1069509624849-meppjvj5irj69bgn7i1i7sifcc0jhq0m.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1069509624849-lmp04i9k3hm0bq9he5n7b7bt4cqddfgb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.looper"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
