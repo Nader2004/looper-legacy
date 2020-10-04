@@ -5,6 +5,7 @@ import 'package:export_video_frame/export_video_frame.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:looper/models/personality.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:stringprocess/stringprocess.dart';
@@ -67,10 +68,10 @@ class PersonalityService {
             (_personality.agreeableness.value * 100).round();
         final int _neuroticism =
             (_personality.emotionalRange.value * 100).round();
-
+        final SharedPreferences _prefs = await SharedPreferences.getInstance();
         FirebaseFirestore.instance
             .collection('users')
-            .doc('K8nu4eqn18RMy2YlM3nhzPYdXKX2')
+            .doc(_prefs.get('id'))
             .update({
           'personality-type': {
             'opennes': _openness,
