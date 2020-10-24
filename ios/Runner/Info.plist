@@ -3,7 +3,9 @@
 <plist version="1.0">
 <key>NSAppTransportSecurity</key>
 <dict>
-<key>NSAllowsArbitraryLoads</key>
+    <key>NSAllowsArbitraryLoads</key>
+    <true/>
+</dict>
 <true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
@@ -57,6 +59,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
+	 
+ <false/>
 </dict>
 </plist>
