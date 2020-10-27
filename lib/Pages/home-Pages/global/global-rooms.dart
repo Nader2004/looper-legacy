@@ -153,7 +153,7 @@ class _GlobalRoomsPageState extends State<GlobalRoomsPage> {
             ),
           ),
           gradient: LinearGradient(
-            List: [
+            colors: [
               Colors.black54,
               Colors.black87,
             ],
@@ -169,7 +169,7 @@ class _GlobalRoomsPageState extends State<GlobalRoomsPage> {
             ),
           ),
           gradient: LinearGradient(
-            List: [
+            colors: [
               Colors.deepPurple[400],
               Colors.deepPurple[900],
             ],
