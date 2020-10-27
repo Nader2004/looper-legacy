@@ -32,7 +32,7 @@ class _AudioPickerState extends State<AudioPicker>
 
   void setUpAnimations() {
     _scaleAnimationController = AnimationController(
-      TickerProvider: this,
+      vsync: this,
       duration: Duration(milliseconds: 200),
     );
 
