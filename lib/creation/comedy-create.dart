@@ -490,7 +490,7 @@ class _ComedyCreationState extends State<ComedyCreation>
             alignment: Alignment.center,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                List: [
+                colors: [
                   Colors.black.withOpacity(0.3),
                   Colors.black12.withOpacity(0.3),
                 ],
