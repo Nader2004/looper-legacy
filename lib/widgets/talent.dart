@@ -624,7 +624,7 @@ class _TalentState extends State<Talent> {
                                               ? BlendMode.difference
                                               : BlendMode.exclusion,
                           shaderCallback: (bounds) => LinearGradient(
-                            colors: _talent.movieFilter == 'normal'
+                            List: _talent.movieFilter == 'normal'
                                 ? [Colors.white, Colors.white]
                                 : _talent.movieFilter == 'black&white'
                                     ? [Colors.black, Colors.white]

@@ -2448,7 +2448,7 @@ class _AudioRecorderPageState extends State<AudioRecorderPage>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      vsync: this,
+      TickerProvider: this,
       duration: Duration(seconds: 1),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(

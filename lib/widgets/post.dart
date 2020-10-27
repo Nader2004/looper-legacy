@@ -113,7 +113,7 @@ class _PostWidgetState extends State<PostWidget>
 
   void initializeAnimation() {
     _animationController = AnimationController(
-      vsync: this,
+      TickerProvider: this,
       duration: Duration(seconds: 2),
     );
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(

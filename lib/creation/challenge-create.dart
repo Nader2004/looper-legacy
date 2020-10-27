@@ -239,7 +239,7 @@ class _ChallengeCreationState extends State<ChallengeCreation>
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [
+                  List: [
                     Colors.black.withOpacity(0.3),
                     Colors.black12.withOpacity(0.3),
                   ],
