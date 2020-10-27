@@ -47,7 +47,7 @@ class _CameraState extends State<Camera>
 
   void initializeAnimations() {
     _animationController = AnimationController(
-      TickerProvider: this,
+      vsync: this,
       duration: Duration(milliseconds: 300),
     );
     _animation = Tween<double>(
