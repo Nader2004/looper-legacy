@@ -168,7 +168,7 @@ class _TalentCreationState extends State<TalentCreation>
 
   void initializeAnimation() {
     _animationController = AnimationController(
-      TickerProvider: this,
+      vsync: this,
       duration: Duration(seconds: 90),
     );
     _animationController.addListener(
@@ -505,7 +505,7 @@ class _TalentCreationState extends State<TalentCreation>
                           : 0.1,
                       child: ShaderMask(
                         shaderCallback: (bounds) => LinearGradient(
-                          List: _cameraFilter.filterColors,
+                          colors: _cameraFilter.filterColors,
                         ).createShader(bounds),
                         blendMode: _cameraFilter.blendMode,
                         child: _cameraController?.value == null
@@ -1228,7 +1228,7 @@ class _TalentCreationState extends State<TalentCreation>
                                                       shaderCallback:
                                                           (bounds) =>
                                                               LinearGradient(
-                                                        List:
+                                                        colors:
                                                             _movieFilters[index]
                                                                 .filterColors,
                                                       ).createShader(
