@@ -1,5 +1,7 @@
 # Uncomment this line to define a global platform for your project
 platform :ios, '9.0'
+use_frameworks!
+use_modular_headers!
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['SWIFT_VERSION'] = '5'
@@ -84,7 +86,7 @@ install! 'cocoapods', :disable_input_output_paths => true
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
-      config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
   end
