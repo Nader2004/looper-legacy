@@ -1,43 +1,5 @@
-<<<<<<< HEAD
 # Uncomment the next line to define a global platform for your project
 platform :ios, '9.0'
-=======
-# Uncomment this line to define a global platform for your project
-platform :ios, '9.0'
-use_frameworks!
-use_modular_headers!
-
-# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
-ENV['SWIFT_VERSION'] = '5'
-
-project 'Runner', {
-  'Debug' => :debug,
-  'Profile' => :release,
-  'Release' => :release,
-}
-
-def parse_KV_file(file, separator='=')
-  file_abs_path = File.expand_path(file)
-  if !File.exists? file_abs_path
-    return [];
-  end
-  generated_key_values = {}
-  skip_line_start_symbols = ["#", "/"]
-  File.foreach(file_abs_path) do |line|
-    next if skip_line_start_symbols.any? { |symbol| line =~ /^\s*#{symbol}/ }
-    plugin = line.split(pattern=separator)
-    if plugin.length == 2
-      podname = plugin[0].strip()
-      path = plugin[1].strip()
-      podpath = File.expand_path("#{path}", file_abs_path)
-      generated_key_values[podname] = podpath
-    else
-      puts "Invalid plugin specification: #{line}"
-    end
-  end
-  generated_key_values
-end
->>>>>>> f70f9a9faf1a5bd94c626f0cbe2121c67af62433
 
 target 'Runner' do
   # Comment the next line if you don't want to use dynamic frameworks
