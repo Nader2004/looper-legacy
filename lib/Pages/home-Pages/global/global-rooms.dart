@@ -103,7 +103,7 @@ class _GlobalRoomsPageState extends State<GlobalRoomsPage> {
             );
           },
           gradient: LinearGradient(
-            List: [
+            colos: [
               Colors.red[800],
               Colors.red[900],
             ],
@@ -119,7 +119,7 @@ class _GlobalRoomsPageState extends State<GlobalRoomsPage> {
             ),
           ),
           gradient: LinearGradient(
-            List: [
+            colors: [
               Colors.blue[800],
               Colors.blue[900],
             ],
@@ -137,7 +137,7 @@ class _GlobalRoomsPageState extends State<GlobalRoomsPage> {
             );
           },
           gradient: LinearGradient(
-            List: [
+            colors: [
               Colors.purple[800],
               Colors.purple[900],
             ],
@@ -153,7 +153,7 @@ class _GlobalRoomsPageState extends State<GlobalRoomsPage> {
             ),
           ),
           gradient: LinearGradient(
-            List: [
+            colors: [
               Colors.black54,
               Colors.black87,
             ],
@@ -169,7 +169,7 @@ class _GlobalRoomsPageState extends State<GlobalRoomsPage> {
             ),
           ),
           gradient: LinearGradient(
-            List: [
+            colors: [
               Colors.deepPurple[400],
               Colors.deepPurple[900],
             ],
