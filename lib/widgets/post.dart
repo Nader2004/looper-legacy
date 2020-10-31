@@ -113,7 +113,7 @@ class _PostWidgetState extends State<PostWidget>
 
   void initializeAnimation() {
     _animationController = AnimationController(
-      vsync: this,
+      TickerProvider: this,
       duration: Duration(seconds: 2),
     );
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -604,14 +604,16 @@ class _PostWidgetState extends State<PostWidget>
       return Padding(
         padding: const EdgeInsets.only(bottom: 10),
         child: CarouselSlider(
-          height: screenHeight / 3,
-          enlargeCenterPage: true,
-          enableInfiniteScroll: false,
-          onPageChanged: (int index) {
-            setState(() {
-              _mediaIndex = index;
-            });
-          },
+          options: CarouselOptions(
+            height: screenHeight / 3,
+            enlargeCenterPage: true,
+            enableInfiniteScroll: false,
+            onPageChanged: (int index, CarouselPageChangedReason reason) {
+              setState(() {
+                _mediaIndex = index;
+              });
+            },
+          ),
           items: List.generate(
             _post.mediaUrl.length,
             (index) {
