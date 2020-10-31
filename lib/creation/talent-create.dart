@@ -1228,7 +1228,7 @@ class _TalentCreationState extends State<TalentCreation>
                                                       shaderCallback:
                                                           (bounds) =>
                                                               LinearGradient(
-                                                        List:
+                                                        colors:
                                                             _movieFilters[index]
                                                                 .filterColors,
                                                       ).createShader(
