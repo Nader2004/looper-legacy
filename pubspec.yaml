@@ -22,10 +22,10 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
-  material_design_icons_flutter: ^3.4.4795
+  cupertino_icons: ^1.0.0
+  material_design_icons_flutter: ^4.0.5755
   font_awesome_flutter: ^8.8.1
-  google_fonts: ^0.2.0
+  google_fonts: ^1.1.1
   firebase_storage: ^4.0.0
   firebase_core: ^0.5.0
   cloud_firestore: ^0.14.0+2
@@ -34,23 +34,23 @@ dependencies:
   flutter_native_admob: ^2.1.0+3
   firebase_ml_vision: ^0.9.5
   camera: ^0.5.8+7
-  video_player: ^0.10.11+1
+  video_player: ^0.11.1+2
   path_provider: ^1.1.0
   image_picker: ^0.6.7+1
-  fluttertoast: ^3.1.0
+  fluttertoast: ^7.1.1
   permission_handler: ^5.0.1
   flutter_launcher_icons: ^0.8.0
   uuid: ^2.0.4
-  flutter_svg: ^0.18.0
+  flutter_svg: ^0.19.1
   shimmer: ^1.0.1
   bubble: ^1.1.9+1
   badges: ^1.1.1
   superellipse_shape: ^0.1.5
-  carousel_slider: ^1.3.1
+  carousel_slider: ^2.3.1
   flutter_swiper: ^1.1.6  
   shifting_tabbar: ^0.3.1
-  fab_circular_menu: ^0.1.5
-  flutter_snake_navigationbar: ^0.2.0
+  fab_circular_menu: ^1.0.1
+  flutter_snake_navigationbar: ^0.4.1+2
   flutter_spinkit: "^4.1.2"
   cool_nav: ^0.0.3
   flashy_tab_bar: ^0.0.3
@@ -62,11 +62,11 @@ dependencies:
   validators: ^2.0.0+1
   string_validator: ^0.1.3
   email_validator: ^1.0.0
-  stop_watch_timer: ^0.2.0+2
+  stop_watch_timer: ^0.6.0+1
   shared_preferences: ^0.5.6+1
   enhanced_future_builder: ^1.0.2
   cached_network_image: ^2.2.0+1
-  flutter_image_compress: ^0.6.5+1
+  flutter_image_compress: ^0.7.0
   flutter_video_compress: ^0.3.7+8
   audioplayers: ^0.16.1
   record_mp3: ^2.1.0
@@ -82,7 +82,7 @@ dependencies:
   esys_flutter_share: ^1.0.2
   dotted_border: ^1.0.5
   video_thumbnail: ^0.2.1
-  file_picker: ^1.9.0+1
+  file_picker: ^2.0.11
   photo_manager: ^0.5.3
   export_video_frame: ^0.0.5+4
   http: ^0.12.0+2
