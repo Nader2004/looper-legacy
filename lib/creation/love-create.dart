@@ -205,7 +205,7 @@ class _LoveCreationState extends State<LoveCreation>
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(10),
           gradient: LinearGradient(
-            colors: [
+            List: [
               Colors.red[300],
               Colors.red[900],
             ],
