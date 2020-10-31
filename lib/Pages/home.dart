@@ -44,7 +44,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int _bottomIndex = 1;
   String _id = 'empty';
-  FabCircularMenuController _menuController = FabCircularMenuController();
 
   @override
   void initState() {
@@ -74,11 +73,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _buildBottomNavigationBar() {
-    return SnakeNavigationBar(
+    return SnakeNavigationBar.color(
       snakeShape: SnakeShape.indicator,
       currentIndex: _bottomIndex,
-      selectedIconColor: Colors.white,
-      selectionColor: Colors.black,
+      selectedItemColor: Colors.white,
+      snakeViewColor: Colors.black,
       elevation: 10,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -126,9 +125,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  Widget _buildBodyArea() {
+  Widget _buildfabCustomMenu() {
     return FabCircularMenu(
-      controller: _menuController,
       ringWidth: 115,
       ringColor: Colors.black,
       fabColor: Colors.white,
@@ -142,7 +140,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         color: Colors.black,
         size: 28,
       ),
-      options: <Widget>[
+      children: <Widget>[
         GestureDetector(
           onTap: () {
             Navigator.push(
@@ -230,7 +228,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
         ),
       ],
-      child: _buildGlobalRooms(),
     );
   }
 
@@ -578,7 +575,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         backgroundColor: Colors.grey[50],
         bottomNavigationBar: _buildBottomNavigationBar(),
         drawer: _buildDrawer(),
-        body: _buildBodyArea(),
+        floatingActionButton: _buildfabCustomMenu(),
+        body: _buildGlobalRooms(),
       ),
     );
   }
