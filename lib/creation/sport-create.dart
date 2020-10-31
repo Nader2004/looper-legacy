@@ -76,7 +76,7 @@ class _SportCreationState extends State<SportCreation>
 
   void initializeAnimation() {
     _animationController = AnimationController(
-      TickerProvider: this,
+      vsync: this,
       duration: Duration(seconds: 90),
     );
 
