@@ -168,7 +168,7 @@ class _TalentCreationState extends State<TalentCreation>
 
   void initializeAnimation() {
     _animationController = AnimationController(
-      TickerProvider: this,
+      vsync: this,
       duration: Duration(seconds: 90),
     );
     _animationController.addListener(
