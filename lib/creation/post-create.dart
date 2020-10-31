@@ -22,7 +22,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:giphy_client/giphy_client.dart';
 import 'package:giphy_picker/giphy_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -332,7 +331,7 @@ class _PostCreationPageState extends State<PostCreationPage> {
                       _option2Controller.clear();
                       _textController.clear();
                       FocusScope.of(context).unfocus();
-                      FilePicker.getMultiFilePath().then((value) {
+                      FilePicker.platform.pickFiles().then((value) {
                         if (value == null) {
                           if (_mediaUrl.length == 0) {
                             _pageController.animateToPage(
@@ -386,15 +385,17 @@ class _PostCreationPageState extends State<PostCreationPage> {
                             _isPressed6 = false;
                           });
                           List<MediaUrl> _newValue = List.generate(
-                            value.length == 15 || value.length < 15
-                                ? value.length
+                            value.files.length == 15 || value.files.length < 15
+                                ? value.files.length
                                 : 15,
                             (index) => MediaUrl(
-                              mediaUrl: value.values.toList()[index],
-                              type:
-                                  value.values.toList()[index].endsWith('.mp4')
-                                      ? '1'
-                                      : '0',
+                              mediaUrl: value.files.toList()[index].path,
+                              type: value.files
+                                      .toList()[index]
+                                      .path
+                                      .endsWith('.mp4')
+                                  ? '1'
+                                  : '0',
                             ),
                           );
                           setState(() {
@@ -965,9 +966,11 @@ class _PostCreationPageState extends State<PostCreationPage> {
             Divider(),
             SizedBox(height: 10),
             CarouselSlider(
-              height: 340,
-              enableInfiniteScroll: false,
-              enlargeCenterPage: true,
+              options: CarouselOptions(
+                height: 340,
+                enableInfiniteScroll: false,
+                enlargeCenterPage: true,
+              ),
               items: List.generate(_mediaUrl == null ? 0 : _mediaUrl.length,
                   (index) {
                 if (_mediaUrl[index].type == '1') {
@@ -1519,14 +1522,15 @@ class _PostCreationPageState extends State<PostCreationPage> {
               title: Text('Pick from Gallery'),
               onTap: () {
                 Navigator.pop(context);
-                FilePicker.getMultiFilePath().then((value) {
+                FilePicker.platform.pickFiles().then((value) {
                   List<MediaUrl> _newValue = List.generate(
-                    value.length == maximum || value.length < maximum
-                        ? value.length
+                    value.files.length == maximum ||
+                            value.files.length < maximum
+                        ? value.files.length
                         : maximum,
                     (index) => MediaUrl(
-                      mediaUrl: value.values.toList()[index],
-                      type: value.values.toList()[index].endsWith('.mp4')
+                      mediaUrl: value.files.toList()[index].path,
+                      type: value.files.toList()[index].path.endsWith('.mp4')
                           ? '1'
                           : '0',
                     ),
@@ -2448,7 +2452,7 @@ class _AudioRecorderPageState extends State<AudioRecorderPage>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      vsync: this,
+      TickerProvider: this,
       duration: Duration(seconds: 1),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
