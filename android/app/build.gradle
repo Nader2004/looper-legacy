@@ -84,6 +84,11 @@ android {
         //    signingConfig signingConfigs.release
         }
     }
+    configurations {
+        all { // You should exclude one of them not both of them 
+            exclude group: "com.google.android.gms", module: "play-services-vision"
+        }
+    }
     }
 
 flutter {
