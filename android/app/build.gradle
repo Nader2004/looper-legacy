@@ -100,7 +100,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:20.0.0'
     implementation 'com.google.android.gms:play-services-vision:20.0.0'
     implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
-
+    implementation 'com.android.support:support-v4:28.0.0'
 }
 
 apply plugin: 'com.google.gms.google-services'
