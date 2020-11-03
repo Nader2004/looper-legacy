@@ -34,7 +34,7 @@ dependencies:
   flutter_native_admob: ^2.1.0+3
   firebase_ml_vision: ^0.9.5
   camera: ^0.5.8+7
-  video_player: ^0.11.1+2
+  video_player: ^0.11.1+4
   path_provider: ^1.1.0
   image_picker: ^0.6.7+1
   fluttertoast: ^7.1.1
