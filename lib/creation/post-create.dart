@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bounce/flutter_bounce.dart';
-import 'package:flutter_sound/flutter_sound.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:location/location.dart';
@@ -2454,7 +2453,7 @@ class _AudioRecorderPageState extends State<AudioRecorderPage>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      TickerProvider: this,
+      vsync: this,
       duration: Duration(seconds: 1),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
