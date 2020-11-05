@@ -8,6 +8,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounce/flutter_bounce.dart';
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_5.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_chat_bubble/bubble_type.dart';
@@ -21,7 +22,6 @@ import 'package:looper/services/notifications.dart';
 import 'package:looper/services/personality.dart';
 import 'package:looper/services/storage.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:record_mp3/record_mp3.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:video_player/video_player.dart';
 
@@ -52,6 +52,7 @@ class _ChatPageState extends State<ChatPage> {
   TextEditingController _textEditingController;
   TextEditingController _editController;
   ScrollController _scrollController;
+  FlutterSoundRecorder _recorder;
   List<QueryDocumentSnapshot> _retrievedSnapshots =
       List<QueryDocumentSnapshot>();
   List<QueryDocumentSnapshot> _messagesSnapshots =
@@ -67,6 +68,7 @@ class _ChatPageState extends State<ChatPage> {
     _stopWatchTimer = StopWatchTimer();
     setDatabaseData();
     _scrollController.addListener(_scrollListener);
+    initRecorder();
   }
 
   void setDatabaseData() async {
@@ -85,14 +87,31 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  Future<void> initRecorder() async {
+    await _recorder.openAudioSession(
+      focus: AudioFocus.requestFocusAndStopOthers,
+      category: SessionCategory.playAndRecord,
+      mode: SessionMode.modeDefault,
+      device: AudioDevice.speaker,
+    );
+  }
+
+  Future<void> releaseFlauto() async {
+    try {
+      await _recorder.closeAudioSession();
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Failed to close recorder');
+    }
+  }
+
   void _startRecording() async {
     try {
       final filePath = await getFilePath();
-      RecordMp3.instance.start(
-        filePath,
-        (type) => Fluttertoast.showToast(
-          msg: 'Error ${type.toString()}',
-        ),
+      await _recorder.startRecorder(
+        toFile: filePath,
+        codec: Codec.mp3,
+        numChannels: 1,
+        sampleRate: 8000,
       );
       _stopWatchTimer.onExecute.add(StopWatchExecute.start);
     } catch (_) {
@@ -111,6 +130,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _stopRecording() async {
+    await _recorder.stopRecorder();
     _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
     _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
     final _filePath = await getFilePath();
@@ -326,6 +346,7 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
+    releaseFlauto();
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
     _textEditingController.dispose();
