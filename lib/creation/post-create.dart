@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bounce/flutter_bounce.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:location/location.dart';
@@ -2446,13 +2447,14 @@ class _AudioRecorderPageState extends State<AudioRecorderPage>
   String _conditiontxt = 'Tap to record';
   AnimationController _controller;
   Animation<double> _fadeAnimation;
+  FlutterSoundRecorder _recorder;
   StopWatchTimer _stopWatchTimer;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      vsync: this,
+      TickerProvider: this,
       duration: Duration(seconds: 1),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -2461,17 +2463,36 @@ class _AudioRecorderPageState extends State<AudioRecorderPage>
         curve: Curves.decelerate,
       ),
     );
+    _recorder = FlutterSoundRecorder();
     _stopWatchTimer = StopWatchTimer();
+    initRecorder();
+  }
+
+  Future<void> initRecorder() async {
+    await _recorder.openAudioSession(
+      focus: AudioFocus.requestFocusAndStopOthers,
+      category: SessionCategory.playAndRecord,
+      mode: SessionMode.modeDefault,
+      device: AudioDevice.speaker,
+    );
+  }
+
+  Future<void> releaseFlauto() async {
+    try {
+      await _recorder.closeAudioSession();
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Failed to close recorder');
+    }
   }
 
   void _startRecording() async {
     try {
       final filePath = await getFilePath();
-      RecordMp3.instance.start(
-        filePath,
-        (type) => Fluttertoast.showToast(
-          msg: 'Error ${type.toString()}',
-        ),
+      await _recorder.startRecorder(
+        toFile: filePath,
+        codec: Codec.mp3,
+        numChannels: 1,
+        sampleRate: 8000,
       );
       _stopWatchTimer.onExecute.add(StopWatchExecute.start);
       setState(() {
@@ -2493,6 +2514,7 @@ class _AudioRecorderPageState extends State<AudioRecorderPage>
   }
 
   void _stopRecording() async {
+    await _recorder.stopRecorder();
     _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
     final _filePath = await getFilePath();
     _audioUrl = _filePath;
@@ -2508,6 +2530,7 @@ class _AudioRecorderPageState extends State<AudioRecorderPage>
   @override
   void dispose() {
     _stopWatchTimer.dispose();
+    releaseFlauto();
     _controller?.dispose();
     super.dispose();
   }
