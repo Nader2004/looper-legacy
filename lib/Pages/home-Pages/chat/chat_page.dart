@@ -62,6 +62,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+    _recorder = FlutterSoundRecorder();
     _textEditingController = TextEditingController();
     _editController = TextEditingController();
     _scrollController = ScrollController();
