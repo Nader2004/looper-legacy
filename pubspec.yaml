@@ -26,19 +26,19 @@ dependencies:
   material_design_icons_flutter: ^4.0.5755
   font_awesome_flutter: ^8.8.1
   google_fonts: ^1.1.1
-  firebase_storage: ^4.0.0
-  firebase_core: ^0.5.1
-  cloud_firestore: ^0.14.2
-  firebase_messaging: ^7.0.0
+  firebase_storage: 4.0.0
+  firebase_core: 0.5.1
+  cloud_firestore: 0.14.2
+  firebase_messaging: 7.0.0
   firebase_auth: ^0.18.0+1
-  flutter_native_admob: ^2.1.0+3
-  firebase_ml_vision: ^0.9.5
+  flutter_native_admob: 2.1.0+3
+  firebase_ml_vision: 0.9.5
   camera: ^0.5.8+7
   video_player: ^0.11.1+4
   path_provider: ^1.1.0
   image_picker: ^0.6.7+1
   fluttertoast: ^7.1.1
-  permission_handler: ^5.0.1
+  permission_handler: 5.0.1
   flutter_launcher_icons: ^0.8.0
   uuid: ^2.0.4
   flutter_svg: ^0.19.1
