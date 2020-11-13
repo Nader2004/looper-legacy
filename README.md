@@ -1,6 +1,6 @@
 # looper
 
-A new Flutter project.
+A social Network Platform built with Flutter!
 
 ## Getting Started
 
