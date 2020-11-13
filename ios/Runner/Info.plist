@@ -31,6 +31,8 @@
 		<string>Can Looper use the mic please?</string>
 		<key>NSLocationAlwaysUsageDescription</key>
 		<string>Looper needs access to location when in the background.</string>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Looper needs to access Location when just in usage</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 		<string>Looper needs access to location when open and in the background.</string>
 		<key>NSContactsUsageDescription</key>
