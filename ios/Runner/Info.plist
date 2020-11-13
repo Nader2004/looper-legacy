@@ -39,6 +39,12 @@
 		<string>Looper needs an access to your contacts to suggest some people</string>
 		<key>NSCalendarsUsageDescription</key>
 		<string>Looper needs to access Calenders to manage some timing operations</string>
+		<key>NSAppleMusicUsageDescription</key>
+		<string>Looper needs to access Apple Music for some operations</string>
+		<key>NSMotionUsageDescription</key>
+		<string>Looper needs to access Motion Usage for some operations</string>
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>Looper needs to access Speech Recognition for some PND Operations</string>
 		<key>GADApplicationIdentifier</key>
 		<string>ca-app-pub-9448985372006294~8353196845</string>
 		<key>io.flutter.embedded_views_preview</key>
