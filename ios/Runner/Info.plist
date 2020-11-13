@@ -33,6 +33,8 @@
 		<string>Looper needs access to location when in the background.</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 		<string>Looper needs access to location when open and in the background.</string>
+		<key>NSContactsUsageDescription</key>
+		<string>Looper needs an access to your contacts to suggest some people</string>
 		<key>GADApplicationIdentifier</key>
 		<string>ca-app-pub-9448985372006294~8353196845</string>
 		<key>io.flutter.embedded_views_preview</key>
