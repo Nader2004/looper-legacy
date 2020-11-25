@@ -272,6 +272,24 @@
 				</array>
 			</dict>
 		</dict>
+		<key>5ABE8B2F255C5B9400FACC32</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.swift</string>
+			<key>path</key>
+			<string>File.swift</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>5ABE8B30255C5B9400FACC32</key>
+		<dict>
+			<key>fileRef</key>
+			<string>5ABE8B2F255C5B9400FACC32</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
 		<key>7AFA3C8E1D35360C0083082E</key>
 		<dict>
 			<key>isa</key>
@@ -453,6 +471,7 @@
 		<dict>
 			<key>children</key>
 			<array>
+				<string>5ABE8B2F255C5B9400FACC32</string>
 				<string>9740EEB11CF90186004384FC</string>
 				<string>97C146F01CF9000F007C117D</string>
 				<string>97C146EF1CF9000F007C117D</string>
@@ -493,6 +512,7 @@
 			<string>PBXProject</string>
 			<key>knownRegions</key>
 			<array>
+				<string>English</string>
 				<string>en</string>
 				<string>Base</string>
 			</array>
@@ -531,6 +551,7 @@
 			<key>files</key>
 			<array>
 				<string>978B8F6F1D3862AE00F588F7</string>
+				<string>5ABE8B30255C5B9400FACC32</string>
 				<string>97C146F31CF9000F007C117D</string>
 				<string>1498D2341E8E89220040F4C2</string>
 			</array>
@@ -1079,8 +1100,6 @@
 			</array>
 			<key>isa</key>
 			<string>PBXGroup</string>
-			<key>name</key>
-			<string>Pods</string>
 			<key>path</key>
 			<string>Pods</string>
 			<key>sourceTree</key>
