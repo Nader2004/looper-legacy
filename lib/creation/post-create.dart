@@ -12,6 +12,7 @@ import 'package:location/location.dart';
 import 'package:looper/services/notifications.dart';
 import 'package:looper/services/personality.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart' as perm;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:video_player/video_player.dart';
@@ -2485,20 +2486,21 @@ class _AudioRecorderPageState extends State<AudioRecorderPage>
   }
 
   void _startRecording() async {
-    try {
-      final filePath = await getFilePath();
-      await _recorder.startRecorder(
-        toFile: filePath,
-        codec: Codec.mp3,
-        numChannels: 1,
-        sampleRate: 8000,
-      );
-      _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-      setState(() {
-        _conditiontxt = 'Recording...';
-      });
-    } catch (_) {
-      Fluttertoast.showToast(msg: 'Failed to record');
+    if (await perm.Permission.microphone.request().isGranted) {
+      try {
+        final filePath = await getFilePath();
+        await _recorder.startRecorder(
+          toFile: filePath,
+          numChannels: 1,
+          sampleRate: 8000,
+        );
+        _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+        setState(() {
+          _conditiontxt = 'Recording...';
+        });
+      } catch (_) {
+        Fluttertoast.showToast(msg: 'Failed to record');
+      }
     }
   }
 
