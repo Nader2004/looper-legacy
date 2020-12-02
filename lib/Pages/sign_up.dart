@@ -1,16 +1,11 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:looper/Pages/personal_data.dart';
 
 import 'package:string_validator/string_validator.dart';
 
 import 'package:email_validator/email_validator.dart';
 
 import '../Pages/log_in.dart';
-
-import '../Pages/personal_data.dart';
-
-import '../services/auth.dart';
 
 class SignUpPage extends StatefulWidget {
   static const String id = 'SignUp';
@@ -23,15 +18,12 @@ class _SignUpPageState extends State<SignUpPage> {
   String username = '';
   String email = '';
   String password = '';
-  String _state = 'UNKNOWN AUTHENTICATION';
   GlobalKey<FormState> _usernameFormKey = GlobalKey<FormState>();
   GlobalKey<FormState> _emailFormKey = GlobalKey<FormState>();
   GlobalKey<FormState> _passwordFormKey = GlobalKey<FormState>();
   GlobalKey<FormState> _confirmedPasswordFormKey = GlobalKey<FormState>();
   bool _obscureText = true;
   bool _obscureText2 = true;
-  bool _isloading = false;
-  bool _succeed = false;
   bool _isPressed = false;
 
   void _togglePassword() {
@@ -244,57 +236,16 @@ class _SignUpPageState extends State<SignUpPage> {
       _emailFormKey.currentState.save();
       _passwordFormKey.currentState.save();
       _confirmedPasswordFormKey.currentState.save();
-      AuthService.registerUser(
+      Navigator.push(
         context,
-        username,
-        email,
-        password,
-        disableLoading: () {
-          setState(() {
-            _state = 'NOT AUTHENTICATED';
-          });
-        },
-        enableLoading: () {
-          setState(() {
-            _state = 'AUTHENTICATED';
-          });
-        },
+        MaterialPageRoute(
+          builder: (context) => PersonalPage(
+            email: email,
+            username: username,
+            password: password,
+          ),
+        ),
       );
-      if (_state == 'NOT AUTHENTICATED') {
-        setState(() {
-          _isloading = false;
-        });
-      } else if (_state == 'AUTHENTICATED') {
-        setState(() {
-          _isloading = true;
-        });
-      }
-      if (_isloading == true) {
-        Timer(
-          Duration(seconds: 3),
-          () {
-            setState(() {
-              _succeed = true;
-            });
-            Timer(
-              Duration(milliseconds: 800),
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PersonalPage(),
-                  ),
-                );
-                setState(() {
-                  _isloading = false;
-                });
-              },
-            );
-          },
-        );
-      } else {
-        return;
-      }
     }
   }
 
@@ -334,27 +285,13 @@ class _SignUpPageState extends State<SignUpPage> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     onPressed: createAccount,
-                    child: _isloading == true
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.2,
-                              valueColor: AlwaysStoppedAnimation(Colors.white),
-                            ),
-                          )
-                        : _succeed == true
-                            ? Icon(
-                                Icons.check,
-                                color: Colors.green,
-                              )
-                            : Text(
-                                'Create Account',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.5,
-                                ),
-                              ),
+                    child: Text(
+                      'Create Account',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.5,
+                      ),
+                    ),
                   ),
                 ),
               ),
