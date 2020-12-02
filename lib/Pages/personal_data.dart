@@ -3,17 +3,24 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:looper/services/auth.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
 import '../Pages/home.dart';
-import '../services/database.dart';
 import '../services/storage.dart';
 import '../Pages/profile_picture_setUp.dart';
 
 class PersonalPage extends StatefulWidget {
   static const String id = 'personalPage';
-  const PersonalPage({Key key}) : super(key: key);
+  final String username;
+  final String email;
+  final String password;
+  const PersonalPage({
+    Key key,
+    this.username,
+    this.email,
+    this.password,
+  }) : super(key: key);
   @override
   _PersonalPageState createState() => _PersonalPageState();
 }
@@ -25,7 +32,7 @@ class _PersonalPageState extends State<PersonalPage> {
   static bool _continuePressed = false;
   static bool _isFemalePressed = false;
   static bool _isMalePressed = false;
-  static String _userId;
+  static String _state = 'UNKNOWN AUTHENTICATION';
   static String gender = _isFemalePressed == true ? 'Female' : 'Male';
   static File profileImage;
   static Map<String, dynamic> birthdate = {
@@ -33,12 +40,6 @@ class _PersonalPageState extends State<PersonalPage> {
     'month': null,
     'year': null,
   };
-
-  void _initPrefs() async {
-    final SharedPreferences _prefs = await SharedPreferences.getInstance();
-    String _id = _prefs.getString('id');
-    _userId = _id;
-  }
 
   void _showBirthdateDialog() {
     DatePicker.showDatePicker(
@@ -116,19 +117,36 @@ class _PersonalPageState extends State<PersonalPage> {
         [profileImage],
         'profileImage',
       );
-      DatabaseService.setPersonalData(
-        context: context,
-        callback: () {
+      AuthService.registerUser(
+        context,
+        widget.username,
+        widget.email,
+        widget.password,
+        gender,
+        imageUrl.first,
+        birthdate,
+        disableLoading: () {
           setState(() {
-            _isLoading = false;
-            _done = false;
+            _state = 'NOT AUTHENTICATED';
           });
         },
-        userId: _userId,
-        gender: gender,
-        birthdate: birthdate,
-        profilePictureUrl: imageUrl.first,
+        enableLoading: () {
+          setState(() {
+            _state = 'AUTHENTICATED';
+          });
+        },
       );
+      if (_state == 'NOT AUTHENTICATED') {
+        setState(() {
+          _isLoading = false;
+          _done = false;
+        });
+      } else if (_state == 'AUTHENTICATED') {
+        setState(() {
+          _isLoading = true;
+          _buttonWidth = 55;
+        });
+      }
       setState(() {
         _isLoading = true;
         _buttonWidth = 55;
@@ -151,12 +169,6 @@ class _PersonalPageState extends State<PersonalPage> {
     } else {
       return;
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initPrefs();
   }
 
   @override
@@ -271,7 +283,7 @@ class _PersonalPageState extends State<PersonalPage> {
                                   margin: EdgeInsets.only(bottom: 25),
                                   child: Icon(
                                     MdiIcons.genderMale,
-                                    color: _isFemalePressed == true
+                                    color: _isMalePressed == true
                                         ? Colors.white
                                         : Colors.black,
                                     size: 50,
