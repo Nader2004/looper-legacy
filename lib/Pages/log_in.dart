@@ -183,10 +183,12 @@ class _LogInPageState extends State<LogInPage> {
                           _passwordFormKey.currentState.validate()) {
                         _emailFormKey.currentState.save();
                         _passwordFormKey.currentState.save();
-                        AuthService.logInUser(context, email, password)
-                            .then((_) {
-                          Navigator.pushNamed(context, HomePage.id);
-                        });
+                        AuthService.logInUser(
+                          context,
+                          email,
+                          password,
+                          () => Navigator.pushNamed(context, HomePage.id),
+                        );
                       } else {
                         return;
                       }
