@@ -40,7 +40,6 @@ class NotificationsService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
-        print('received');
       },
       onLaunch: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(message);
