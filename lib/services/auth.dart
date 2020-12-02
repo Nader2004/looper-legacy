@@ -64,7 +64,10 @@ class AuthService {
     BuildContext context,
     String username,
     String email,
-    String password, {
+    String password,
+    String gender,
+    String profilePictureUrl,
+    Map<String, dynamic> birthdate, {
     Function enableLoading,
     Function disableLoading,
   }) async {
@@ -80,6 +83,12 @@ class AuthService {
       if (_user != null) {
         _prefs.setString('id', _user.uid);
         _firestore.collection('users').doc(_user.uid).set({
+          'id': _user.uid,
+          'gender': gender,
+          'birthdate': birthdate,
+          'interested-people': [],
+          'personality-type': {},
+          'profilePictureUrl': profilePictureUrl,
           'username': username,
           'email': email,
           'searchKey': username.substring(0, 1),
@@ -134,7 +143,11 @@ class AuthService {
   }
 
   static Future<void> logInUser(
-      BuildContext context, String email, String password) async {
+    BuildContext context,
+    String email,
+    String password,
+    Function callBack,
+  ) async {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     try {
       final UserCredential _result = await _auth.signInWithEmailAndPassword(
@@ -146,44 +159,9 @@ class AuthService {
       _prefs.remove('id');
       _prefs.setString('id', _user.uid);
       Fluttertoast.showToast(msg: 'You are logged in');
-    } on PlatformException catch (e) {
-      print(e.code);
-      switch (e.code) {
-        case 'ERROR_INVALID_EMAIL':
-          _showErrorDialog(
-            context,
-            'incorrect Email',
-            'Please check your Email! Maybe you wrote it wrong.',
-          );
-          break;
-        case 'ERROR_USER_NOT_FOUND':
-          _showErrorDialog(
-            context,
-            'Account not found',
-            'The Email and Password you\'ve written were not found',
-          );
-          break;
-        case 'ERROR_WRONG_PASSWORD':
-          _showErrorDialog(
-            context,
-            'invalid Password',
-            'Please enter a correct Password',
-          );
-          break;
-        case 'ERROR_NETWORK_ERROR':
-          _showErrorDialog(
-            context,
-            'Poor Connection',
-            'Please check your Internet Connection',
-          );
-          break;
-        default:
-          _showErrorDialog(
-            context,
-            'Something went wrong',
-            'Could not sign in',
-          );
-      }
+      callBack();
+    } catch (_) {
+      Fluttertoast.showToast(msg: 'incorrect email or password');
     }
   }
 
@@ -193,14 +171,12 @@ class AuthService {
       await _auth.signOut();
       Fluttertoast.showToast(msg: 'You are logged out');
       Navigator.popUntil(context, (route) => route.isFirst);
-    } on PlatformException catch (e) {
-      if (e.code == 'ERROR_NETWORK_ERROR') {
-        _showErrorDialog(
-          context,
-          'Poor Connection',
-          'Please check your Internet Connection',
-        );
-      }
+    } catch (_) {
+      _showErrorDialog(
+        context,
+        'Poor Connection',
+        'Please check your Internet Connection',
+      );
     }
   }
 }
