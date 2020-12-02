@@ -22,6 +22,7 @@ import 'package:looper/services/notifications.dart';
 import 'package:looper/services/personality.dart';
 import 'package:looper/services/storage.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:video_player/video_player.dart';
 
@@ -70,6 +71,7 @@ class _ChatPageState extends State<ChatPage> {
     setDatabaseData();
     _scrollController.addListener(_scrollListener);
     initRecorder();
+    print(widget.groupId);
   }
 
   void setDatabaseData() async {
@@ -106,17 +108,18 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _startRecording() async {
-    try {
-      final filePath = await getFilePath();
-      await _recorder.startRecorder(
-        toFile: filePath,
-        codec: Codec.mp3,
-        numChannels: 1,
-        sampleRate: 8000,
-      );
-      _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-    } catch (_) {
-      Fluttertoast.showToast(msg: 'Failed to record');
+    if (await Permission.microphone.request().isGranted) {
+      try {
+        final filePath = await getFilePath();
+        await _recorder.startRecorder(
+          toFile: filePath,
+          numChannels: 1,
+          sampleRate: 8000,
+        );
+        _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+      } catch (e) {
+        Fluttertoast.showToast(msg: 'Failed to record');
+      }
     }
   }
 
@@ -434,6 +437,7 @@ class _ChatPageState extends State<ChatPage> {
                     .limit(25)
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  print(widget.groupId);
                   if (!snapshot.hasData)
                     return Center(child: CircularProgressIndicator());
                   _retrievedSnapshots = snapshot.data.docs;
@@ -521,152 +525,170 @@ class _ChatPageState extends State<ChatPage> {
                                   backGroundColor:
                                       _receivedMessage.author == widget.id
                                           ? Colors.black
-                                          : Colors.grey[400],
+                                          : Colors.white,
                                   clipper: ChatBubbleClipper5(
                                     type: _receivedMessage.author == widget.id
                                         ? BubbleType.sendBubble
                                         : BubbleType.receiverBubble,
                                   ),
-                                  child: _receivedMessage.type == 2
-                                      ? Stack(
-                                          children: [
-                                            VideoWidget(
-                                              videoUrl:
-                                                  _receivedMessage.content,
-                                            ),
-                                            Positioned.fill(
-                                              child: Align(
-                                                alignment:
-                                                    Alignment.bottomRight,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  child: Text(
-                                                    DatabaseService
-                                                        .getMessageTiming(
-                                                      _receivedMessage
-                                                          .timestamp,
-                                                    ),
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                      minWidth:
+                                          MediaQuery.of(context).size.width /
+                                              10,
+                                      maxWidth:
+                                          MediaQuery.of(context).size.width /
+                                              2.5,
+                                    ),
+                                    child: _receivedMessage.type == 2
+                                        ? Stack(
+                                            children: [
+                                              VideoWidget(
+                                                videoUrl:
+                                                    _receivedMessage.content,
                                               ),
-                                            ),
-                                          ],
-                                        )
-                                      : _receivedMessage.type == 1
-                                          ? Stack(
-                                              children: [
-                                                ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  child: CachedNetworkImage(
-                                                    imageUrl: _receivedMessage
-                                                        .content,
-                                                    fit: BoxFit.cover,
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width /
-                                                            1.8,
-                                                    height:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width /
-                                                            1.8,
-                                                    progressIndicatorBuilder:
-                                                        (context, url,
-                                                                downloadProgress) =>
-                                                            Padding(
-                                                      padding:
-                                                          EdgeInsets.all(8.0),
-                                                      child: Center(
-                                                        child: SizedBox(
-                                                          height: 40,
-                                                          width: 40,
-                                                          child: CircularProgressIndicator(
-                                                              backgroundColor:
-                                                                  Colors.grey,
-                                                              valueColor:
-                                                                  AlwaysStoppedAnimation(
-                                                                      Colors
-                                                                          .black),
-                                                              strokeWidth: 1.5,
-                                                              value:
-                                                                  downloadProgress
-                                                                      .progress),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Positioned.fill(
-                                                  child: Align(
-                                                    alignment:
-                                                        Alignment.bottomRight,
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Text(
-                                                        DatabaseService
-                                                            .getMessageTiming(
-                                                          _receivedMessage
-                                                              .timestamp,
-                                                        ),
-                                                        style: TextStyle(
-                                                          fontSize: 12,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : _receivedMessage.type == 0
-                                              ? Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.end,
-                                                  children: [
-                                                    Text(
-                                                      _receivedMessage.content,
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                    SizedBox(height: 6),
-                                                    Text(
+                                              Positioned.fill(
+                                                child: Align(
+                                                  alignment:
+                                                      Alignment.bottomRight,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Text(
                                                       DatabaseService
                                                           .getMessageTiming(
                                                         _receivedMessage
                                                             .timestamp,
                                                       ),
                                                       style: TextStyle(
-                                                        fontSize: 10,
+                                                        fontSize: 12,
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         color: Colors.white,
                                                       ),
                                                     ),
-                                                  ],
-                                                )
-                                              : AudioPlayerWidget(
-                                                  audioUrl:
-                                                      _receivedMessage.content,
-                                                  timestamp: DatabaseService
-                                                      .getMessageTiming(
-                                                    _receivedMessage.timestamp,
                                                   ),
                                                 ),
+                                              ),
+                                            ],
+                                          )
+                                        : _receivedMessage.type == 1
+                                            ? Stack(
+                                                children: [
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                    child: CachedNetworkImage(
+                                                      imageUrl: _receivedMessage
+                                                          .content,
+                                                      fit: BoxFit.cover,
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width /
+                                                              1.8,
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width /
+                                                              1.8,
+                                                      progressIndicatorBuilder:
+                                                          (context, url,
+                                                                  downloadProgress) =>
+                                                              Padding(
+                                                        padding:
+                                                            EdgeInsets.all(8.0),
+                                                        child: Center(
+                                                          child: SizedBox(
+                                                            height: 40,
+                                                            width: 40,
+                                                            child: CircularProgressIndicator(
+                                                                backgroundColor:
+                                                                    Colors.grey,
+                                                                valueColor:
+                                                                    AlwaysStoppedAnimation(
+                                                                        Colors
+                                                                            .black),
+                                                                strokeWidth:
+                                                                    1.5,
+                                                                value: downloadProgress
+                                                                    .progress),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Positioned.fill(
+                                                    child: Align(
+                                                      alignment:
+                                                          Alignment.bottomRight,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(8.0),
+                                                        child: Text(
+                                                          DatabaseService
+                                                              .getMessageTiming(
+                                                            _receivedMessage
+                                                                .timestamp,
+                                                          ),
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            : _receivedMessage.type == 0
+                                                ? Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      Text(
+                                                        _receivedMessage
+                                                            .content,
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          color: _receivedMessage
+                                                                      .author ==
+                                                                  widget.id
+                                                              ? Colors.white
+                                                              : Colors.black,
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 6),
+                                                      Text(
+                                                        DatabaseService
+                                                            .getMessageTiming(
+                                                          _receivedMessage
+                                                              .timestamp,
+                                                        ),
+                                                        style: TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                                : AudioPlayerWidget(
+                                                    audioUrl: _receivedMessage
+                                                        .content,
+                                                    timestamp: DatabaseService
+                                                        .getMessageTiming(
+                                                      _receivedMessage
+                                                          .timestamp,
+                                                    ),
+                                                  ),
+                                  ),
                                 ),
                               ],
                             ),
