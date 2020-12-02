@@ -76,7 +76,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return SnakeNavigationBar.color(
       snakeShape: SnakeShape.indicator,
       currentIndex: _bottomIndex,
-      selectedItemColor: Colors.white,
+      unselectedItemColor: Colors.grey,
+      selectedItemColor: Colors.black,
       snakeViewColor: Colors.black,
       elevation: 10,
       shape: RoundedRectangleBorder(
