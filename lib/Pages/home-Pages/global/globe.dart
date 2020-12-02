@@ -272,90 +272,117 @@ class _GlobePageState extends State<GlobePage> {
   @override
   Widget build(BuildContext context) {
     if (_userId != 'empty') {
-      return ListView(
-        children: <Widget>[
-          _buildSimilarPeople(),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
-            child: Text(
-              'Posts',
-              style: TextStyle(
-                fontSize: 35,
-                fontWeight: FontWeight.bold,
+      return Scaffold(
+        body: ListView(
+          children: <Widget>[
+            _buildSimilarPeople(),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
+              child: Text(
+                'Posts',
+                style: TextStyle(
+                  fontSize: 35,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          FutureBuilder(
-            future: _future,
-            builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 1.2,
-                    valueColor: AlwaysStoppedAnimation(Colors.black),
-                  ),
-                );
-              } else {
-                if (snapshot.data == null) {
-                  return SizedBox.shrink();
-                }
-                if (snapshot.data[0].documents.isEmpty &&
-                    snapshot.data[1].documents.isEmpty) {
+            FutureBuilder(
+              future: _future,
+              builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    child: Column(
-                      children: [
-                        Icon(
-                          MdiIcons.viewGridPlusOutline,
-                          color: Colors.grey,
-                          size: 60,
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'No Posts uploaded yet',
-                          style: GoogleFonts.aBeeZee(
-                            textStyle: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 20,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        OutlineButton(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          borderSide: BorderSide(color: Colors.black),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => PostCreationPage(),
-                              ),
-                            );
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.add,
-                                color: Colors.black,
-                              ),
-                              SizedBox(width: 5),
-                              Text('create one now'),
-                            ],
-                          ),
-                        ),
-                      ],
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.2,
+                      valueColor: AlwaysStoppedAnimation(Colors.black),
                     ),
                   );
-                }
-                for (DocumentSnapshot doc in snapshot.data[0].documents) {
-                  _ids.add(doc.data()['author']);
-                }
-                if (_followIds != _ids) {
+                } else {
+                  if (snapshot.data == null) {
+                    return SizedBox.shrink();
+                  }
+                  if (snapshot.data[0].documents.isEmpty &&
+                      snapshot.data[1].documents.isEmpty) {
+                    return Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            MdiIcons.viewGridPlusOutline,
+                            color: Colors.grey,
+                            size: 60,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'No Posts uploaded yet',
+                            style: GoogleFonts.aBeeZee(
+                              textStyle: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          OutlineButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            borderSide: BorderSide(color: Colors.black),
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => PostCreationPage(),
+                                ),
+                              );
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.add,
+                                  color: Colors.black,
+                                ),
+                                SizedBox(width: 5),
+                                Text('create one now'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  for (DocumentSnapshot doc in snapshot.data[0].documents) {
+                    _ids.add(doc.data()['author']);
+                  }
+                  if (_followIds != _ids) {
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 80),
+                      child: ListView.separated(
+                          shrinkWrap: true,
+                          physics: ScrollPhysics(),
+                          itemCount: snapshot.data[1].documents.length,
+                          separatorBuilder: (context, index) {
+                            if (index % 3 == 0 || index % 10 == 0) {
+                              return PostNativeAd();
+                            } else {
+                              return SizedBox.shrink();
+                            }
+                          },
+                          itemBuilder: (context, index) {
+                            return PostWidget(
+                              snapshot: snapshot.data[1].documents[index],
+                            );
+                          }),
+                    );
+                  }
+                  int lengthOfDocs = 0;
+                  int querySnapShotCounter = 0;
+                  snapshot.data.forEach((snap) {
+                    lengthOfDocs = lengthOfDocs + snap.documents.length;
+                  });
+                  int counter = 0;
                   return ListView.separated(
                       shrinkWrap: true,
                       physics: ScrollPhysics(),
-                      itemCount: snapshot.data[1].documents.length,
+                      itemCount: lengthOfDocs,
                       separatorBuilder: (context, index) {
                         if (index % 3 == 0 || index % 10 == 0) {
                           return PostNativeAd();
@@ -364,53 +391,31 @@ class _GlobePageState extends State<GlobePage> {
                         }
                       },
                       itemBuilder: (context, index) {
-                        return PostWidget(
-                          snapshot: snapshot.data[1].documents[index],
-                        );
+                        try {
+                          final DocumentSnapshot doc = snapshot
+                              .data[querySnapShotCounter].documents
+                              .toList()[counter];
+                          counter = counter + 1;
+                          return PostWidget(
+                            snapshot: doc,
+                          );
+                        } catch (RangeError) {
+                          querySnapShotCounter = querySnapShotCounter + 1;
+                          counter = 0;
+                          final DocumentSnapshot doc = snapshot
+                              .data[querySnapShotCounter].documents
+                              .toList()[counter];
+                          counter = counter + 1;
+                          return PostWidget(
+                            snapshot: doc,
+                          );
+                        }
                       });
                 }
-                int lengthOfDocs = 0;
-                int querySnapShotCounter = 0;
-                snapshot.data.forEach((snap) {
-                  lengthOfDocs = lengthOfDocs + snap.documents.length;
-                });
-                int counter = 0;
-                return ListView.separated(
-                    shrinkWrap: true,
-                    physics: ScrollPhysics(),
-                    itemCount: lengthOfDocs,
-                    separatorBuilder: (context, index) {
-                      if (index % 3 == 0 || index % 10 == 0) {
-                        return PostNativeAd();
-                      } else {
-                        return SizedBox.shrink();
-                      }
-                    },
-                    itemBuilder: (context, index) {
-                      try {
-                        final DocumentSnapshot doc = snapshot
-                            .data[querySnapShotCounter].documents
-                            .toList()[counter];
-                        counter = counter + 1;
-                        return PostWidget(
-                          snapshot: doc,
-                        );
-                      } catch (RangeError) {
-                        querySnapShotCounter = querySnapShotCounter + 1;
-                        counter = 0;
-                        final DocumentSnapshot doc = snapshot
-                            .data[querySnapShotCounter].documents
-                            .toList()[counter];
-                        counter = counter + 1;
-                        return PostWidget(
-                          snapshot: doc,
-                        );
-                      }
-                    });
-              }
-            },
-          ),
-        ],
+              },
+            ),
+          ],
+        ),
       );
     } else {
       return Container();
