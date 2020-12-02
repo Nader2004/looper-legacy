@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -70,7 +68,6 @@ class DatabaseService {
           'option2Count': 0,
           'commentCount': 0,
           'shareCount': 0,
-          
         });
       });
       Fluttertoast.showToast(msg: 'Post $postAction');
@@ -960,64 +957,6 @@ class DatabaseService {
           isEqualTo: searchField.substring(0, 1),
         )
         .get();
-  }
-
-  static void setPersonalData({
-    BuildContext context,
-    Function callback,
-    String userId,
-    String gender,
-    Map<String, dynamic> birthdate,
-    String profilePictureUrl,
-  }) async {
-    try {
-      await _userRef.doc(userId).set(
-        {
-          'id': userId,
-          'gender': gender,
-          'birthdate': birthdate,
-          'interested-people': [],
-          'personality-type': {},
-          'profilePictureUrl': profilePictureUrl,
-        },
-        SetOptions(merge: true),
-      );
-    } catch (e) {
-      _showAuthError(context, callback);
-    }
-  }
-
-  static void _showAuthError(BuildContext context, Function disableLoading) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          title: Center(
-            child: Text('Something went wrong'),
-          ),
-          content: Container(
-            height: 30,
-            child: Text(
-              'Cannot register account. Please check your internet connection',
-              textAlign: TextAlign.center,
-            ),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              onPressed: () {
-                Navigator.pop(context);
-                disableLoading();
-              },
-              child: Text('Okay'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   static void _showError() {
