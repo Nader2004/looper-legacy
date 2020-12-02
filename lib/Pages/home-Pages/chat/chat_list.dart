@@ -125,6 +125,7 @@ class _ChatListState extends State<ChatList> {
                                 return SizedBox.shrink();
                               }
                               final User _user = User.fromDoc(snapshot.data);
+                              _setGroupChatId(_followingUser.id);
                               return ListTile(
                                 leading: ClipRRect(
                                   borderRadius: BorderRadius.circular(40),
@@ -162,22 +163,28 @@ class _ChatListState extends State<ChatList> {
                                                         0
                                                     ? docsnapshot.data.docs[0]
                                                         .data()['content']
-                                                    : docsnapshot.data.docs[0].data()['type'] == 1
+                                                    : docsnapshot.data.docs[0].data()['type'] ==
+                                                            1
                                                         ? 'Shared a photo'
-                                                        : docsnapshot.data.docs[0].data()['type'] == 2
+                                                        : docsnapshot.data.docs[0].data()['type'] ==
+                                                                2
                                                             ? 'Shared a video'
                                                             : 'Shared an audio'
                                                 : docsnapshot.data.docs[docsnapshot.data.docs.length - 1]
                                                             .data()['type'] ==
                                                         0
-                                                    ? docsnapshot.data.docs[docsnapshot.data.docs.length - 1]
+                                                    ? docsnapshot
+                                                        .data
+                                                        .docs[docsnapshot.data
+                                                                .docs.length -
+                                                            1]
                                                         .data()['content']
-                                                    : docsnapshot.data.docs[docsnapshot.data.docs.length - 1].data()['type'] == 1
+                                                    : docsnapshot.data
+                                                                .docs[docsnapshot.data.docs.length - 1]
+                                                                .data()['type'] ==
+                                                            1
                                                         ? 'Shared a photo'
-                                                        : docsnapshot.data
-                                                                    .docs[docsnapshot.data.docs.length - 1]
-                                                                    .data()['type'] ==
-                                                                2
+                                                        : docsnapshot.data.docs[docsnapshot.data.docs.length - 1].data()['type'] == 2
                                                             ? 'Shared a video'
                                                             : 'Shared an audio',
                                         overflow: TextOverflow.ellipsis,
@@ -240,6 +247,7 @@ class _ChatListState extends State<ChatList> {
                                             );
                                     }),
                                 onTap: () {
+                                  _setGroupChatId(_followingUser.id);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
