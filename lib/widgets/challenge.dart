@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'dart:io';
 import 'dart:typed_data';
@@ -594,15 +595,20 @@ class _ChallengeState extends State<Challenge> {
         key: Key(_challenge.id),
         onVisibilityChanged: (VisibilityInfo info) {
           double _visibilePercentage = info.visibleFraction * 100;
-          if (!_challenge.viewedPeople.contains(_userId)) {
-            if (_visibilePercentage == 100) {
-              DatabaseService.addView(
-                'challenge',
-                _challenge.id,
-                _userId,
-              );
-            }
-          }
+          Timer(
+            Duration(milliseconds: 2300),
+            () {
+              if (!_challenge.viewedPeople.contains(_userId)) {
+                if (_visibilePercentage == 100) {
+                  DatabaseService.addView(
+                    'challenge',
+                    _challenge.id,
+                    _userId,
+                  );
+                }
+              }
+            },
+          );
         },
         child: Stack(
           children: <Widget>[
