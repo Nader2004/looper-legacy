@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -583,15 +584,20 @@ class _SportState extends State<Sport> {
         key: Key(_sport.id),
         onVisibilityChanged: (VisibilityInfo info) {
           double _visibilePercentage = info.visibleFraction * 100;
-          if (!_sport.viewedPeople.contains(_userId)) {
-            if (_visibilePercentage == 100) {
-              DatabaseService.addView(
-                'sports',
-                _sport.id,
-                _userId,
-              );
-            }
-          }
+          Timer(
+            Duration(milliseconds: 2300),
+            () {
+              if (!_sport.viewedPeople.contains(_userId)) {
+                if (_visibilePercentage == 100) {
+                  DatabaseService.addView(
+                    'sports',
+                    _sport.id,
+                    _userId,
+                  );
+                }
+              }
+            },
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(8.0),
