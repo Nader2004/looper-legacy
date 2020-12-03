@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:looper/Pages/personal_data.dart';
 
 import 'package:string_validator/string_validator.dart';
 
 import 'package:email_validator/email_validator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../Pages/log_in.dart';
 
@@ -36,6 +38,60 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() {
       _obscureText2 = !_obscureText2;
     });
+  }
+
+  void showTermsAndConditionsDialog() {
+    final String _url =
+        'https://www.eulatemplate.com/live.php?token=a8QQdtL12VdF18Ht7NdxXXDaw01913ZG';
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Terms and conditions'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('By signing up you agree on our'),
+            SizedBox(height: 5),
+            GestureDetector(
+              child: Text(
+                'Terms and conditions',
+                style: TextStyle(color: Colors.blue),
+              ),
+              onTap: () async {
+                if (await canLaunch(_url)) {
+                  await launch(_url);
+                } else {
+                  Fluttertoast.showToast(msg: 'Could not launch $_url');
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          FlatButton(
+            child: Text('Agree'),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PersonalPage(
+                    email: email,
+                    username: username,
+                    password: password,
+                  ),
+                ),
+              );
+            },
+          ),
+          FlatButton(
+            child: Text('Discard'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildUsernameForm() {
@@ -236,16 +292,7 @@ class _SignUpPageState extends State<SignUpPage> {
       _emailFormKey.currentState.save();
       _passwordFormKey.currentState.save();
       _confirmedPasswordFormKey.currentState.save();
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PersonalPage(
-            email: email,
-            username: username,
-            password: password,
-          ),
-        ),
-      );
+      showTermsAndConditionsDialog();
     }
   }
 
