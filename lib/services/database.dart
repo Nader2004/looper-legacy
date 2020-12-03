@@ -912,6 +912,28 @@ class DatabaseService {
     );
   }
 
+  static void blockUserChat(String groupId, String blocker) {
+    final DocumentReference _documentReference =
+        _firestore.collection('global-chat').doc(groupId);
+    _firestore.runTransaction((Transaction tx) async {
+      tx.set(_documentReference, {
+        'isBlocked': true,
+        'blocker': blocker,
+      });
+    });
+  }
+
+  static void unBlockUserChat(String groupId) {
+    final DocumentReference _documentReference =
+        _firestore.collection('global-chat').doc(groupId);
+    _firestore.runTransaction((Transaction tx) async {
+      tx.update(_documentReference, {
+        'isBlocked': false,
+        'blocker': FieldValue.delete(),
+      });
+    });
+  }
+
   static void deleteMessage(String groupId, String messageId) {
     final DocumentReference _documentReference = _firestore
         .collection('chat')
