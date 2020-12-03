@@ -75,10 +75,12 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void setDatabaseData() async {
-    await FirebaseFirestore.instance
-        .collection(widget.isGlobal == true ? 'global-chat' : 'chat')
-        .doc(widget.groupId)
-        .set({});
+    if (widget.isGlobal != true) {
+      await FirebaseFirestore.instance
+          .collection(widget.isGlobal == true ? 'global-chat' : 'chat')
+          .doc(widget.groupId)
+          .set({});
+    }
   }
 
   void _scrollToBottom() {
@@ -420,6 +422,44 @@ class _ChatPageState extends State<ChatPage> {
                 );
               }
             }),
+        actions: [
+          widget.isGlobal == false
+              ? SizedBox.shrink()
+              : StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('global-chat')
+                      .doc(widget.groupId)
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return SizedBox.shrink();
+                    }
+                    final DocumentSnapshot _snapshot = snapshot.data;
+                    return FlatButton(
+                      child: Text(_snapshot.data()['isBlocked'] == true &&
+                              _snapshot.data()['blocker'] == widget.id
+                          ? 'Unblock'
+                          : 'Block'),
+                      textColor: _snapshot.data()['isBlocked'] == true &&
+                              _snapshot.data()['blocker'] == widget.id
+                          ? Colors.blue
+                          : Colors.red,
+                      onPressed: () {
+                        if (_snapshot.data()['isBlocked'] == true &&
+                            _snapshot.data()['blocker'] == widget.id) {
+                          DatabaseService.unBlockUserChat(widget.groupId);
+                        } else {
+                          print('clicked');
+                          print(widget.groupId);
+                          DatabaseService.blockUserChat(
+                            widget.groupId,
+                            widget.id,
+                          );
+                        }
+                      },
+                    );
+                  }),
+        ],
       ),
       body: Column(
         children: [
@@ -701,117 +741,262 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
           ),
-          Row(
-            children: <Widget>[
-              Container(
-                color: Colors.white,
-                child: IconButton(
-                  icon: Icon(Icons.mic),
-                  onPressed: () {
-                    _startRecording();
-                    Flushbar(
-                      titleText: StreamBuilder(
-                          stream: _stopWatchTimer.secondTime,
-                          builder: (context, AsyncSnapshot<int> snapshot) {
-                            return Text(
-                              snapshot.data == 0
-                                  ? '00.00'
-                                  : snapshot.data.toString(),
+          widget.isGlobal == true
+              ? StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('global-chat')
+                      .doc(widget.groupId)
+                      .snapshots(),
+                  builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return SizedBox.shrink();
+                    }
+                    final DocumentSnapshot _snapshot = snapshot.data;
+
+                    return _snapshot.data()['isBlocked'] == true
+                        ? Container(
+                            alignment: Alignment.center,
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height / 11,
+                            color: Colors.grey[350],
+                            child: Text(
+                              _snapshot.data()['blocker'] == widget.id
+                                  ? 'You have blocked this chat'
+                                  : 'You are blocked',
                               style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 24,
+                                color: Colors.blue,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
                               ),
-                            );
-                          }),
-                      message: 'Recording',
-                      mainButton: FlatButton(
+                            ),
+                          )
+                        : Row(
+                            children: <Widget>[
+                              Container(
+                                color: Colors.white,
+                                child: IconButton(
+                                  icon: Icon(Icons.mic),
+                                  onPressed: () {
+                                    _startRecording();
+                                    Flushbar(
+                                      titleText: StreamBuilder(
+                                          stream: _stopWatchTimer.secondTime,
+                                          builder: (context,
+                                              AsyncSnapshot<int> snapshot) {
+                                            return Text(
+                                              snapshot.data == 0
+                                                  ? '00.00'
+                                                  : snapshot.data.toString(),
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 24,
+                                              ),
+                                            );
+                                          }),
+                                      message: 'Recording',
+                                      mainButton: FlatButton(
+                                        onPressed: () {
+                                          _stopRecording();
+                                          Navigator.pop(context);
+                                        },
+                                        textColor: Colors.red,
+                                        child: Text('Stop'),
+                                      ),
+                                    )..show(context);
+                                  },
+                                ),
+                              ),
+                              Container(
+                                color: Colors.white,
+                                child: IconButton(
+                                  icon: Icon(Icons.videocam),
+                                  onPressed: () => _showDialog('Video'),
+                                ),
+                              ),
+                              Container(
+                                color: Colors.white,
+                                child: IconButton(
+                                  icon: Icon(Icons.image),
+                                  onPressed: () => _showDialog('Image'),
+                                ),
+                              ),
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.9),
+                                  ),
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      maxHeight: 300.0,
+                                    ),
+                                    child: TextField(
+                                      onTap: () {
+                                        _scrollController.jumpTo(
+                                          _scrollController
+                                              .position.maxScrollExtent,
+                                        );
+                                      },
+                                      maxLines: null,
+                                      textInputAction: TextInputAction.none,
+                                      decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.all(10.0),
+                                        border: InputBorder.none,
+                                        hintText: 'Type a message',
+                                      ),
+                                      controller: _textEditingController,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                color: Colors.black,
+                                child: IconButton(
+                                  onPressed: () {
+                                    final String _messageDate =
+                                        DateTime.now().toUtc().toString();
+                                    FocusScope.of(context)
+                                        .requestFocus(FocusNode());
+                                    DatabaseService.sendMessage(
+                                      widget.groupId,
+                                      Message(
+                                        author: widget.id,
+                                        peerId: widget.followerId,
+                                        content: _textEditingController.text,
+                                        type: 0,
+                                        timestamp: _messageDate,
+                                      ),
+                                      widget.isGlobal,
+                                    );
+                                    PersonalityService.setTextInput(
+                                        _textEditingController.text);
+                                    NotificationsService.sendNotification(
+                                      'New Message',
+                                      '${widget.followerName} sent a message',
+                                      widget.followerId,
+                                    );
+                                    _textEditingController.clear();
+                                  },
+                                  icon: Icon(
+                                    Icons.send,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                  })
+              : Row(
+                  children: <Widget>[
+                    Container(
+                      color: Colors.white,
+                      child: IconButton(
+                        icon: Icon(Icons.mic),
                         onPressed: () {
-                          _stopRecording();
-                          Navigator.pop(context);
+                          _startRecording();
+                          Flushbar(
+                            titleText: StreamBuilder(
+                                stream: _stopWatchTimer.secondTime,
+                                builder:
+                                    (context, AsyncSnapshot<int> snapshot) {
+                                  return Text(
+                                    snapshot.data == 0
+                                        ? '00.00'
+                                        : snapshot.data.toString(),
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 24,
+                                    ),
+                                  );
+                                }),
+                            message: 'Recording',
+                            mainButton: FlatButton(
+                              onPressed: () {
+                                _stopRecording();
+                                Navigator.pop(context);
+                              },
+                              textColor: Colors.red,
+                              child: Text('Stop'),
+                            ),
+                          )..show(context);
                         },
-                        textColor: Colors.red,
-                        child: Text('Stop'),
                       ),
-                    )..show(context);
-                  },
-                ),
-              ),
-              Container(
-                color: Colors.white,
-                child: IconButton(
-                  icon: Icon(Icons.videocam),
-                  onPressed: () => _showDialog('Video'),
-                ),
-              ),
-              Container(
-                color: Colors.white,
-                child: IconButton(
-                  icon: Icon(Icons.image),
-                  onPressed: () => _showDialog('Image'),
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                  ),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: 300.0,
                     ),
-                    child: TextField(
-                      onTap: () {
-                        _scrollController.jumpTo(
-                          _scrollController.position.maxScrollExtent,
-                        );
-                      },
-                      maxLines: null,
-                      textInputAction: TextInputAction.none,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(10.0),
-                        border: InputBorder.none,
-                        hintText: 'Type a message',
+                    Container(
+                      color: Colors.white,
+                      child: IconButton(
+                        icon: Icon(Icons.videocam),
+                        onPressed: () => _showDialog('Video'),
                       ),
-                      controller: _textEditingController,
                     ),
-                  ),
-                ),
-              ),
-              Container(
-                color: Colors.black,
-                child: IconButton(
-                  onPressed: () {
-                    final String _messageDate =
-                        DateTime.now().toUtc().toString();
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    DatabaseService.sendMessage(
-                      widget.groupId,
-                      Message(
-                        author: widget.id,
-                        peerId: widget.followerId,
-                        content: _textEditingController.text,
-                        type: 0,
-                        timestamp: _messageDate,
+                    Container(
+                      color: Colors.white,
+                      child: IconButton(
+                        icon: Icon(Icons.image),
+                        onPressed: () => _showDialog('Image'),
                       ),
-                      widget.isGlobal,
-                    );
-                    PersonalityService.setTextInput(
-                        _textEditingController.text);
-                    NotificationsService.sendNotification(
-                      'New Message',
-                      '${widget.followerName} sent a message',
-                      widget.followerId,
-                    );
-                    _textEditingController.clear();
-                  },
-                  icon: Icon(
-                    Icons.send,
-                    color: Colors.white,
-                  ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxHeight: 300.0,
+                          ),
+                          child: TextField(
+                            onTap: () {
+                              _scrollController.jumpTo(
+                                _scrollController.position.maxScrollExtent,
+                              );
+                            },
+                            maxLines: null,
+                            textInputAction: TextInputAction.none,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.all(10.0),
+                              border: InputBorder.none,
+                              hintText: 'Type a message',
+                            ),
+                            controller: _textEditingController,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      color: Colors.black,
+                      child: IconButton(
+                        onPressed: () {
+                          final String _messageDate =
+                              DateTime.now().toUtc().toString();
+                          FocusScope.of(context).requestFocus(FocusNode());
+                          DatabaseService.sendMessage(
+                            widget.groupId,
+                            Message(
+                              author: widget.id,
+                              peerId: widget.followerId,
+                              content: _textEditingController.text,
+                              type: 0,
+                              timestamp: _messageDate,
+                            ),
+                            widget.isGlobal,
+                          );
+                          PersonalityService.setTextInput(
+                              _textEditingController.text);
+                          NotificationsService.sendNotification(
+                            'New Message',
+                            '${widget.followerName} sent a message',
+                            widget.followerId,
+                          );
+                          _textEditingController.clear();
+                        },
+                        icon: Icon(
+                          Icons.send,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         ],
       ),
     );
