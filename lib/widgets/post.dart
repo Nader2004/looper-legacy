@@ -6,6 +6,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
@@ -88,6 +89,7 @@ class _PostWidgetState extends State<PostWidget>
       _post = Post.fromDoc(widget.snapshot);
       _likePostCount = _post.likeCount;
       _commentCount = _post.commentCount;
+      _shareCount = _post.shareCount;
       _isLikedPost = _post.likedPeople.contains(
         _userId,
       );
@@ -197,6 +199,40 @@ class _PostWidgetState extends State<PostWidget>
       msg = 'now';
     }
     return msg;
+  }
+
+  void showReportDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Report this post'),
+        content: Text(
+          'A report will get send with your username and the post you have reported',
+        ),
+        actions: [
+          FlatButton(
+            onPressed: () async {
+              final Email _reportEmail = Email(
+                body:
+                    'User $_userName reported the post ${_post.id} from the author ${_post.authorName}',
+                subject: 'POST REPORT',
+                recipients: ['nk.loop2020@gmail.com'],
+                isHTML: false,
+              );
+              FlutterEmailSender.send(_reportEmail);
+              Navigator.pop(context);
+            },
+            child: Text('Send Report'),
+          ),
+          FlatButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Cancel'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildTopPostWidget() {
@@ -323,8 +359,8 @@ class _PostWidgetState extends State<PostWidget>
                       return Container(
                         width: MediaQuery.of(context).size.width,
                         height: _post.authorName == _userName
-                            ? MediaQuery.of(context).size.height / 3.5
-                            : MediaQuery.of(context).size.height / 5,
+                            ? MediaQuery.of(context).size.height / 2.7
+                            : MediaQuery.of(context).size.height / 3.5,
                         padding: EdgeInsets.only(top: 5),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -486,6 +522,21 @@ class _PostWidgetState extends State<PostWidget>
                                   _post.id,
                                 );
                                 Navigator.pop(context);
+                              },
+                            ),
+                            ListTile(
+                              leading: Icon(
+                                Icons.report,
+                                color: Colors.red,
+                                size: 22,
+                              ),
+                              title: Text(
+                                'Report Post',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              onTap: () {
+                                Navigator.pop(context);
+                                showReportDialog();
                               },
                             ),
                             _post.authorName == _userName
@@ -1491,15 +1542,20 @@ class _PostWidgetState extends State<PostWidget>
           key: Key(_post.id),
           onVisibilityChanged: (VisibilityInfo info) {
             double _visibilePercentage = info.visibleFraction * 100;
-            if (!_post.viewedPeople.contains(_userId)) {
-              if (_visibilePercentage == 100) {
-                DatabaseService.addView(
-                  'posts',
-                  _post.id,
-                  _userId,
-                );
-              }
-            }
+            Timer(
+              Duration(milliseconds: 2300),
+              () {
+                if (!_post.viewedPeople.contains(_userId)) {
+                  if (_visibilePercentage == 100) {
+                    DatabaseService.addView(
+                      'posts',
+                      _post.id,
+                      _userId,
+                    );
+                  }
+                }
+              },
+            );
           },
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -1934,18 +1990,20 @@ class _PostWidgetState extends State<PostWidget>
           key: Key(_post.id),
           onVisibilityChanged: (VisibilityInfo info) {
             double _visibilePercentage = info.visibleFraction * 100;
-            if (!_post.viewedPeople.contains(_userId)) {
-              if (_visibilePercentage == 100) {
-                Timer(
-                  Duration(seconds: 5),
-                  () => DatabaseService.addView(
-                    'posts',
-                    _post.id,
-                    _userId,
-                  ),
-                );
-              }
-            }
+            Timer(
+              Duration(milliseconds: 2300),
+              () {
+                if (!_post.viewedPeople.contains(_userId)) {
+                  if (_visibilePercentage == 100) {
+                    DatabaseService.addView(
+                      'posts',
+                      _post.id,
+                      _userId,
+                    );
+                  }
+                }
+              },
+            );
           },
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -2010,18 +2068,20 @@ class _PostWidgetState extends State<PostWidget>
           key: Key(_post.id),
           onVisibilityChanged: (VisibilityInfo info) {
             double _visibilePercentage = info.visibleFraction * 100;
-            if (!_post.viewedPeople.contains(_userId)) {
-              if (_visibilePercentage == 100) {
-                Timer(
-                  Duration(seconds: 5),
-                  () => DatabaseService.addView(
-                    'posts',
-                    _post.id,
-                    _userId,
-                  ),
-                );
-              }
-            }
+            Timer(
+              Duration(milliseconds: 2300),
+              () {
+                if (!_post.viewedPeople.contains(_userId)) {
+                  if (_visibilePercentage == 100) {
+                    DatabaseService.addView(
+                      'posts',
+                      _post.id,
+                      _userId,
+                    );
+                  }
+                }
+              },
+            );
           },
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -2174,15 +2234,20 @@ class _PostWidgetState extends State<PostWidget>
           key: Key(_post.id),
           onVisibilityChanged: (VisibilityInfo info) {
             double _visibilePercentage = info.visibleFraction * 100;
-            if (!_post.viewedPeople.contains(_userId)) {
-              if (_visibilePercentage == 100) {
-                DatabaseService.addView(
-                  'posts',
-                  _post.id,
-                  _userId,
-                );
-              }
-            }
+            Timer(
+              Duration(milliseconds: 2300),
+              () {
+                if (!_post.viewedPeople.contains(_userId)) {
+                  if (_visibilePercentage == 100) {
+                    DatabaseService.addView(
+                      'posts',
+                      _post.id,
+                      _userId,
+                    );
+                  }
+                }
+              },
+            );
           },
           child: Container(
             margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
