@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -579,15 +580,20 @@ class _TalentState extends State<Talent> {
         key: Key(_talent.id),
         onVisibilityChanged: (VisibilityInfo info) {
           double _visibilePercentage = info.visibleFraction * 100;
-          if (!_talent.viewedPeople.contains(_userId)) {
-            if (_visibilePercentage == 100) {
-              DatabaseService.addView(
-                'talents',
-                _talent.id,
-                _userId,
-              );
-            }
-          }
+          Timer(
+            Duration(milliseconds: 2300),
+            () {
+              if (!_talent.viewedPeople.contains(_userId)) {
+                if (_visibilePercentage == 100) {
+                  DatabaseService.addView(
+                    'talents',
+                    _talent.id,
+                    _userId,
+                  );
+                }
+              }
+            },
+          );
         },
         child: Stack(
           children: <Widget>[
