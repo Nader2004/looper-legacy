@@ -365,6 +365,13 @@ packages:
       url: "https://github.com/espresso3389/flutter_datetime_picker"
     source: git
     version: "1.4.0"
+  flutter_email_sender:
+    dependency: "direct main"
+    description:
+      name: flutter_email_sender
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.0"
   flutter_image_compress:
     dependency: "direct main"
     description:
