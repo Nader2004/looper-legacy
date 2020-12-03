@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -584,15 +585,20 @@ class _ComedyJokeState extends State<ComedyJoke> {
         key: Key(_comedy.id),
         onVisibilityChanged: (VisibilityInfo info) {
           double _visibilePercentage = info.visibleFraction * 100;
-          if (!_comedy.viewedPeople.contains(_userId)) {
-            if (_visibilePercentage == 100) {
-              DatabaseService.addView(
-                'comedy',
-                _comedy.id,
-                _userId,
-              );
-            }
-          }
+          Timer(
+            Duration(milliseconds: 2300),
+            () {
+              if (!_comedy.viewedPeople.contains(_userId)) {
+                if (_visibilePercentage == 100) {
+                  DatabaseService.addView(
+                    'comedy',
+                    _comedy.id,
+                    _userId,
+                  );
+                }
+              }
+            },
+          );
         },
         child: Container(
           padding: EdgeInsets.only(top: 10),
