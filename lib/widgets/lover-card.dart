@@ -128,8 +128,8 @@ class _LoverCardState extends State<LoverCard> {
                         children: <Widget>[
                           Image.asset(
                             _loverCard.gender == 'Male'
-                                ? 'assets/female-hair.png'
-                                : 'assets/male-hair.png',
+                                ? 'assets/female-hair (2).png'
+                                : 'assets/male-hair (2).png',
                             color: _loverCard.lookQualities['hairColor'] ==
                                     'Black'
                                 ? Colors.black
