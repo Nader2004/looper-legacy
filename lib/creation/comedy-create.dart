@@ -98,6 +98,8 @@ class _ComedyCreationState extends State<ComedyCreation>
         'New Comeddy',
         '$_userName uploaded a new comedy',
         _userId,
+        'comedy-creation',
+        DateTime.now().toUtc().toString(),
       );
       setState(() => _showLoading = false);
       Fluttertoast.showToast(msg: 'Comedy created');
@@ -200,59 +202,78 @@ class _ComedyCreationState extends State<ComedyCreation>
           : MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Container(
-          margin: EdgeInsets.only(top: 50),
-          child: ToggleButtons(
-            borderColor: Colors.black,
-            fillColor: Colors.black,
-            selectedBorderColor: Colors.black,
-            color: Colors.black,
-            selectedColor: Colors.white,
-            borderRadius: BorderRadius.circular(25),
-            constraints: BoxConstraints(
-              minHeight: 30,
-              minWidth: 100,
-            ),
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Text(
-                  'Aa',
-                  style: TextStyle(fontSize: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Container(
+              margin: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height / 14,
+              ),
+              child: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Icon(
+                  Icons.close,
+                  size: 30,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Icon(Icons.camera_alt),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 50),
+              child: ToggleButtons(
+                borderColor: Colors.black,
+                fillColor: Colors.black,
+                selectedBorderColor: Colors.black,
+                color: Colors.black,
+                selectedColor: Colors.white,
+                borderRadius: BorderRadius.circular(25),
+                constraints: BoxConstraints(
+                  minHeight: 30,
+                  minWidth: 80,
+                ),
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Text(
+                      'Aa',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Icon(Icons.camera_alt),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(2.0),
+                    child: Icon(Icons.videocam),
+                  ),
+                ],
+                onPressed: (int index) {
+                  setState(() {
+                    for (int i = 0; i < isSelected.length; i++) {
+                      isSelected[i] = i == index;
+                    }
+                  });
+                  if (index == 1) {
+                    _showMediaPicker(
+                      'Take a Photo',
+                    );
+                    _jokeController.clear();
+                  } else if (index == 2) {
+                    _showMediaPicker(
+                      'Record a Video',
+                    );
+                    _jokeController.clear();
+                  } else {
+                    setState(() => _media = '');
+                    _namingController.clear();
+                  }
+                },
+                isSelected: isSelected,
               ),
-              Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: Icon(Icons.videocam),
-              ),
-            ],
-            onPressed: (int index) {
-              setState(() {
-                for (int i = 0; i < isSelected.length; i++) {
-                  isSelected[i] = i == index;
-                }
-              });
-              if (index == 1) {
-                _showMediaPicker(
-                  'Take a Photo',
-                );
-                _jokeController.clear();
-              } else if (index == 2) {
-                _showMediaPicker(
-                  'Record a Video',
-                );
-                _jokeController.clear();
-              } else {
-                setState(() => _media = '');
-                _namingController.clear();
-              }
-            },
-            isSelected: isSelected,
-          ),
+            ),
+          ],
         ),
         _media != '' && !_media.endsWith('.mp4')
             ? Stack(
