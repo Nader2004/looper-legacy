@@ -166,6 +166,7 @@ class _PNDShowCasePageState extends State<PNDShowCasePage> {
                           'New Follower',
                           '$_userName followed you',
                           id,
+                          'profile',
                         );
                         NotificationsService.subscribeToTopic(id);
                         setState(() {
