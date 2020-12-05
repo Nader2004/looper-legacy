@@ -36,6 +36,7 @@ class _ComedyJokeState extends State<ComedyJoke> {
   int _laughCounter = 0;
   int _commentCounter = 0;
   Comedy _comedy;
+  Stream<QuerySnapshot> _blockedUsers;
   TextEditingController _textEditingController;
 
   @override
@@ -48,6 +49,11 @@ class _ComedyJokeState extends State<ComedyJoke> {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = _prefs.get('id');
+      _blockedUsers = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_userId)
+          .collection('blocked-users')
+          .snapshots();
       _comedy = Comedy.fromDoc(widget.data);
       _isLaugh = _comedy.laughedPeople.contains(_userId);
       _laughCounter = _comedy.laughs;
@@ -101,6 +107,20 @@ class _ComedyJokeState extends State<ComedyJoke> {
                       _comedy.id,
                       _comment,
                     );
+                    NotificationsService.sendNotification(
+                      'New comment',
+                      '$_userName commented on your joke',
+                      _comedy.authorId,
+                      'comedy',
+                      _comedy.id,
+                    );
+                    NotificationsService.sendNotificationToFollowers(
+                      'New comment',
+                      '$_userName commented on a joke',
+                      _comedy.authorId,
+                      'comedy',
+                      _comedy.id,
+                    );
                     setState(() {
                       _commentCounter++;
                     });
@@ -139,6 +159,20 @@ class _ComedyJokeState extends State<ComedyJoke> {
                       'comedy',
                       _comedy.id,
                       _comment,
+                    );
+                    NotificationsService.sendNotification(
+                      'New comment',
+                      '$_userName commented on your joke',
+                      _comedy.authorId,
+                      'comedy',
+                      _comedy.id,
+                    );
+                    NotificationsService.sendNotificationToFollowers(
+                      'New comment',
+                      '$_userName commented on a joke',
+                      _comedy.authorId,
+                      'comedy',
+                      _comedy.id,
                     );
                     setState(() {
                       _commentCounter++;
@@ -517,6 +551,20 @@ class _ComedyJokeState extends State<ComedyJoke> {
                           _comedy.id,
                           _comment,
                         );
+                        NotificationsService.sendNotification(
+                          'New comment',
+                          '$_userName commented on your joke',
+                          _comedy.authorId,
+                          'comedy',
+                          _comedy.id,
+                        );
+                        NotificationsService.sendNotificationToFollowers(
+                          'New comment',
+                          '$_userName commented on a joke',
+                          _comedy.authorId,
+                          'comedy',
+                          _comedy.id,
+                        );
                         _textEditingController.clear();
                         setState(() {
                           _commentCounter++;
@@ -581,175 +629,204 @@ class _ComedyJokeState extends State<ComedyJoke> {
   @override
   Widget build(BuildContext context) {
     if (_comedy != null) {
-      return VisibilityDetector(
-        key: Key(_comedy.id),
-        onVisibilityChanged: (VisibilityInfo info) {
-          double _visibilePercentage = info.visibleFraction * 100;
-          Timer(
-            Duration(milliseconds: 2300),
-            () {
-              if (!_comedy.viewedPeople.contains(_userId)) {
-                if (_visibilePercentage == 100) {
-                  DatabaseService.addView(
-                    'comedy',
-                    _comedy.id,
-                    _userId,
-                  );
-                }
-              }
-            },
-          );
-        },
-        child: Container(
-          padding: EdgeInsets.only(top: 10),
-          child: IntrinsicHeight(
-              child: Column(
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ProfilePage(
-                              userId: _comedy.authorId,
+      return StreamBuilder(
+          stream: _blockedUsers,
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SizedBox.shrink();
+            }
+            if (snapshot.data == null) {
+              return SizedBox.shrink();
+            }
+            final List<String> blockedUsers =
+                snapshot.data.docs.map((e) => e.id).toList();
+            if (blockedUsers.contains(_comedy.authorId)) {
+              print('yes');
+              return Container();
+            }
+            return VisibilityDetector(
+              key: Key(_comedy.id),
+              onVisibilityChanged: (VisibilityInfo info) {
+                double _visibilePercentage = info.visibleFraction * 100;
+                Timer(
+                  Duration(milliseconds: 2300),
+                  () {
+                    if (!_comedy.viewedPeople.contains(_userId)) {
+                      if (_visibilePercentage == 100) {
+                        DatabaseService.addView(
+                          'comedy',
+                          _comedy.id,
+                          _userId,
+                        );
+                      }
+                    }
+                  },
+                );
+              },
+              child: Container(
+                padding: EdgeInsets.only(top: 10),
+                child: IntrinsicHeight(
+                    child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => ProfilePage(
+                                    userId: _comedy.authorId,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: CircleAvatar(
+                              radius: 25,
+                              backgroundColor: Colors.grey[400],
+                              backgroundImage: CachedNetworkImageProvider(
+                                  _comedy.authorImage),
                             ),
                           ),
-                        );
-                      },
-                      child: CircleAvatar(
-                        radius: 25,
-                        backgroundColor: Colors.grey[400],
-                        backgroundImage:
-                            CachedNetworkImageProvider(_comedy.authorImage),
-                      ),
-                    ),
-                  ),
-                  Text(
-                    _comedy.authorName,
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              _comedy.type == '0'
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 20, bottom: 5),
-                      child: Text(
-                        _comedy.content,
-                        maxLines: 10,
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    )
-                  : Container(),
-              SizedBox(height: _comedy.type == '1' ? 0 : 20),
-              _comedy.type == '1' ? _buildMediaContent() : Container(),
-              _comedy.type == '1' ? SizedBox(height: 10) : Container(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Bounce(
-                    onPressed: openCommentSection,
-                    duration: Duration(milliseconds: 100),
-                    child: Row(
-                      children: <Widget>[
-                        Icon(Icons.comment, color: Colors.grey),
-                        SizedBox(width: 5),
-                        Text(
-                          '$_commentCounter comments',
-                          style: TextStyle(color: Colors.grey),
                         ),
-                      ],
-                    ),
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Icon(Icons.remove_red_eye, color: Colors.grey),
-                      SizedBox(width: 5),
-                      Text(
-                        '${_comedy.viewsCount} views',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                  Bounce(
-                    duration: Duration(milliseconds: 100),
-                    onPressed: () {
-                      setState(() {
-                        if (!_isLaugh) {
-                          _isLaugh = true;
-                          _laughCounter++;
-                          DatabaseService.laugh(
-                            _comedy.id,
-                            _userId,
-                          );
-                          NotificationsService.sendNotificationToFollowers(
-                            'New Laugh 🤣',
-                            '$_userName laughes to  your comedy',
-                            _comedy.authorId,
-                          );
-                          if (_comedy.content.isNotEmpty) {
-                            PersonalityService.setTextInput(
-                              '😂 I really like: \'${_comedy.content}\'',
-                            );
-                          }
-                          if (_comedy.mediaUrl.isNotEmpty) {
-                            if (_comedy.type == '0') {
-                              if (_comedy.caption.isNotEmpty) {
-                                PersonalityService.setTextInput(
-                                  '😂 I really like: \'${_comedy.caption}\' plus i like that funny image:',
-                                );
-                              }
-                              PersonalityService.setImageInput(
-                                  _comedy.mediaUrl);
-                            } else {
-                              if (_comedy.caption.isNotEmpty) {
-                                PersonalityService.setTextInput(
-                                  '😂 I really like: \'${_comedy.caption}\' plus i like that funny video:',
-                                );
-                              }
-                              PersonalityService.setVideoInput(
-                                  _comedy.mediaUrl);
-                            }
-                          }
-                        } else {
-                          _isLaugh = false;
-                          _laughCounter--;
-                          DatabaseService.unLaugh(
-                            _comedy.id,
-                            _userId,
-                          );
-                        }
-                      });
-                    },
-                    child: Row(
-                      children: <Widget>[
-                        Icon(
-                          Icons.tag_faces,
-                          color: _isLaugh ? Colors.yellow[700] : Colors.grey,
-                        ),
-                        SizedBox(width: 5),
                         Text(
-                          '$_laughCounter laughs',
+                          _comedy.authorName,
                           style: TextStyle(
-                            color: _isLaugh ? Colors.yellow[700] : Colors.grey,
+                            color: Colors.blue,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    _comedy.type == '0'
+                        ? Padding(
+                            padding: const EdgeInsets.only(top: 20, bottom: 5),
+                            child: Text(
+                              _comedy.content,
+                              maxLines: 10,
+                              style: TextStyle(fontSize: 18),
+                            ),
+                          )
+                        : Container(),
+                    SizedBox(height: _comedy.type == '1' ? 0 : 20),
+                    _comedy.type == '1' ? _buildMediaContent() : Container(),
+                    _comedy.type == '1' ? SizedBox(height: 10) : Container(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Bounce(
+                          onPressed: openCommentSection,
+                          duration: Duration(milliseconds: 100),
+                          child: Row(
+                            children: <Widget>[
+                              Icon(Icons.comment, color: Colors.grey),
+                              SizedBox(width: 5),
+                              Text(
+                                '$_commentCounter comments',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Icon(Icons.remove_red_eye, color: Colors.grey),
+                            SizedBox(width: 5),
+                            Text(
+                              '${_comedy.viewsCount} views',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                        Bounce(
+                          duration: Duration(milliseconds: 100),
+                          onPressed: () {
+                            setState(() {
+                              if (!_isLaugh) {
+                                _isLaugh = true;
+                                _laughCounter++;
+                                DatabaseService.laugh(
+                                  _comedy.id,
+                                  _userId,
+                                );
+                                NotificationsService.sendNotification(
+                                  'New Laugh 🤣',
+                                  '$_userName laughes to  your joke',
+                                  _comedy.authorId,
+                                  'comedy',
+                                  _comedy.id,
+                                );
+                                NotificationsService
+                                    .sendNotificationToFollowers(
+                                  'New Laugh 🤣',
+                                  '$_userName laughes to  a joke',
+                                  _comedy.authorId,
+                                  'comedy',
+                                  _comedy.id,
+                                );
+                                if (_comedy.content.isNotEmpty) {
+                                  PersonalityService.setTextInput(
+                                    '😂 I really like: \'${_comedy.content}\'',
+                                  );
+                                }
+                                if (_comedy.mediaUrl.isNotEmpty) {
+                                  if (_comedy.type == '0') {
+                                    if (_comedy.caption.isNotEmpty) {
+                                      PersonalityService.setTextInput(
+                                        '😂 I really like: \'${_comedy.caption}\' plus i like that funny image:',
+                                      );
+                                    }
+                                    PersonalityService.setImageInput(
+                                        _comedy.mediaUrl);
+                                  } else {
+                                    if (_comedy.caption.isNotEmpty) {
+                                      PersonalityService.setTextInput(
+                                        '😂 I really like: \'${_comedy.caption}\' plus i like that funny video:',
+                                      );
+                                    }
+                                    PersonalityService.setVideoInput(
+                                        _comedy.mediaUrl);
+                                  }
+                                }
+                              } else {
+                                _isLaugh = false;
+                                _laughCounter--;
+                                DatabaseService.unLaugh(
+                                  _comedy.id,
+                                  _userId,
+                                );
+                              }
+                            });
+                          },
+                          child: Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.tag_faces,
+                                color:
+                                    _isLaugh ? Colors.yellow[700] : Colors.grey,
+                              ),
+                              SizedBox(width: 5),
+                              Text(
+                                '$_laughCounter laughs',
+                                style: TextStyle(
+                                  color: _isLaugh
+                                      ? Colors.yellow[700]
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(),
+                  ],
+                )),
               ),
-              Divider(),
-            ],
-          )),
-        ),
-      );
+            );
+          });
     } else {
       return SizedBox.shrink();
     }
