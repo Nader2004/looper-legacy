@@ -29,7 +29,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:permission_handler/permission_handler.dart' as perm;
 import 'package:superellipse_shape/superellipse_shape.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
@@ -1858,6 +1857,8 @@ class _PostCreationPageState extends State<PostCreationPage> {
         'New Post',
         '$_userName uploaded a new post',
         _userId,
+        'post-creation',
+        DateTime.now().toUtc().toString(),
       );
       Navigator.pop(context);
       setState(() => _showLoading = false);
