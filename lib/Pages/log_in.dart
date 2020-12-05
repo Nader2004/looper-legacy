@@ -151,20 +151,7 @@ class _LogInPageState extends State<LogInPage> {
               ),
               _buildEmailField(),
               _buildPasswordField(),
-              Container(
-                margin: EdgeInsets.only(bottom: 30, left: 180),
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Text(
-                    'Forgot Password ?',
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
+              SizedBox(height: 10),
               Container(
                 margin: EdgeInsets.only(bottom: 20),
                 child: ButtonTheme(
