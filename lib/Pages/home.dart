@@ -322,6 +322,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 );
               }
               return Badge(
+                position: BadgePosition.topEnd(top: 5, end: 1),
                 badgeContent: Text(
                   snapshot.data.size.toString(),
                   style: TextStyle(color: Colors.white),
