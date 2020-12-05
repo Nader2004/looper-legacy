@@ -170,6 +170,7 @@ class _LoveCardState extends State<LoveCard> {
                         'New Interest 💖',
                         '${widget.user.username}  is interested to you',
                         _loveCard.authorId,
+                        'profile',
                       );
                     } else {
                       setState(() {
