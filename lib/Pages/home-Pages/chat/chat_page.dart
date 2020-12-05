@@ -49,7 +49,7 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   String _audioUrl = '';
-
+  Stream<DocumentSnapshot> _blockCheckerStream;
   TextEditingController _textEditingController;
   TextEditingController _editController;
   ScrollController _scrollController;
@@ -63,6 +63,10 @@ class _ChatPageState extends State<ChatPage> {
   @override
   void initState() {
     super.initState();
+    _blockCheckerStream = FirebaseFirestore.instance
+        .collection('global-chat')
+        .doc(widget.groupId)
+        .snapshots();
     _recorder = FlutterSoundRecorder();
     _textEditingController = TextEditingController();
     _editController = TextEditingController();
@@ -214,6 +218,7 @@ class _ChatPageState extends State<ChatPage> {
             'New Message',
             '${widget.followerName} sent a video',
             widget.followerId,
+            'chat'
           );
         }
       },
@@ -252,6 +257,7 @@ class _ChatPageState extends State<ChatPage> {
             'New Message',
             '${widget.followerName} sent an image',
             widget.followerId,
+            'chat'
           );
         }
       },
@@ -743,10 +749,7 @@ class _ChatPageState extends State<ChatPage> {
           ),
           widget.isGlobal == true
               ? StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('global-chat')
-                      .doc(widget.groupId)
-                      .snapshots(),
+                  stream: _blockCheckerStream,
                   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return SizedBox.shrink();
@@ -873,6 +876,7 @@ class _ChatPageState extends State<ChatPage> {
                                       'New Message',
                                       '${widget.followerName} sent a message',
                                       widget.followerId,
+                                      'chat'
                                     );
                                     _textEditingController.clear();
                                   },
@@ -986,6 +990,7 @@ class _ChatPageState extends State<ChatPage> {
                             'New Message',
                             '${widget.followerName} sent a message',
                             widget.followerId,
+                            'chat'
                           );
                           _textEditingController.clear();
                         },
