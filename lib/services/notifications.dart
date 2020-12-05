@@ -17,6 +17,7 @@ class NotificationsService {
   static void configureFcm(BuildContext context) async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     _id = _prefs.get('id');
+
     _fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(message);
@@ -37,6 +38,9 @@ class NotificationsService {
           'title': _notif.title,
           'body': _notif.body,
           'userId': _notif.userId,
+          'navigator': _notif.navigator,
+          'contentId': _notif.contentId,
+          'symbol': _notif.symbol,
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
@@ -56,6 +60,9 @@ class NotificationsService {
           'title': _notif.title,
           'body': _notif.body,
           'userId': _notif.userId,
+          'navigator': _notif.navigator,
+          'contentId': _notif.contentId,
+          'symbol': _notif.symbol,
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
@@ -75,6 +82,9 @@ class NotificationsService {
           'title': _notif.title,
           'body': _notif.body,
           'userId': _notif.userId,
+          'navigator': _notif.navigator,
+          'contentId': _notif.contentId,
+          'symbol': _notif.symbol,
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
@@ -99,13 +109,16 @@ class NotificationsService {
     });
   }
 
-  static void sendNotification(String title, String body, String peerId) async {
+  static void sendNotification(
+      String title, String body, String peerId, String navigator,
+      [String contentId]) async {
     await _fcm.requestNotificationPermissions(
       const IosNotificationSettings(
           sound: true, badge: true, alert: true, provisional: false),
     );
     final DocumentSnapshot doc =
         await FirebaseFirestore.instance.collection('users').doc(peerId).get();
+
     await http.post(
       'https://fcm.googleapis.com/fcm/send',
       headers: <String, String>{
@@ -124,6 +137,9 @@ class NotificationsService {
             'id': '1',
             'status': 'done',
             'userId': peerId,
+            'contentId': contentId,
+            'navigator': navigator,
+            'symbol': '',
           },
           'to': doc.data()['token'],
         },
@@ -131,8 +147,9 @@ class NotificationsService {
     );
   }
 
-  static void sendNotificationToFollowers(
-      String title, String body, String senderId) async {
+  static void sendNotificationToFollowers(String title, String body,
+      String senderId, String navigator, String symbol,
+      [String contentId]) async {
     await _fcm.requestNotificationPermissions(
       const IosNotificationSettings(
           sound: true, badge: true, alert: true, provisional: false),
@@ -157,6 +174,9 @@ class NotificationsService {
             'id': '1',
             'status': 'done',
             'userId': senderId,
+            'contentId': contentId,
+            'navigator': navigator,
+            'symbol': symbol,
           },
           'to': '/topics/following-$id',
         },
