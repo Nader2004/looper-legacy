@@ -244,6 +244,7 @@ class _LoverCardState extends State<LoverCard> {
                   'New Hand Raised 💖',
                   '${widget.user.username} raised hand to your wish',
                   _loverCard.authorId,
+                  'profile'
                 );
               },
               textColor: Colors.white,
