@@ -43,21 +43,41 @@ class _LoveRoomState extends State<LoveRoom> {
     });
   }
 
-  Future<QuerySnapshot> getLoveFeed() {
+  Future<List<DocumentSnapshot>> getLoveFeed() async {
     if (_selectedIndex == 0) {
-      return PersonalityService.getCompatibleContentStream(
+      final QuerySnapshot _snapshot =
+          await PersonalityService.getCompatibleContentStream(
         _user?.personalityType ?? '',
         _firestore,
         'love-cards',
         'author-personality',
       );
+      if (_user.gender == 'Male') {
+        return _snapshot.docs
+            .where((element) => element.data()['authorGender'] == 'Female')
+            .toList();
+      } else {
+        return _snapshot.docs
+            .where((element) => element.data()['authorGender'] == 'Male')
+            .toList();
+      }
     } else {
-      return PersonalityService.getCompatibleContentStream(
+      final QuerySnapshot _snapshot =
+          await PersonalityService.getCompatibleContentStream(
         _user?.personalityType ?? '',
         _firestore,
         'lover-cards',
         'author-personality',
       );
+      if (_user.gender == 'Male') {
+        return _snapshot.docs
+            .where((element) => element.data()['gender'] == 'Female')
+            .toList();
+      } else {
+        return _snapshot.docs
+            .where((element) => element.data()['gender'] == 'Male')
+            .toList();
+      }
     }
   }
 
@@ -83,8 +103,8 @@ class _LoveRoomState extends State<LoveRoom> {
                 return Center(
                   child: FutureBuilder(
                       future: getLoveFeed(),
-                      builder:
-                          (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      builder: (context,
+                          AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return SpinKitPumpingHeart(
@@ -92,7 +112,7 @@ class _LoveRoomState extends State<LoveRoom> {
                             size: 40,
                           );
                         } else {
-                          if (snapshot.data?.docs?.length == 0) {
+                          if (snapshot.data.length == 0) {
                             return Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -156,6 +176,7 @@ class _LoveRoomState extends State<LoveRoom> {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
+                              
                               _selectedIndex == 1
                                   ? SizedBox.shrink()
                                   : Padding(
@@ -171,7 +192,7 @@ class _LoveRoomState extends State<LoveRoom> {
                               _selectedIndex == 1
                                   ? SizedBox(height: 20)
                                   : Container(),
-                              snapshot.data.docs.length == 0
+                              snapshot.data.length == 0
                                   ? Container()
                                   : _selectedIndex == 1
                                       ? Expanded(
@@ -292,17 +313,17 @@ class _LoveRoomState extends State<LoveRoom> {
                                           itemBuilder: (context, index) {
                                             if (_selectedIndex == 2) {
                                               return LoverCard(
-                                                data: snapshot.data.docs[index],
+                                                data: snapshot.data[index],
                                                 user: _user,
                                               );
                                             } else {
                                               return LoveCard(
-                                                data: snapshot.data.docs[index],
+                                                data: snapshot.data[index],
                                                 user: _user,
                                               );
                                             }
                                           },
-                                          itemCount: snapshot.data.docs.length,
+                                          itemCount: snapshot.data.length,
                                         ),
                             ],
                           );
