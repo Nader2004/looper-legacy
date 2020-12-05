@@ -1544,6 +1544,8 @@ class _TalentViewPageState extends State<TalentViewPage> {
       'New Talent',
       '$_userName uploaded a new talent',
       _userId,
+      'talent-creation',
+      DateTime.now().toUtc().toString(),
     );
     Fluttertoast.showToast(msg: 'Talent Created');
     setState(() => _showSpinner = false);
