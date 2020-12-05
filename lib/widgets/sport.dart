@@ -37,6 +37,7 @@ class _SportState extends State<Sport> {
   bool _isLike = false;
   int _likeCounter = 0;
   int _commentCounter = 0;
+  Stream<QuerySnapshot> _blockedUsers;
   VideoPlayerController _videoController;
   TextEditingController _textEditingController;
 
@@ -50,6 +51,11 @@ class _SportState extends State<Sport> {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = _prefs.get('id');
+      _blockedUsers = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_userId)
+          .collection('blocked-users')
+          .snapshots();
       _sport = modl.Sport.fromDoc(widget.data);
       _isLike = _sport.likedPeople.contains(_userId);
       _likeCounter = _sport.likes;
@@ -61,6 +67,7 @@ class _SportState extends State<Sport> {
     final FirebaseFirestore _firestore = FirebaseFirestore.instance;
     final DocumentSnapshot _snapshot =
         await _firestore.collection('users').doc(_userId).get();
+
     _userName = _snapshot?.data()['username'];
     _userImage = _snapshot?.data()['profilePictureUrl'];
   }
@@ -105,6 +112,20 @@ class _SportState extends State<Sport> {
                       _sport.id,
                       _comment,
                     );
+                    NotificationsService.sendNotification(
+                      'New comment',
+                      '$_userName commented on your sport',
+                      _sport.creatorId,
+                      'sport',
+                      _sport.id,
+                    );
+                    NotificationsService.sendNotificationToFollowers(
+                      'New comment',
+                      '$_userName commented on a sport',
+                      _sport.creatorId,
+                      'sport',
+                      _sport.id,
+                    );
                     setState(() {
                       _commentCounter++;
                     });
@@ -143,6 +164,20 @@ class _SportState extends State<Sport> {
                       'sports',
                       _sport.id,
                       _comment,
+                    );
+                    NotificationsService.sendNotification(
+                      'New comment',
+                      '$_userName commented on your talant',
+                      _sport.creatorId,
+                      'sport',
+                      _sport.id,
+                    );
+                    NotificationsService.sendNotificationToFollowers(
+                      'New comment',
+                      '$_userName commented on a talant',
+                      _sport.creatorId,
+                      'sport',
+                      _sport.id,
                     );
                     setState(() {
                       _commentCounter++;
@@ -348,6 +383,16 @@ class _SportState extends State<Sport> {
                                                         'New Like ❤',
                                                         '$_userName liked your sport',
                                                         _sport.creatorId,
+                                                        'sport',
+                                                        _sport.id,
+                                                      );
+                                                      NotificationsService
+                                                          .sendNotificationToFollowers(
+                                                        'New Like ❤',
+                                                        '$_userName liked a sport',
+                                                        _sport.creatorId,
+                                                        'sport',
+                                                        _sport.id,
                                                       );
                                                       PersonalityService
                                                           .setImageInput(
@@ -546,6 +591,20 @@ class _SportState extends State<Sport> {
                           _sport.id,
                           _comment,
                         );
+                        NotificationsService.sendNotification(
+                          'New comment',
+                          '$_userName commented on your sport',
+                          _sport.creatorId,
+                          'sport',
+                          _sport.id,
+                        );
+                        NotificationsService.sendNotificationToFollowers(
+                          'New comment',
+                          '$_userName commented on a sport',
+                          _sport.creatorId,
+                          'sport',
+                          _sport.id,
+                        );
                         _textEditingController.clear();
                         setState(() {
                           _commentCounter++;
@@ -580,273 +639,294 @@ class _SportState extends State<Sport> {
   @override
   Widget build(BuildContext context) {
     if (_sport != null) {
-      return VisibilityDetector(
-        key: Key(_sport.id),
-        onVisibilityChanged: (VisibilityInfo info) {
-          double _visibilePercentage = info.visibleFraction * 100;
-          Timer(
-            Duration(milliseconds: 2300),
-            () {
-              if (!_sport.viewedPeople.contains(_userId)) {
-                if (_visibilePercentage == 100) {
-                  DatabaseService.addView(
-                    'sports',
-                    _sport.id,
-                    _userId,
-                  );
-                }
-              }
-            },
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              color: !_videoController.value.initialized
-                  ? Colors.black
-                  : Colors.transparent,
-              child: Stack(
-                children: <Widget>[
-                  !_videoController.value.initialized
-                      ? Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: MediaQuery.of(context).size.width / 2,
-                            ),
-                            child: CircularProgressIndicator(
-                              strokeWidth: 1.2,
-                              valueColor: AlwaysStoppedAnimation(Colors.white),
-                            ),
-                          ),
-                        )
-                      : Container(
-                          height: MediaQuery.of(context).size.width * 1.2,
-                          width: MediaQuery.of(context).size.width,
-                          child: OverflowBox(
-                            alignment: Alignment.center,
-                            child: FittedBox(
-                              fit: BoxFit.cover,
-                              child: Container(
-                                width: MediaQuery.of(context).size.width,
-                                height: MediaQuery.of(context).size.width /
-                                    _videoController.value.aspectRatio,
-                                child: VideoPlayer(_videoController),
-                              ),
-                            ),
-                          ),
-                        ),
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    child: Row(
+      return StreamBuilder(
+          stream: _blockedUsers,
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SizedBox.shrink();
+            }
+
+            final List<String> blockedUsers =
+                snapshot.data.docs.map((e) => e.id).toList();
+            if (blockedUsers.contains(_sport.creatorId)) {
+              return Container();
+            }
+            return VisibilityDetector(
+              key: Key(_sport.id),
+              onVisibilityChanged: (VisibilityInfo info) {
+                double _visibilePercentage = info.visibleFraction * 100;
+                Timer(
+                  Duration(milliseconds: 2300),
+                  () {
+                    if (!_sport.viewedPeople.contains(_userId)) {
+                      if (_visibilePercentage == 100) {
+                        DatabaseService.addView(
+                          'sports',
+                          _sport.id,
+                          _userId,
+                        );
+                      }
+                    }
+                  },
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    color: !_videoController.value.initialized
+                        ? Colors.black
+                        : Colors.transparent,
+                    child: Stack(
                       children: <Widget>[
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50),
-                            child: GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => ProfilePage(
-                                      userId: _sport.creatorId,
+                        !_videoController.value.initialized
+                            ? Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical:
+                                        MediaQuery.of(context).size.width / 2,
+                                  ),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.2,
+                                    valueColor:
+                                        AlwaysStoppedAnimation(Colors.white),
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                height: MediaQuery.of(context).size.width * 1.2,
+                                width: MediaQuery.of(context).size.width,
+                                child: OverflowBox(
+                                  alignment: Alignment.center,
+                                  child: FittedBox(
+                                    fit: BoxFit.cover,
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width,
+                                      height: MediaQuery.of(context)
+                                              .size
+                                              .width /
+                                          _videoController.value.aspectRatio,
+                                      child: VideoPlayer(_videoController),
                                     ),
                                   ),
-                                );
-                              },
-                              child: CachedNetworkImage(
-                                imageUrl: _sport.creatorProfileImage,
-                                placeholder: (context, url) =>
-                                    Container(color: Colors.grey[400]),
-                                fit: BoxFit.cover,
+                                ),
+                              ),
+                        Positioned(
+                          top: 10,
+                          left: 10,
+                          child: Row(
+                            children: <Widget>[
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border:
+                                      Border.all(color: Colors.white, width: 2),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(50),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => ProfilePage(
+                                            userId: _sport.creatorId,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: CachedNetworkImage(
+                                      imageUrl: _sport.creatorProfileImage,
+                                      placeholder: (context, url) =>
+                                          Container(color: Colors.grey[400]),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                _sport.creatorName,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          top: 10,
+                          right: 5,
+                          child: Row(
+                            children: <Widget>[
+                              Text(
+                                _commentCounter.toString(),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.add_comment),
+                                color: Colors.white,
+                                onPressed: openCommentSection,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 5,
+                          child: Bounce(
+                            duration: Duration(milliseconds: 100),
+                            onPressed: () {
+                              setState(() {
+                                if (!_isLike) {
+                                  _isLike = true;
+                                  _likeCounter++;
+                                  DatabaseService.like(
+                                    'sports',
+                                    _sport.id,
+                                    _userId,
+                                  );
+                                  PersonalityService.setTextInput('I like');
+                                  PersonalityService.setVideoInput(
+                                    _sport.videoUrl,
+                                  );
+                                } else {
+                                  _isLike = false;
+                                  _likeCounter--;
+                                  DatabaseService.unLike(
+                                    'sports',
+                                    _sport.id,
+                                    _userId,
+                                  );
+                                }
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: <Widget>[
+                                  Container(
+                                    padding: EdgeInsets.all(7),
+                                    child: Icon(
+                                      _isLike
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color:
+                                          _isLike ? Colors.red : Colors.white,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _isLike
+                                          ? Colors.white
+                                          : Colors.transparent,
+                                      border: Border.all(color: Colors.white),
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    '$_likeCounter likes',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(width: 10),
-                        Text(
-                          _sport.creatorName,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
+                        Positioned(
+                          top: MediaQuery.of(context).size.height / 2.5,
+                          child: Bounce(
+                            duration: Duration(milliseconds: 100),
+                            onPressed: () {
+                              DatabaseService.saveContent(
+                                'saved-sports',
+                                _sport.id,
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                padding: EdgeInsets.all(7),
+                                child: Icon(
+                                  Icons.bookmark,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: MediaQuery.of(context).size.height / 2.1,
+                          child: Bounce(
+                            duration: Duration(milliseconds: 100),
+                            onPressed: () async {
+                              var request = await HttpClient()
+                                  .getUrl(Uri.parse(_sport.videoUrl));
+                              var response = await request.close();
+                              Uint8List bytes =
+                                  await consolidateHttpClientResponseBytes(
+                                      response);
+                              Share.file(
+                                'from ${_sport.creatorName}',
+                                'media',
+                                bytes,
+                                'video/mp4',
+                              );
+                              PersonalityService.setVideoInput(
+                                _sport.videoUrl,
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                padding: EdgeInsets.all(7),
+                                child: Icon(
+                                  Icons.share,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 5,
+                          right: 5,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width / 5,
+                            margin: EdgeInsets.all(8),
+                            padding: EdgeInsets.all(5),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Text(
+                              '${_sport.viewsCount} VIEWS',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Positioned(
-                    top: 10,
-                    right: 5,
-                    child: Row(
-                      children: <Widget>[
-                        Text(
-                          _commentCounter.toString(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.add_comment),
-                          color: Colors.white,
-                          onPressed: openCommentSection,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 5,
-                    child: Bounce(
-                      duration: Duration(milliseconds: 100),
-                      onPressed: () {
-                        setState(() {
-                          if (!_isLike) {
-                            _isLike = true;
-                            _likeCounter++;
-                            DatabaseService.like(
-                              'sports',
-                              _sport.id,
-                              _userId,
-                            );
-                            PersonalityService.setTextInput('I like');
-                            PersonalityService.setVideoInput(
-                              _sport.videoUrl,
-                            );
-                          } else {
-                            _isLike = false;
-                            _likeCounter--;
-                            DatabaseService.unLike(
-                              'sports',
-                              _sport.id,
-                              _userId,
-                            );
-                          }
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.all(7),
-                              child: Icon(
-                                _isLike
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: _isLike ? Colors.red : Colors.white,
-                              ),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color:
-                                    _isLike ? Colors.white : Colors.transparent,
-                                border: Border.all(color: Colors.white),
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              '$_likeCounter likes',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: MediaQuery.of(context).size.height / 2.5,
-                    child: Bounce(
-                      duration: Duration(milliseconds: 100),
-                      onPressed: () {
-                        DatabaseService.saveContent(
-                          'saved-sports',
-                          _sport.id,
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          padding: EdgeInsets.all(7),
-                          child: Icon(
-                            Icons.bookmark,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: MediaQuery.of(context).size.height / 2.1,
-                    child: Bounce(
-                      duration: Duration(milliseconds: 100),
-                      onPressed: () async {
-                        var request = await HttpClient()
-                            .getUrl(Uri.parse(_sport.videoUrl));
-                        var response = await request.close();
-                        Uint8List bytes =
-                            await consolidateHttpClientResponseBytes(response);
-                        Share.file(
-                          'from ${_sport.creatorName}',
-                          'media',
-                          bytes,
-                          'video/mp4',
-                        );
-                        PersonalityService.setVideoInput(
-                          _sport.videoUrl,
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Container(
-                          padding: EdgeInsets.all(7),
-                          child: Icon(
-                            Icons.share,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 5,
-                    right: 5,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width / 5,
-                      margin: EdgeInsets.all(8),
-                      padding: EdgeInsets.all(5),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Text(
-                        '${_sport.viewsCount} VIEWS',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ),
-      );
+            );
+          });
     } else {
       return SizedBox.shrink();
     }
