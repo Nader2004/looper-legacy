@@ -142,6 +142,7 @@ class _LoveCreationState extends State<LoveCreation>
       final LoveCard _newLoveCard = LoveCard(
         authorId: _userId,
         authorName: _userName,
+        authorGender: _userGender,
         authorAge: _userAge,
         authorImage: _userImage,
         imageUrl: _datingPictureUrl.first,
@@ -171,6 +172,7 @@ class _LoveCreationState extends State<LoveCreation>
         authorId: _userId,
         authorName: _userName,
         authorAge: _userAge,
+        authorPersonality: _personalityType,
         gender: _userGender,
         authorImage: _userImage,
         lookQualities: look,
