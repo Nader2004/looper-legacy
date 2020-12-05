@@ -19,7 +19,7 @@ class SportsRoom extends StatefulWidget {
 
 class _SportsRoomState extends State<SportsRoom> {
   String _userId = 'empty';
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
   List<IconData> _icons = [
     MdiIcons.trophy,
     MdiIcons.soccer,
@@ -184,9 +184,16 @@ class _SportsRoomState extends State<SportsRoom> {
                       setState(() {
                         _selectedIndex = index;
                       });
+                      if (index == 0) {
+                        Navigator.of(context).pop();
+                      }
                     },
                     labelType: NavigationRailLabelType.selected,
                     destinations: [
+                      NavigationRailDestination(
+                        icon: Icon(Icons.close),
+                        label: Text('Close'),
+                      ),
                       NavigationRailDestination(
                         icon: Icon(_icons[0]),
                         label: Text('Trending'),
