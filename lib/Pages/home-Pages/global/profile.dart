@@ -29,6 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
   int _creationSelectedIndex = 0;
   int _likesSelectedIndex = 0;
   bool _isFollowing = false;
+  Stream<QuerySnapshot> _blockedUsers;
   Future<DocumentSnapshot> _userFuture;
   Future<QuerySnapshot> _following;
   Future<QuerySnapshot> _followers;
@@ -61,6 +62,11 @@ class _ProfilePageState extends State<ProfilePage> {
         await DatabaseService.checkIsFollowing(widget.userId);
     setState(() {
       _id = _prefs.get('id');
+      _blockedUsers = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_id)
+          .collection('blocked-users')
+          .snapshots();
       _isFollowing = isFollowing;
       _userName = _doc.data()['username'];
       _userFuture = FirebaseFirestore.instance
@@ -155,580 +161,762 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: TextStyle(color: Colors.black),
                     );
                   }),
+              actions: [
+                StreamBuilder(
+                    stream: _blockedUsers,
+                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return SizedBox.shrink();
+                      }
+                      final List<String> blockedUsers =
+                          snapshot.data.docs.map((e) => e.id).toList();
+
+                      return FlatButton(
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.block,
+                              color: blockedUsers.contains(widget.userId)
+                                  ? Colors.red
+                                  : Colors.blue,
+                              size: 18,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              blockedUsers.contains(widget.userId)
+                                  ? 'Unblock'
+                                  : 'Block',
+                              style: TextStyle(
+                                color: blockedUsers.contains(widget.userId)
+                                    ? Colors.red
+                                    : Colors.blue,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                        onPressed: () {
+                          if (!blockedUsers.contains(widget.userId)) {
+                            print('triggered');
+                            DatabaseService.blockUser(
+                              _id,
+                              widget.userId,
+                            );
+                          } else {
+                            DatabaseService.unBlockUser(
+                              _id,
+                              widget.userId,
+                            );
+                          }
+                        },
+                      );
+                    }),
+              ],
             ),
-            body: DefaultTabController(
-              length: 2,
-              child: NestedScrollView(
-                headerSliverBuilder: (context, _) => [
-                  SliverList(
-                    delegate: SliverChildListDelegate(
-                      [
-                        FutureBuilder(
-                            future: _userFuture,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 1.2,
-                                    valueColor:
-                                        AlwaysStoppedAnimation(Colors.black),
-                                  ),
-                                );
-                              }
-                              final User _user = User.fromDoc(snapshot.data);
-                              return Column(
-                                children: <Widget>[
-                                  SizedBox(height: 20),
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(100),
-                                    child: CachedNetworkImage(
-                                      imageUrl: _user.profileImageUrl,
-                                      height:
-                                          MediaQuery.of(context).size.width / 3,
-                                      width:
-                                          MediaQuery.of(context).size.width / 3,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    _user.username,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 24,
-                                    ),
-                                  ),
-                                  SizedBox(height: 10),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        MdiIcons.cakeVariant,
-                                        color: Colors.grey,
-                                      ),
-                                      SizedBox(width: 5),
-                                      Text(
-                                        '${_user.birthdate['day']}/${_user.birthdate['month']}/${_user.birthdate['year']}',
-                                        style: TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 16,
+            body: StreamBuilder(
+                stream: _blockedUsers,
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation(
+                          Colors.black,
+                        ),
+                        strokeWidth: 1.2,
+                      ),
+                    );
+                  }
+                  final List<String> blockedUsers =
+                      snapshot.data.docs.map((e) => e.id).toList();
+                  return DefaultTabController(
+                    length: 2,
+                    child: NestedScrollView(
+                      headerSliverBuilder: (context, _) => [
+                        SliverList(
+                          delegate: SliverChildListDelegate(
+                            [
+                              FutureBuilder(
+                                  future: _userFuture,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 1.2,
+                                          valueColor: AlwaysStoppedAnimation(
+                                              Colors.black),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 16),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  FollowingList(
-                                                userId: _user.id,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child: Column(
-                                          children: [
-                                            FutureBuilder(
-                                                future: _following,
-                                                builder: (context, snapshot) {
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.waiting) {
-                                                    return SizedBox.shrink();
-                                                  }
-                                                  return Text(
-                                                    snapshot.data.size
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                      color: Colors.grey,
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  );
-                                                }),
-                                            SizedBox(height: 5),
-                                            Text(
-                                              'Following',
-                                              style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
+                                      );
+                                    }
+                                    final User _user =
+                                        User.fromDoc(snapshot.data);
+                                    return Column(
+                                      children: <Widget>[
+                                        SizedBox(height: 20),
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(100),
+                                          child: CachedNetworkImage(
+                                            imageUrl: _user.profileImageUrl,
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                3,
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                3,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(width: 20),
-                                      GestureDetector(
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  FollowersList(
-                                                userId: _user.id,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        child: Column(
-                                          children: [
-                                            FutureBuilder(
-                                                future: _followers,
-                                                builder: (context, snapshot) {
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.waiting) {
-                                                    return SizedBox.shrink();
-                                                  }
-                                                  return Text(
-                                                    snapshot.data.size
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                      color: Colors.grey,
-                                                      fontSize: 18,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  );
-                                                }),
-                                            SizedBox(height: 5),
-                                            Text(
-                                              'Followers',
-                                              style: TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
+                                        SizedBox(height: 10),
+                                        Text(
+                                          _user.username,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 24,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  widget.userId == _id
-                                      ? SizedBox.shrink()
-                                      : SizedBox(height: 16),
-                                  widget.userId == _id
-                                      ? SizedBox.shrink()
-                                      : Row(
+                                        SizedBox(height: 10),
+                                        Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            Container(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2.5,
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  14,
-                                              child: FlatButton(
-                                                shape: SuperellipseShape(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                                color: Colors.deepPurple,
-                                                onPressed: () {
-                                                  FirebaseFirestore.instance
-                                                      .collection('users')
-                                                      .doc(_id)
-                                                      .collection(
-                                                          'global-chatters')
-                                                      .doc(widget.userId)
-                                                      .set({});
-                                                  _setGroupChatId();
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ChatPage(
-                                                        followerId:
-                                                            widget.userId,
-                                                        followerName:
-                                                            _user.username,
-                                                        id: _id,
-                                                        groupId: _groupId,
-                                                        isGlobal: true,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                textColor: Colors.white,
-                                                child: Text('Chat'),
+                                            Icon(
+                                              MdiIcons.cakeVariant,
+                                              color: Colors.grey,
+                                            ),
+                                            SizedBox(width: 5),
+                                            Text(
+                                              '${_user.birthdate['day']}/${_user.birthdate['month']}/${_user.birthdate['year']}',
+                                              style: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 16,
                                               ),
                                             ),
-                                            SizedBox(width: 10),
-                                            Container(
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2.5,
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  14,
-                                              child: FlatButton(
-                                                shape: SuperellipseShape(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
+                                          ],
+                                        ),
+                                        SizedBox(height: 16),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        FollowingList(
+                                                      userId: _user.id,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  FutureBuilder(
+                                                      future: _following,
+                                                      builder:
+                                                          (context, snapshot) {
+                                                        if (snapshot
+                                                                .connectionState ==
+                                                            ConnectionState
+                                                                .waiting) {
+                                                          return SizedBox
+                                                              .shrink();
+                                                        }
+                                                        return Text(
+                                                          snapshot.data.size
+                                                              .toString(),
+                                                          style: TextStyle(
+                                                            color: Colors.grey,
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        );
+                                                      }),
+                                                  SizedBox(height: 5),
+                                                  Text(
+                                                    'Following',
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(width: 20),
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        FollowersList(
+                                                      userId: _user.id,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  FutureBuilder(
+                                                      future: _followers,
+                                                      builder:
+                                                          (context, snapshot) {
+                                                        if (snapshot
+                                                                .connectionState ==
+                                                            ConnectionState
+                                                                .waiting) {
+                                                          return SizedBox
+                                                              .shrink();
+                                                        }
+                                                        return Text(
+                                                          snapshot.data.size
+                                                              .toString(),
+                                                          style: TextStyle(
+                                                            color: Colors.grey,
+                                                            fontSize: 18,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        );
+                                                      }),
+                                                  SizedBox(height: 5),
+                                                  Text(
+                                                    'Followers',
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 18,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        blockedUsers.contains(widget.userId)
+                                            ? SizedBox(height: 30)
+                                            : SizedBox.shrink(),
+                                        blockedUsers.contains(widget.userId)
+                                            ? Text(
+                                                'You have blocked ${_user.username}',
+                                                style: TextStyle(
+                                                  fontSize: 25,
+                                                  color: Colors.grey[700],
+                                                  fontWeight: FontWeight.w600,
                                                 ),
-                                                color: Colors.black,
-                                                onPressed: () {
-                                                  if (_isFollowing == false) {
-                                                    DatabaseService.followUser(
-                                                      widget.userId,
-                                                      _userName,
-                                                    );
-                                                    NotificationsService
-                                                        .sendNotification(
-                                                      'New Follower',
-                                                      '$_userName followed you',
-                                                      widget.userId,
-                                                    );
-                                                    NotificationsService
-                                                        .subscribeToTopic(
-                                                            widget.userId);
-                                                    setState(() {
-                                                      _isFollowing = true;
-                                                    });
-                                                  } else {
-                                                    DatabaseService
-                                                        .unFollowUser(
-                                                            widget.userId);
-                                                    NotificationsService
-                                                        .unsubscribeFromTopic(
-                                                            widget.userId);
-                                                    setState(() {
-                                                      _isFollowing = false;
-                                                    });
-                                                  }
-                                                },
-                                                textColor: Colors.white,
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    _isFollowing == true
-                                                        ? Icon(
-                                                            Icons.check,
-                                                            size: 14,
-                                                            color: Colors.white,
-                                                          )
-                                                        : SizedBox.shrink(),
-                                                    _isFollowing == true
-                                                        ? SizedBox(width: 5)
-                                                        : SizedBox.shrink(),
-                                                    Text(
-                                                      _isFollowing == true
-                                                          ? 'Following'
-                                                          : 'FOLLOW',
+                                              )
+                                            : SizedBox.shrink(),
+                                        widget.userId == _id
+                                            ? SizedBox.shrink()
+                                            : SizedBox(height: 16),
+                                        widget.userId == _id ||
+                                                blockedUsers
+                                                    .contains(widget.userId)
+                                            ? SizedBox.shrink()
+                                            : Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            2.5,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            14,
+                                                    child: FlatButton(
+                                                      shape: SuperellipseShape(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                      color: Colors.deepPurple,
+                                                      onPressed: () {
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection('users')
+                                                            .doc(_id)
+                                                            .collection(
+                                                                'global-chatters')
+                                                            .doc(widget.userId)
+                                                            .set({});
+                                                        _setGroupChatId();
+                                                        Navigator.of(context)
+                                                            .push(
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    ChatPage(
+                                                              followerId:
+                                                                  widget.userId,
+                                                              followerName:
+                                                                  _user
+                                                                      .username,
+                                                              id: _id,
+                                                              groupId: _groupId,
+                                                              isGlobal: true,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                      textColor: Colors.white,
+                                                      child: Text('Chat'),
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width /
+                                                            2.5,
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .height /
+                                                            14,
+                                                    child: FlatButton(
+                                                      shape: SuperellipseShape(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(10),
+                                                      ),
+                                                      color: Colors.black,
+                                                      onPressed: () {
+                                                        if (_isFollowing ==
+                                                            false) {
+                                                          DatabaseService
+                                                              .followUser(
+                                                            widget.userId,
+                                                            _userName,
+                                                          );
+                                                          NotificationsService
+                                                              .sendNotification(
+                                                            'New Follower',
+                                                            '$_userName followed you',
+                                                            widget.userId,
+                                                            'profile',
+                                                          );
+                                                          NotificationsService
+                                                              .subscribeToTopic(
+                                                                  widget
+                                                                      .userId);
+                                                          setState(() {
+                                                            _isFollowing = true;
+                                                          });
+                                                        } else {
+                                                          DatabaseService
+                                                              .unFollowUser(
+                                                                  widget
+                                                                      .userId);
+                                                          NotificationsService
+                                                              .unsubscribeFromTopic(
+                                                                  widget
+                                                                      .userId);
+                                                          setState(() {
+                                                            _isFollowing =
+                                                                false;
+                                                          });
+                                                        }
+                                                      },
+                                                      textColor: Colors.white,
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: [
+                                                          _isFollowing == true
+                                                              ? Icon(
+                                                                  Icons.check,
+                                                                  size: 14,
+                                                                  color: Colors
+                                                                      .white,
+                                                                )
+                                                              : SizedBox
+                                                                  .shrink(),
+                                                          _isFollowing == true
+                                                              ? SizedBox(
+                                                                  width: 5)
+                                                              : SizedBox
+                                                                  .shrink(),
+                                                          Text(
+                                                            _isFollowing == true
+                                                                ? 'Following'
+                                                                : 'FOLLOW',
+                                                            style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                        blockedUsers.contains(widget.userId)
+                                            ? SizedBox.shrink()
+                                            : SizedBox(height: 20),
+                                        blockedUsers.contains(widget.userId)
+                                            ? SizedBox.shrink()
+                                            : Divider(),
+                                        blockedUsers.contains(widget.userId)
+                                            ? SizedBox.shrink()
+                                            : TabBar(
+                                                indicatorColor: Colors.black,
+                                                tabs: [
+                                                  Padding(
+                                                    padding:
+                                                        EdgeInsets.all(8.0),
+                                                    child: Icon(
+                                                      MdiIcons.cards,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        EdgeInsets.all(8.0),
+                                                    child: Icon(
+                                                      Icons.favorite,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                      ],
+                                    );
+                                  }),
+                            ],
+                          ),
+                        ),
+                      ],
+                      body: blockedUsers.contains(widget.userId)
+                          ? SizedBox.shrink()
+                          : Column(
+                              children: [
+                                Expanded(
+                                  child: TabBarView(
+                                    children: [
+                                      Stack(
+                                        children: [
+                                          FutureBuilder(
+                                            future: _generalFuture,
+                                            builder: (context,
+                                                AsyncSnapshot<QuerySnapshot>
+                                                    snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    strokeWidth: 1.2,
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation(
+                                                            Colors.black),
+                                                  ),
+                                                );
+                                              } else {
+                                                if (snapshot.data.docs.length ==
+                                                    0) {
+                                                  return Center(
+                                                    child: Text(
+                                                      'Nothing created yet',
                                                       style: TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontSize: 24,
                                                         fontWeight:
                                                             FontWeight.w600,
                                                       ),
                                                     ),
-                                                  ],
-                                                ),
+                                                  );
+                                                }
+                                                return _creationSelectedIndex ==
+                                                            0 ||
+                                                        _creationSelectedIndex ==
+                                                            2
+                                                    ? ListView.builder(
+                                                        itemCount: snapshot
+                                                            .data.docs.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          if (_creationSelectedIndex ==
+                                                              0) {
+                                                            return PostWidget(
+                                                              snapshot: snapshot
+                                                                  .data
+                                                                  .docs[index],
+                                                            );
+                                                          } else {
+                                                            return ComedyJoke(
+                                                              data: snapshot
+                                                                  .data
+                                                                  .docs[index],
+                                                            );
+                                                          }
+                                                        },
+                                                      )
+                                                    : GridView.builder(
+                                                        gridDelegate:
+                                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                                          crossAxisCount: 2,
+                                                          childAspectRatio: 0.7,
+                                                        ),
+                                                        itemCount: snapshot
+                                                            .data.docs.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          return VideoWidget(
+                                                            videoUrl: snapshot
+                                                                    .data
+                                                                    .docs[index]
+                                                                    .data()[
+                                                                'videoUrl'],
+                                                          );
+                                                        },
+                                                      );
+                                              }
+                                            },
+                                          ),
+                                          Align(
+                                            alignment: Alignment.bottomCenter,
+                                            child: Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: FlutterToggleTab(
+                                                width: 80,
+                                                borderRadius: 40,
+                                                labels: ['', '', '', '', ''],
+                                                icons: [
+                                                  MdiIcons.cards,
+                                                  MdiIcons.star,
+                                                  MdiIcons.dramaMasks,
+                                                  MdiIcons.baseball,
+                                                  MdiIcons.flagCheckered,
+                                                ],
+                                                selectedBackgroundColors: [
+                                                  Colors.black,
+                                                  Colors.black,
+                                                ],
+                                                initialIndex: 0,
+                                                selectedIndex:
+                                                    _creationSelectedIndex,
+                                                selectedLabelIndex:
+                                                    (int index) {
+                                                  setState(
+                                                    () {
+                                                      _creationSelectedIndex =
+                                                          index;
+                                                      if (_creationSelectedIndex ==
+                                                          0) {
+                                                        _generalFuture =
+                                                            _postCreation;
+                                                      } else if (_creationSelectedIndex ==
+                                                          1) {
+                                                        _generalFuture =
+                                                            _talentCreation;
+                                                      } else if (_creationSelectedIndex ==
+                                                          2) {
+                                                        _generalFuture =
+                                                            _comedyCreation;
+                                                      } else if (_creationSelectedIndex ==
+                                                          3) {
+                                                        _generalFuture =
+                                                            _sportCreation;
+                                                      } else if (_creationSelectedIndex ==
+                                                          4) {
+                                                        _generalFuture =
+                                                            _challengeCreation;
+                                                      } else {
+                                                        return;
+                                                      }
+                                                    },
+                                                  );
+                                                },
+                                                selectedTextStyle: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                                unSelectedTextStyle: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.w400),
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                  SizedBox(height: 20),
-                                  Divider(),
-                                  TabBar(
-                                    indicatorColor: Colors.black,
-                                    tabs: [
-                                      Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Icon(
-                                          MdiIcons.cards,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Icon(
-                                          Icons.favorite,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              );
-                            }),
-                      ],
-                    ),
-                  ),
-                ],
-                body: Column(
-                  children: [
-                    Expanded(
-                      child: TabBarView(
-                        children: [
-                          Stack(
-                            children: [
-                              FutureBuilder(
-                                future: _generalFuture,
-                                builder: (context,
-                                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 1.2,
-                                        valueColor: AlwaysStoppedAnimation(
-                                            Colors.black),
-                                      ),
-                                    );
-                                  } else {
-                                    if (snapshot.data.docs.length == 0) {
-                                      return Center(
-                                        child: Text(
-                                          'Nothing created yet',
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w600,
                                           ),
-                                        ),
-                                      );
-                                    }
-                                    return _creationSelectedIndex == 0 ||
-                                            _creationSelectedIndex == 2
-                                        ? ListView.builder(
-                                            itemCount:
-                                                snapshot.data.docs.length,
-                                            itemBuilder: (context, index) {
-                                              if (_creationSelectedIndex == 0) {
-                                                return PostWidget(
-                                                  snapshot:
-                                                      snapshot.data.docs[index],
+                                        ],
+                                      ),
+                                      Stack(
+                                        children: [
+                                          FutureBuilder(
+                                            future: _generalLikesFuture,
+                                            builder: (context,
+                                                AsyncSnapshot<QuerySnapshot>
+                                                    snapshot) {
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.waiting) {
+                                                return Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    strokeWidth: 1.2,
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation(
+                                                            Colors.black),
+                                                  ),
                                                 );
                                               } else {
-                                                return ComedyJoke(
-                                                  data:
-                                                      snapshot.data.docs[index],
-                                                );
+                                                if (snapshot.data == null) {
+                                                  return SizedBox.shrink();
+                                                }
+                                                if (snapshot.data.docs.length ==
+                                                    0) {
+                                                  return Center(
+                                                    child: Text(
+                                                      'Nothing liked yet',
+                                                      style: TextStyle(
+                                                        color: Colors.grey[600],
+                                                        fontSize: 24,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+                                                return _likesSelectedIndex ==
+                                                            0 ||
+                                                        _likesSelectedIndex == 2
+                                                    ? ListView.builder(
+                                                        itemCount: snapshot
+                                                            .data.docs.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          if (_creationSelectedIndex ==
+                                                              0) {
+                                                            return PostWidget(
+                                                              snapshot: snapshot
+                                                                  .data
+                                                                  .docs[index],
+                                                            );
+                                                          } else {
+                                                            return ComedyJoke(
+                                                              data: snapshot
+                                                                  .data
+                                                                  .docs[index],
+                                                            );
+                                                          }
+                                                        },
+                                                      )
+                                                    : GridView.builder(
+                                                        gridDelegate:
+                                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                                          crossAxisCount: 2,
+                                                          childAspectRatio: 0.7,
+                                                        ),
+                                                        itemCount: snapshot
+                                                            .data.docs.length,
+                                                        itemBuilder:
+                                                            (context, index) {
+                                                          return VideoWidget(
+                                                            videoUrl: snapshot
+                                                                    .data
+                                                                    .docs[index]
+                                                                    .data()[
+                                                                'videoUrl'],
+                                                          );
+                                                        },
+                                                      );
                                               }
                                             },
-                                          )
-                                        : GridView.builder(
-                                            gridDelegate:
-                                                SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 2,
-                                              childAspectRatio: 0.7,
-                                            ),
-                                            itemCount:
-                                                snapshot.data.docs.length,
-                                            itemBuilder: (context, index) {
-                                              return VideoWidget(
-                                                videoUrl: snapshot
-                                                    .data.docs[index]
-                                                    .data()['videoUrl'],
-                                              );
-                                            },
-                                          );
-                                  }
-                                },
-                              ),
-                              Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Padding(
-                                  padding: EdgeInsets.all(8),
-                                  child: FlutterToggleTab(
-                                    width: 80,
-                                    borderRadius: 40,
-                                    labels: ['', '', '', '', ''],
-                                    icons: [
-                                      MdiIcons.cards,
-                                      MdiIcons.star,
-                                      MdiIcons.dramaMasks,
-                                      MdiIcons.baseball,
-                                      MdiIcons.flagCheckered,
-                                    ],
-                                    selectedBackgroundColors: [
-                                      Colors.black,
-                                      Colors.black,
-                                    ],
-                                    initialIndex: 0,
-                                    selectedIndex: _creationSelectedIndex,
-                                    selectedLabelIndex: (int index) {
-                                      setState(
-                                        () {
-                                          _creationSelectedIndex = index;
-                                          if (_creationSelectedIndex == 0) {
-                                            _generalFuture = _postCreation;
-                                          } else if (_creationSelectedIndex ==
-                                              1) {
-                                            _generalFuture = _talentCreation;
-                                          } else if (_creationSelectedIndex ==
-                                              2) {
-                                            _generalFuture = _comedyCreation;
-                                          } else if (_creationSelectedIndex ==
-                                              3) {
-                                            _generalFuture = _sportCreation;
-                                          } else if (_creationSelectedIndex ==
-                                              4) {
-                                            _generalFuture = _challengeCreation;
-                                          } else {
-                                            return;
-                                          }
-                                        },
-                                      );
-                                    },
-                                    selectedTextStyle: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600),
-                                    unSelectedTextStyle: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Stack(
-                            children: [
-                              FutureBuilder(
-                                future: _generalLikesFuture,
-                                builder: (context,
-                                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 1.2,
-                                        valueColor: AlwaysStoppedAnimation(
-                                            Colors.black),
-                                      ),
-                                    );
-                                  } else {
-                                    if (snapshot.data == null) {
-                                      return SizedBox.shrink();
-                                    }
-                                    if (snapshot.data.docs.length == 0) {
-                                      return Center(
-                                        child: Text(
-                                          'Nothing liked yet',
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w600,
                                           ),
-                                        ),
-                                      );
-                                    }
-                                    return _likesSelectedIndex == 0 ||
-                                            _likesSelectedIndex == 2
-                                        ? ListView.builder(
-                                            itemCount:
-                                                snapshot.data.docs.length,
-                                            itemBuilder: (context, index) {
-                                              if (_creationSelectedIndex == 0) {
-                                                return PostWidget(
-                                                  snapshot:
-                                                      snapshot.data.docs[index],
-                                                );
-                                              } else {
-                                                return ComedyJoke(
-                                                  data:
-                                                      snapshot.data.docs[index],
-                                                );
-                                              }
-                                            },
-                                          )
-                                        : GridView.builder(
-                                            gridDelegate:
-                                                SliverGridDelegateWithFixedCrossAxisCount(
-                                              crossAxisCount: 2,
-                                              childAspectRatio: 0.7,
+                                          Align(
+                                            alignment: Alignment.bottomCenter,
+                                            child: Padding(
+                                              padding: EdgeInsets.all(8),
+                                              child: FlutterToggleTab(
+                                                width: 80,
+                                                borderRadius: 40,
+                                                labels: ['', '', '', '', ''],
+                                                icons: [
+                                                  MdiIcons.cards,
+                                                  MdiIcons.star,
+                                                  MdiIcons.dramaMasks,
+                                                  MdiIcons.baseball,
+                                                  MdiIcons.flagCheckered,
+                                                ],
+                                                selectedBackgroundColors: [
+                                                  Colors.black,
+                                                  Colors.black,
+                                                ],
+                                                initialIndex: 0,
+                                                selectedIndex:
+                                                    _likesSelectedIndex,
+                                                selectedLabelIndex:
+                                                    (int index) {
+                                                  setState(
+                                                    () {
+                                                      _likesSelectedIndex =
+                                                          index;
+                                                      if (_likesSelectedIndex ==
+                                                          0) {
+                                                        _generalLikesFuture =
+                                                            _postLikes;
+                                                      } else if (_likesSelectedIndex ==
+                                                          1) {
+                                                        _generalLikesFuture =
+                                                            _talentLikes;
+                                                      } else if (_likesSelectedIndex ==
+                                                          2) {
+                                                        _generalLikesFuture =
+                                                            _comedyLikes;
+                                                      } else if (_likesSelectedIndex ==
+                                                          3) {
+                                                        _generalLikesFuture =
+                                                            _sportLikes;
+                                                      } else if (_likesSelectedIndex ==
+                                                          4) {
+                                                        _generalLikesFuture =
+                                                            _challengeLikes;
+                                                      } else {
+                                                        return;
+                                                      }
+                                                    },
+                                                  );
+                                                },
+                                                selectedTextStyle: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                                unSelectedTextStyle: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.w400),
+                                              ),
                                             ),
-                                            itemCount:
-                                                snapshot.data.docs.length,
-                                            itemBuilder: (context, index) {
-                                              return VideoWidget(
-                                                videoUrl: snapshot
-                                                    .data.docs[index]
-                                                    .data()['videoUrl'],
-                                              );
-                                            },
-                                          );
-                                  }
-                                },
-                              ),
-                              Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Padding(
-                                  padding: EdgeInsets.all(8),
-                                  child: FlutterToggleTab(
-                                    width: 80,
-                                    borderRadius: 40,
-                                    labels: ['', '', '', '', ''],
-                                    icons: [
-                                      MdiIcons.cards,
-                                      MdiIcons.star,
-                                      MdiIcons.dramaMasks,
-                                      MdiIcons.baseball,
-                                      MdiIcons.flagCheckered,
+                                          ),
+                                        ],
+                                      ),
                                     ],
-                                    selectedBackgroundColors: [
-                                      Colors.black,
-                                      Colors.black,
-                                    ],
-                                    initialIndex: 0,
-                                    selectedIndex: _likesSelectedIndex,
-                                    selectedLabelIndex: (int index) {
-                                      setState(
-                                        () {
-                                          _likesSelectedIndex = index;
-                                          if (_likesSelectedIndex == 0) {
-                                            _generalLikesFuture = _postLikes;
-                                          } else if (_likesSelectedIndex == 1) {
-                                            _generalLikesFuture = _talentLikes;
-                                          } else if (_likesSelectedIndex == 2) {
-                                            _generalLikesFuture = _comedyLikes;
-                                          } else if (_likesSelectedIndex == 3) {
-                                            _generalLikesFuture = _sportLikes;
-                                          } else if (_likesSelectedIndex == 4) {
-                                            _generalLikesFuture =
-                                                _challengeLikes;
-                                          } else {
-                                            return;
-                                          }
-                                        },
-                                      );
-                                    },
-                                    selectedTextStyle: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600),
-                                    unSelectedTextStyle: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                              ],
+                            ),
                     ),
-                  ],
-                ),
-              ),
-            ),
+                  );
+                }),
           );
   }
 }
