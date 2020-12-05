@@ -434,6 +434,23 @@ class _SportCreationState extends State<SportCreation>
               },
             ),
           ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: EdgeInsets.only(top: 30, left: 10),
+              child: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                color: Colors.black.withOpacity(0.5),
+                icon: Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+            ),
+          ),
           _startRecording == true ? Container() : _buildTopControlBar(),
           _buildBottomControlBar(),
         ],
@@ -511,6 +528,8 @@ class _SportVideoShowPageState extends State<SportVideoShowPage> {
       'New Sport',
       '$_userName uploaded a new sport',
       _userId,
+      'sport-creation',
+      DateTime.now().toUtc().toString(),
     );
     Fluttertoast.showToast(msg: 'Sport Created');
     setState(() => _showSpinner = false);
