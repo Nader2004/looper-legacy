@@ -179,79 +179,111 @@ class _TalentRoomState extends State<TalentRoom> {
             }
             if (snapshot.data[0].documents.isEmpty &&
                 snapshot.data[1].documents.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      MdiIcons.shapePlus,
-                      color: Colors.white,
-                      size: 60,
+              return Stack(
+                children: [
+                  Positioned(
+                    top: 25,
+                    left: 15,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        size: 25,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      'No Talents uploaded yet',
-                      style: GoogleFonts.aBeeZee(
-                        textStyle: TextStyle(
+                  ),
+                  Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          MdiIcons.shapePlus,
                           color: Colors.white,
-                          fontSize: 20,
+                          size: 60,
                         ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    OutlineButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      borderSide: BorderSide(color: Colors.white),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => TalentCreation(),
+                        SizedBox(height: 8),
+                        Text(
+                          'No Talents uploaded yet',
+                          style: GoogleFonts.aBeeZee(
+                            textStyle: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
                           ),
-                        );
-                      },
-                      textColor: Colors.white,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.add,
-                            color: Colors.white,
+                        ),
+                        SizedBox(height: 10),
+                        OutlineButton(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          SizedBox(width: 5),
-                          Text('create one now'),
-                        ],
-                      ),
+                          borderSide: BorderSide(color: Colors.white),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => TalentCreation(),
+                              ),
+                            );
+                          },
+                          textColor: Colors.white,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.add,
+                                color: Colors.white,
+                              ),
+                              SizedBox(width: 5),
+                              Text('create one now'),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               );
             }
             for (DocumentSnapshot doc in snapshot.data[0].documents) {
               _ids.add(doc.data()['creatorId']);
             }
             if (_followIds != _ids) {
-              return PageView.builder(
-                  scrollDirection: Axis.vertical,
-                  itemCount: getTalentList(snapshot.data[1]).length,
-                  itemBuilder: (context, index) {
-                    if (index % 3 == 0 || index % 10 == 0) {
-                      return Column(
-                        children: [
-                          Flexible(
-                            child: Talent(
-                              data: getTalentList(snapshot.data[1])[index],
-                            ),
-                          ),
-                          MinimizedNativeAd(),
-                        ],
-                      );
-                    }
-                    return Talent(
-                      data: getTalentList(snapshot.data[1])[index],
-                    );
-                  });
+              return Stack(
+                children: [
+                  Positioned(
+                    top: 25,
+                    left: 15,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        size: 25,
+                        color: Colors.white,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                  PageView.builder(
+                      scrollDirection: Axis.vertical,
+                      itemCount: getTalentList(snapshot.data[1]).length,
+                      itemBuilder: (context, index) {
+                        if (index % 3 == 0 || index % 10 == 0) {
+                          return Column(
+                            children: [
+                              Flexible(
+                                child: Talent(
+                                  data: getTalentList(snapshot.data[1])[index],
+                                ),
+                              ),
+                              MinimizedNativeAd(),
+                            ],
+                          );
+                        }
+                        return Talent(
+                          data: getTalentList(snapshot.data[1])[index],
+                        );
+                      }),
+                ],
+              );
             }
             int lengthOfDocs = 0;
             int querySnapShotCounter = 0;
@@ -260,51 +292,67 @@ class _TalentRoomState extends State<TalentRoom> {
             });
 
             int counter = 0;
-            return PageView.builder(
-              scrollDirection: Axis.vertical,
-              itemBuilder: (context, index) {
-                try {
-                  final DocumentSnapshot doc = getTalentList(
-                    snapshot.data[querySnapShotCounter],
-                  ).reversed.toList()[counter];
-                  counter = counter + 1;
-                  if (index % 3 == 0 || index % 10 == 0) {
-                    return Column(
-                      children: [
-                        Flexible(
-                          child: Talent(
-                            data: doc,
-                          ),
-                        ),
-                        MinimizedNativeAd(),
-                      ],
-                    );
-                  }
-                  return Talent(data: doc);
-                } catch (RageError) {
-                  querySnapShotCounter = querySnapShotCounter + 1;
-                  counter = 0;
-                  final DocumentSnapshot doc = getTalentList(
-                      snapshot.data[querySnapShotCounter])[counter];
-                  counter = counter + 1;
-                  if (index % 3 == 0 || index % 10 == 0) {
-                    return Column(
-                      children: [
-                        Flexible(
-                          child: Talent(
-                            data: doc,
-                          ),
-                        ),
-                        MinimizedNativeAd(),
-                      ],
-                    );
-                  }
-                  return Talent(
-                    data: doc,
-                  );
-                }
-              },
-              itemCount: lengthOfDocs,
+            return Stack(
+              children: [
+                Positioned(
+                  top: 25,
+                  left: 15,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      size: 25,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
+                PageView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemBuilder: (context, index) {
+                    try {
+                      final DocumentSnapshot doc = getTalentList(
+                        snapshot.data[querySnapShotCounter],
+                      ).reversed.toList()[counter];
+                      counter = counter + 1;
+                      if (index % 3 == 0 || index % 10 == 0) {
+                        return Column(
+                          children: [
+                            Flexible(
+                              child: Talent(
+                                data: doc,
+                              ),
+                            ),
+                            MinimizedNativeAd(),
+                          ],
+                        );
+                      }
+                      return Talent(data: doc);
+                    } catch (RageError) {
+                      querySnapShotCounter = querySnapShotCounter + 1;
+                      counter = 0;
+                      final DocumentSnapshot doc = getTalentList(
+                          snapshot.data[querySnapShotCounter])[counter];
+                      counter = counter + 1;
+                      if (index % 3 == 0 || index % 10 == 0) {
+                        return Column(
+                          children: [
+                            Flexible(
+                              child: Talent(
+                                data: doc,
+                              ),
+                            ),
+                            MinimizedNativeAd(),
+                          ],
+                        );
+                      }
+                      return Talent(
+                        data: doc,
+                      );
+                    }
+                  },
+                  itemCount: lengthOfDocs,
+                ),
+              ],
             );
           }),
     );
