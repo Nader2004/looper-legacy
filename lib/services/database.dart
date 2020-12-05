@@ -346,6 +346,7 @@ class DatabaseService {
         transaction.set(_loveCardDocRef, {
           'authorId': loveCard.authorId,
           'authorName': loveCard.authorName,
+          'authorGender': loveCard.authorGender,
           'author-personality': loveCard.authorPersonality,
           'authorImage': loveCard.authorImage,
           'authorAge': loveCard.authorAge,
@@ -931,6 +932,35 @@ class DatabaseService {
         'isBlocked': false,
         'blocker': FieldValue.delete(),
       });
+    });
+  }
+
+  static void blockUser(String userId, String blockedUserId) {
+    final DocumentReference _documentReference = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('blocked-users')
+        .doc(blockedUserId);
+    _firestore.runTransaction((Transaction tx) async {
+      tx.set(_documentReference, {
+        'blockedUser': blockedUserId,
+      });
+    });
+    DatabaseService.checkIsFollowing(blockedUserId).then((value) {
+      if (value == true) {
+        DatabaseService.unFollowUser(blockedUserId);
+      }
+    });
+  }
+
+  static void unBlockUser(String userId, String blockedUserId) {
+    final DocumentReference _documentReference = _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('blocked-users')
+        .doc(blockedUserId);
+    _firestore.runTransaction((Transaction tx) async {
+      tx.delete(_documentReference);
     });
   }
 
