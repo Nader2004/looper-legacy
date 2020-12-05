@@ -69,7 +69,7 @@ class _PostWidgetState extends State<PostWidget>
   PlayerState _playerState;
   AnimationController _animationController;
   Animation<double> _animation;
-
+  Stream<QuerySnapshot> _blockedUsers;
   bool get _isPlaying => _playerState == PlayerState.playing;
   bool get _isPaused => _playerState == PlayerState.paused;
   bool get _isStopped => _playerState == PlayerState.stopped;
@@ -86,6 +86,11 @@ class _PostWidgetState extends State<PostWidget>
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = _prefs.get('id');
+      _blockedUsers = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_userId)
+          .collection('blocked-users')
+          .snapshots();
       _post = Post.fromDoc(widget.snapshot);
       _likePostCount = _post.likeCount;
       _commentCount = _post.commentCount;
@@ -317,11 +322,22 @@ class _PostWidgetState extends State<PostWidget>
                               _post.authorId,
                               _post.authorName,
                             );
+                            NotificationsService.sendNotification(
+                              'New Follower',
+                              '$_userName followed you',
+                              _post.authorId,
+                              'post',
+                              _post.id,
+                            );
+                            NotificationsService.subscribeToTopic(
+                                _post.authorId);
                             setState(() {
                               _isFollowing = true;
                             });
                           } else {
                             DatabaseService.unFollowUser(_post.authorId);
+                            NotificationsService.unsubscribeFromTopic(
+                                _post.authorId);
                             setState(() {
                               _isFollowing = false;
                             });
@@ -783,6 +799,15 @@ class _PostWidgetState extends State<PostWidget>
                       'New share',
                       '$_userName shared your post',
                       _post.authorId,
+                      'post',
+                      _post.id,
+                    );
+                    NotificationsService.sendNotificationToFollowers(
+                      'New Like ❤',
+                      '$_userName shared a post',
+                      _post.authorId,
+                      'post',
+                      _post.id,
                     );
                     setState(() {
                       _shareCount++;
@@ -887,10 +912,19 @@ class _PostWidgetState extends State<PostWidget>
                           _post.id,
                           _userId,
                         );
+                        NotificationsService.sendNotification(
+                          'New Like ❤',
+                          '$_userName liked your post',
+                          _post.authorId,
+                          'post',
+                          _post.id,
+                        );
                         NotificationsService.sendNotificationToFollowers(
                           'New Like ❤',
-                          '$_userName shared your post',
+                          '$_userName liked a post',
                           _post.authorId,
+                          'post',
+                          _post.id,
                         );
                         if (_post.type == 1) {
                           PersonalityService.setTextInput(_post.text);
@@ -1538,817 +1572,925 @@ class _PostWidgetState extends State<PostWidget>
     final double _screenHeight = MediaQuery.of(context).size.height;
     if (_post != null) {
       if (_post.type == 2) {
-        return VisibilityDetector(
-          key: Key(_post.id),
-          onVisibilityChanged: (VisibilityInfo info) {
-            double _visibilePercentage = info.visibleFraction * 100;
-            Timer(
-              Duration(milliseconds: 2300),
-              () {
-                if (!_post.viewedPeople.contains(_userId)) {
-                  if (_visibilePercentage == 100) {
-                    DatabaseService.addView(
-                      'posts',
-                      _post.id,
-                      _userId,
-                    );
-                  }
-                }
-              },
-            );
-          },
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            child: Card(
-              elevation: 10,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  children: <Widget>[
-                    _post.isShared == true
-                        ? _buildShareLabel()
-                        : SizedBox.shrink(),
-                    _buildTopPostWidget(),
-                    _buildLocationWidget(),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        height: 40,
-                        width: MediaQuery.of(context).size.width / 1.6,
-                        decoration: ShapeDecoration(
-                          color: Colors.black,
-                          shape: SuperellipseShape(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          _post.question['question'],
-                          style: GoogleFonts.abel(
-                            textStyle: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                            ),
-                          ),
-                        ),
-                      ),
+        return StreamBuilder(
+            stream: _blockedUsers,
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SizedBox.shrink();
+              }
+
+              final List<String> blockedUsers =
+                  snapshot.data.docs.map((e) => e.id).toList();
+              if (blockedUsers.contains(_post.authorId)) {
+                return Container();
+              }
+              return VisibilityDetector(
+                key: Key(_post.id),
+                onVisibilityChanged: (VisibilityInfo info) {
+                  double _visibilePercentage = info.visibleFraction * 100;
+                  Timer(
+                    Duration(milliseconds: 2300),
+                    () {
+                      if (!_post.viewedPeople.contains(_userId)) {
+                        if (_visibilePercentage == 100) {
+                          DatabaseService.addView(
+                            'posts',
+                            _post.id,
+                            _userId,
+                          );
+                        }
+                      }
+                    },
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Card(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
-                    SizedBox(height: 10),
-                    _post.question['media1'] != null &&
-                            _post.question['media2'] != null
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Column(
-                                children: <Widget>[
-                                  _post.question['media1']
-                                          .toString()
-                                          .contains('.mp4')
-                                      ? VideoQuestionThumbWidget(
-                                          videoUrl: _post.question['media1'],
-                                        )
-                                      : GestureDetector(
-                                          onTap: () => Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ImagePreviewWidget(
-                                                imageUrl:
-                                                    _post.question['media1'],
-                                              ),
-                                            ),
-                                          ),
-                                          child: Container(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                3,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                            ),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                              child: CachedNetworkImage(
-                                                imageUrl:
-                                                    _post.question['media1'],
-                                                progressIndicatorBuilder:
-                                                    (context, url,
-                                                            downloadProgress) =>
-                                                        Padding(
-                                                  padding: EdgeInsets.all(8.0),
-                                                  child: Center(
-                                                    child: SizedBox(
-                                                      height: 40,
-                                                      width: 40,
-                                                      child: CircularProgressIndicator(
-                                                          backgroundColor:
-                                                              Colors.grey,
-                                                          valueColor:
-                                                              AlwaysStoppedAnimation(
-                                                                  Colors.black),
-                                                          strokeWidth: 1.5,
-                                                          value:
-                                                              downloadProgress
-                                                                  .progress),
-                                                    ),
-                                                  ),
-                                                ),
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                  SizedBox(height: 5),
-                                  ButtonTheme(
-                                    minWidth:
-                                        MediaQuery.of(context).size.width / 4,
-                                    child: OutlineButton(
-                                      borderSide: BorderSide(
-                                        color: _choosedOption1 == true
-                                            ? Colors.black
-                                            : Colors.grey,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      child: _choosedOption1 == true
-                                          ? Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: <Widget>[
-                                                Text(
-                                                  _post.question['option1'],
-                                                  style: TextStyle(
-                                                    color:
-                                                        _choosedOption1 == true
-                                                            ? Colors.black
-                                                            : Colors.grey,
-                                                  ),
-                                                ),
-                                                SizedBox(width: 5),
-                                                Text(
-                                                  getOptionPercentage(
-                                                    _option1Count,
-                                                  ),
-                                                  style: TextStyle(
-                                                    color: Colors.blueGrey,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : Text(
-                                              _post.question['option1'],
-                                              style: TextStyle(
-                                                color: _choosedOption1 == true
-                                                    ? Colors.black
-                                                    : Colors.grey,
-                                              ),
-                                            ),
-                                      onPressed: () {
-                                        if (!_choosedOption1 &&
-                                            !_choosedOption2) {
-                                          setState(() {
-                                            _choosedOption1 = true;
-                                            _option1Count++;
-                                          });
-                                          DatabaseService.chooseOption1(
-                                            _post.id,
-                                            _userId,
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: <Widget>[
-                                  _post.question['media2']
-                                          .toString()
-                                          .contains('.mp4')
-                                      ? VideoQuestionThumbWidget(
-                                          videoUrl: _post.question['media2'],
-                                        )
-                                      : GestureDetector(
-                                          onTap: () => Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ImagePreviewWidget(
-                                                imageUrl:
-                                                    _post.question['media2'],
-                                              ),
-                                            ),
-                                          ),
-                                          child: Container(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                3,
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                            ),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
-                                              child: CachedNetworkImage(
-                                                imageUrl:
-                                                    _post.question['media2'],
-                                                progressIndicatorBuilder:
-                                                    (context, url,
-                                                            downloadProgress) =>
-                                                        Padding(
-                                                  padding: EdgeInsets.all(8.0),
-                                                  child: Center(
-                                                    child: SizedBox(
-                                                      height: 40,
-                                                      width: 40,
-                                                      child: CircularProgressIndicator(
-                                                          backgroundColor:
-                                                              Colors.grey,
-                                                          valueColor:
-                                                              AlwaysStoppedAnimation(
-                                                                  Colors.black),
-                                                          strokeWidth: 1.5,
-                                                          value:
-                                                              downloadProgress
-                                                                  .progress),
-                                                    ),
-                                                  ),
-                                                ),
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                  SizedBox(height: 5),
-                                  ButtonTheme(
-                                    minWidth:
-                                        MediaQuery.of(context).size.width / 4,
-                                    child: OutlineButton(
-                                      borderSide: BorderSide(
-                                        color: _choosedOption2 == true
-                                            ? Colors.black
-                                            : Colors.grey,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                      child: _choosedOption2 == true
-                                          ? Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: <Widget>[
-                                                Text(
-                                                  _post.question['option2'],
-                                                  style: TextStyle(
-                                                    color:
-                                                        _choosedOption2 == true
-                                                            ? Colors.black
-                                                            : Colors.grey,
-                                                  ),
-                                                ),
-                                                SizedBox(width: 5),
-                                                Text(
-                                                  getOptionPercentage(
-                                                    _option2Count,
-                                                  ),
-                                                  style: TextStyle(
-                                                    color: Colors.blueGrey,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : Text(
-                                              _post.question['option2'],
-                                              style: TextStyle(
-                                                color: _choosedOption2 == true
-                                                    ? Colors.black
-                                                    : Colors.grey,
-                                              ),
-                                            ),
-                                      onPressed: () {
-                                        if (!_choosedOption2 &&
-                                            !_choosedOption1) {
-                                          setState(() {
-                                            _choosedOption2 = true;
-                                            _option2Count++;
-                                          });
-                                          DatabaseService.chooseOption2(
-                                            _post.id,
-                                            _userId,
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          )
-                        : Column(
-                            children: <Widget>[
-                              ButtonTheme(
-                                minWidth: MediaQuery.of(context).size.width / 4,
-                                child: OutlineButton(
-                                  borderSide: BorderSide(
-                                    color: _choosedOption1 == true
-                                        ? Colors.black
-                                        : Colors.grey,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: _choosedOption1 == true
-                                      ? Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            Text(
-                                              _post.question['option1'],
-                                              style: TextStyle(
-                                                color: _choosedOption1 == true
-                                                    ? Colors.black
-                                                    : Colors.grey,
-                                              ),
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              getOptionPercentage(
-                                                _option1Count,
-                                              ),
-                                              style: TextStyle(
-                                                color: Colors.blueGrey,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : Text(
-                                          _post.question['option1'],
-                                          style: TextStyle(
-                                            color: _choosedOption1 == true
-                                                ? Colors.black
-                                                : Colors.grey,
-                                          ),
-                                        ),
-                                  onPressed: () {
-                                    if (!_choosedOption1 && !_choosedOption2) {
-                                      setState(() {
-                                        _choosedOption1 = true;
-                                        _option1Count++;
-                                      });
-                                      DatabaseService.chooseOption1(
-                                        _post.id,
-                                        _userId,
-                                      );
-                                    }
-                                  },
-                                ),
-                              ),
-                              ButtonTheme(
-                                minWidth: MediaQuery.of(context).size.width / 4,
-                                child: OutlineButton(
-                                  borderSide: BorderSide(
-                                    color: _choosedOption2 == true
-                                        ? Colors.black
-                                        : Colors.grey,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: _choosedOption2 == true
-                                      ? Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: <Widget>[
-                                            Text(
-                                              _post.question['option2'],
-                                              style: TextStyle(
-                                                color: _choosedOption2 == true
-                                                    ? Colors.black
-                                                    : Colors.grey,
-                                              ),
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              getOptionPercentage(
-                                                _option2Count,
-                                              ),
-                                              style: TextStyle(
-                                                color: Colors.blueGrey,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : Text(
-                                          _post.question['option2'],
-                                          style: TextStyle(
-                                            color: _choosedOption2 == true
-                                                ? Colors.black
-                                                : Colors.grey,
-                                          ),
-                                        ),
-                                  onPressed: () {
-                                    if (!_choosedOption2 == true &&
-                                        !_choosedOption1 == true) {
-                                      setState(() {
-                                        _choosedOption2 = true;
-                                        _option2Count++;
-                                      });
-                                      DatabaseService.chooseOption2(
-                                        _post.id,
-                                        _userId,
-                                      );
-                                    }
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                    _buildBottomPostPart(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      } else if (_post.type == 4) {
-        return VisibilityDetector(
-          key: Key(_post.id),
-          onVisibilityChanged: (VisibilityInfo info) {
-            double _visibilePercentage = info.visibleFraction * 100;
-            Timer(
-              Duration(milliseconds: 2300),
-              () {
-                if (!_post.viewedPeople.contains(_userId)) {
-                  if (_visibilePercentage == 100) {
-                    DatabaseService.addView(
-                      'posts',
-                      _post.id,
-                      _userId,
-                    );
-                  }
-                }
-              },
-            );
-          },
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            child: Card(
-              elevation: 10,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    _post.isShared == true
-                        ? _buildShareLabel()
-                        : SizedBox.shrink(),
-                    _buildTopPostWidget(),
-                    _buildLocationWidget(),
-                    _post.gif['caption'] == ''
-                        ? Container()
-                        : Padding(
-                            padding:
-                                EdgeInsets.only(bottom: 10, left: 26, top: 5),
-                            child: Text(
-                              _post.gif['caption'],
-                              textAlign: TextAlign.end,
-                              style: TextStyle(fontSize: 18),
-                            ),
-                          ),
-                    Padding(
-                      padding: _post.gif['caption'] == ''
-                          ? EdgeInsets.only(top: 10, left: 16)
-                          : EdgeInsets.only(left: 16),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: CachedNetworkImage(
-                          imageUrl: _post.gif['gif'],
-                          progressIndicatorBuilder:
-                              (context, url, downloadProgress) => Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: CircularProgressIndicator(
-                                backgroundColor: Colors.grey,
-                                valueColor:
-                                    AlwaysStoppedAnimation(Colors.black),
-                                value: downloadProgress.progress),
-                          ),
-                          height: MediaQuery.of(context).size.height / 4,
-                          fit: BoxFit.cover,
-                          width: MediaQuery.of(context).size.width / 1.2,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    _buildBottomPostPart(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      } else if (_post.type == 5) {
-        return VisibilityDetector(
-          key: Key(_post.id),
-          onVisibilityChanged: (VisibilityInfo info) {
-            double _visibilePercentage = info.visibleFraction * 100;
-            Timer(
-              Duration(milliseconds: 2300),
-              () {
-                if (!_post.viewedPeople.contains(_userId)) {
-                  if (_visibilePercentage == 100) {
-                    DatabaseService.addView(
-                      'posts',
-                      _post.id,
-                      _userId,
-                    );
-                  }
-                }
-              },
-            );
-          },
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            child: Card(
-              elevation: 10,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  children: <Widget>[
-                    _post.isShared == true
-                        ? _buildShareLabel()
-                        : SizedBox.shrink(),
-                    _buildTopPostWidget(),
-                    _buildLocationWidget(),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _post.audioDescribtion.isEmpty
-                            ? Container()
-                            : Padding(
-                                padding: EdgeInsets.only(left: 20, bottom: 10),
-                                child: Text(
-                                  _post.audioDescribtion,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            bottom: 10,
-                            left: MediaQuery.of(context).size.width / 3,
-                          ),
-                          child: RotationTransition(
-                            turns: _animation,
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: <Widget>[
+                          _post.isShared == true
+                              ? _buildShareLabel()
+                              : SizedBox.shrink(),
+                          _buildTopPostWidget(),
+                          _buildLocationWidget(),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
                             child: Container(
-                              width: 100,
-                              height: 100,
-                              child: Card(
-                                elevation: 20,
-                                shape: CircleBorder(),
-                                child: _post.audioImage == ''
-                                    ? Center(
-                                        child: Icon(
-                                          Icons.mic,
-                                          color: Colors.black,
-                                          size: 30,
-                                        ),
-                                      )
-                                    : ClipRRect(
-                                        borderRadius: BorderRadius.circular(50),
-                                        child: CachedNetworkImage(
-                                          imageUrl: _post.audioImage ?? '',
-                                          progressIndicatorBuilder: (context,
-                                                  url, downloadProgress) =>
-                                              Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: CircularProgressIndicator(
-                                                backgroundColor: Colors.grey,
-                                                valueColor:
-                                                    AlwaysStoppedAnimation(
-                                                        Colors.black),
-                                                value:
-                                                    downloadProgress.progress),
+                              height: 40,
+                              width: MediaQuery.of(context).size.width / 1.6,
+                              decoration: ShapeDecoration(
+                                color: Colors.black,
+                                shape: SuperellipseShape(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                _post.question['question'],
+                                style: GoogleFonts.abel(
+                                  textStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          _post.question['media1'] != null &&
+                                  _post.question['media2'] != null
+                              ? Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Column(
+                                      children: <Widget>[
+                                        _post.question['media1']
+                                                .toString()
+                                                .contains('.mp4')
+                                            ? VideoQuestionThumbWidget(
+                                                videoUrl:
+                                                    _post.question['media1'],
+                                              )
+                                            : GestureDetector(
+                                                onTap: () => Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ImagePreviewWidget(
+                                                      imageUrl: _post
+                                                          .question['media1'],
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Container(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      3,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
+                                                    child: CachedNetworkImage(
+                                                      imageUrl: _post
+                                                          .question['media1'],
+                                                      progressIndicatorBuilder:
+                                                          (context, url,
+                                                                  downloadProgress) =>
+                                                              Padding(
+                                                        padding:
+                                                            EdgeInsets.all(8.0),
+                                                        child: Center(
+                                                          child: SizedBox(
+                                                            height: 40,
+                                                            width: 40,
+                                                            child: CircularProgressIndicator(
+                                                                backgroundColor:
+                                                                    Colors.grey,
+                                                                valueColor:
+                                                                    AlwaysStoppedAnimation(
+                                                                        Colors
+                                                                            .black),
+                                                                strokeWidth:
+                                                                    1.5,
+                                                                value: downloadProgress
+                                                                    .progress),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                        SizedBox(height: 5),
+                                        ButtonTheme(
+                                          minWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              4,
+                                          child: OutlineButton(
+                                            borderSide: BorderSide(
+                                              color: _choosedOption1 == true
+                                                  ? Colors.black
+                                                  : Colors.grey,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                            child: _choosedOption1 == true
+                                                ? Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: <Widget>[
+                                                      Text(
+                                                        _post.question[
+                                                            'option1'],
+                                                        style: TextStyle(
+                                                          color:
+                                                              _choosedOption1 ==
+                                                                      true
+                                                                  ? Colors.black
+                                                                  : Colors.grey,
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 5),
+                                                      Text(
+                                                        getOptionPercentage(
+                                                          _option1Count,
+                                                        ),
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors.blueGrey,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                                : Text(
+                                                    _post.question['option1'],
+                                                    style: TextStyle(
+                                                      color: _choosedOption1 ==
+                                                              true
+                                                          ? Colors.black
+                                                          : Colors.grey,
+                                                    ),
+                                                  ),
+                                            onPressed: () {
+                                              if (!_choosedOption1 &&
+                                                  !_choosedOption2) {
+                                                setState(() {
+                                                  _choosedOption1 = true;
+                                                  _option1Count++;
+                                                });
+                                                DatabaseService.chooseOption1(
+                                                  _post.id,
+                                                  _userId,
+                                                );
+                                              }
+                                            },
                                           ),
-                                          fit: BoxFit.cover,
+                                        ),
+                                      ],
+                                    ),
+                                    Column(
+                                      children: <Widget>[
+                                        _post.question['media2']
+                                                .toString()
+                                                .contains('.mp4')
+                                            ? VideoQuestionThumbWidget(
+                                                videoUrl:
+                                                    _post.question['media2'],
+                                              )
+                                            : GestureDetector(
+                                                onTap: () => Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ImagePreviewWidget(
+                                                      imageUrl: _post
+                                                          .question['media2'],
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: Container(
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      3,
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width /
+                                                      2,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16),
+                                                    child: CachedNetworkImage(
+                                                      imageUrl: _post
+                                                          .question['media2'],
+                                                      progressIndicatorBuilder:
+                                                          (context, url,
+                                                                  downloadProgress) =>
+                                                              Padding(
+                                                        padding:
+                                                            EdgeInsets.all(8.0),
+                                                        child: Center(
+                                                          child: SizedBox(
+                                                            height: 40,
+                                                            width: 40,
+                                                            child: CircularProgressIndicator(
+                                                                backgroundColor:
+                                                                    Colors.grey,
+                                                                valueColor:
+                                                                    AlwaysStoppedAnimation(
+                                                                        Colors
+                                                                            .black),
+                                                                strokeWidth:
+                                                                    1.5,
+                                                                value: downloadProgress
+                                                                    .progress),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                        SizedBox(height: 5),
+                                        ButtonTheme(
+                                          minWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              4,
+                                          child: OutlineButton(
+                                            borderSide: BorderSide(
+                                              color: _choosedOption2 == true
+                                                  ? Colors.black
+                                                  : Colors.grey,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                            child: _choosedOption2 == true
+                                                ? Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: <Widget>[
+                                                      Text(
+                                                        _post.question[
+                                                            'option2'],
+                                                        style: TextStyle(
+                                                          color:
+                                                              _choosedOption2 ==
+                                                                      true
+                                                                  ? Colors.black
+                                                                  : Colors.grey,
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 5),
+                                                      Text(
+                                                        getOptionPercentage(
+                                                          _option2Count,
+                                                        ),
+                                                        style: TextStyle(
+                                                          color:
+                                                              Colors.blueGrey,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                                : Text(
+                                                    _post.question['option2'],
+                                                    style: TextStyle(
+                                                      color: _choosedOption2 ==
+                                                              true
+                                                          ? Colors.black
+                                                          : Colors.grey,
+                                                    ),
+                                                  ),
+                                            onPressed: () {
+                                              if (!_choosedOption2 &&
+                                                  !_choosedOption1) {
+                                                setState(() {
+                                                  _choosedOption2 = true;
+                                                  _option2Count++;
+                                                });
+                                                DatabaseService.chooseOption2(
+                                                  _post.id,
+                                                  _userId,
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              : Column(
+                                  children: <Widget>[
+                                    ButtonTheme(
+                                      minWidth:
+                                          MediaQuery.of(context).size.width / 4,
+                                      child: OutlineButton(
+                                        borderSide: BorderSide(
+                                          color: _choosedOption1 == true
+                                              ? Colors.black
+                                              : Colors.grey,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        child: _choosedOption1 == true
+                                            ? Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  Text(
+                                                    _post.question['option1'],
+                                                    style: TextStyle(
+                                                      color: _choosedOption1 ==
+                                                              true
+                                                          ? Colors.black
+                                                          : Colors.grey,
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 5),
+                                                  Text(
+                                                    getOptionPercentage(
+                                                      _option1Count,
+                                                    ),
+                                                    style: TextStyle(
+                                                      color: Colors.blueGrey,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            : Text(
+                                                _post.question['option1'],
+                                                style: TextStyle(
+                                                  color: _choosedOption1 == true
+                                                      ? Colors.black
+                                                      : Colors.grey,
+                                                ),
+                                              ),
+                                        onPressed: () {
+                                          if (!_choosedOption1 &&
+                                              !_choosedOption2) {
+                                            setState(() {
+                                              _choosedOption1 = true;
+                                              _option1Count++;
+                                            });
+                                            DatabaseService.chooseOption1(
+                                              _post.id,
+                                              _userId,
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    ButtonTheme(
+                                      minWidth:
+                                          MediaQuery.of(context).size.width / 4,
+                                      child: OutlineButton(
+                                        borderSide: BorderSide(
+                                          color: _choosedOption2 == true
+                                              ? Colors.black
+                                              : Colors.grey,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(30),
+                                        ),
+                                        child: _choosedOption2 == true
+                                            ? Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: <Widget>[
+                                                  Text(
+                                                    _post.question['option2'],
+                                                    style: TextStyle(
+                                                      color: _choosedOption2 ==
+                                                              true
+                                                          ? Colors.black
+                                                          : Colors.grey,
+                                                    ),
+                                                  ),
+                                                  SizedBox(width: 5),
+                                                  Text(
+                                                    getOptionPercentage(
+                                                      _option2Count,
+                                                    ),
+                                                    style: TextStyle(
+                                                      color: Colors.blueGrey,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            : Text(
+                                                _post.question['option2'],
+                                                style: TextStyle(
+                                                  color: _choosedOption2 == true
+                                                      ? Colors.black
+                                                      : Colors.grey,
+                                                ),
+                                              ),
+                                        onPressed: () {
+                                          if (!_choosedOption2 == true &&
+                                              !_choosedOption1 == true) {
+                                            setState(() {
+                                              _choosedOption2 = true;
+                                              _option2Count++;
+                                            });
+                                            DatabaseService.chooseOption2(
+                                              _post.id,
+                                              _userId,
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          _buildBottomPostPart(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            });
+      } else if (_post.type == 4) {
+        return StreamBuilder(
+            stream: _blockedUsers,
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SizedBox.shrink();
+              }
+
+              final List<String> blockedUsers =
+                  snapshot.data.docs.map((e) => e.id).toList();
+              if (blockedUsers.contains(_post.authorId)) {
+                return Container();
+              }
+              return VisibilityDetector(
+                key: Key(_post.id),
+                onVisibilityChanged: (VisibilityInfo info) {
+                  double _visibilePercentage = info.visibleFraction * 100;
+                  Timer(
+                    Duration(milliseconds: 2300),
+                    () {
+                      if (!_post.viewedPeople.contains(_userId)) {
+                        if (_visibilePercentage == 100) {
+                          DatabaseService.addView(
+                            'posts',
+                            _post.id,
+                            _userId,
+                          );
+                        }
+                      }
+                    },
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Card(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          _post.isShared == true
+                              ? _buildShareLabel()
+                              : SizedBox.shrink(),
+                          _buildTopPostWidget(),
+                          _buildLocationWidget(),
+                          _post.gif['caption'] == ''
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.only(
+                                      bottom: 10, left: 26, top: 5),
+                                  child: Text(
+                                    _post.gif['caption'],
+                                    textAlign: TextAlign.end,
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ),
+                          Padding(
+                            padding: _post.gif['caption'] == ''
+                                ? EdgeInsets.only(top: 10, left: 16)
+                                : EdgeInsets.only(left: 16),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: CachedNetworkImage(
+                                imageUrl: _post.gif['gif'],
+                                progressIndicatorBuilder:
+                                    (context, url, downloadProgress) => Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: CircularProgressIndicator(
+                                      backgroundColor: Colors.grey,
+                                      valueColor:
+                                          AlwaysStoppedAnimation(Colors.black),
+                                      value: downloadProgress.progress),
+                                ),
+                                height: MediaQuery.of(context).size.height / 4,
+                                fit: BoxFit.cover,
+                                width: MediaQuery.of(context).size.width / 1.2,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          _buildBottomPostPart(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            });
+      } else if (_post.type == 5) {
+        return StreamBuilder(
+            stream: _blockedUsers,
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SizedBox.shrink();
+              }
+
+              final List<String> blockedUsers =
+                  snapshot.data.docs.map((e) => e.id).toList();
+              if (blockedUsers.contains(_post.authorId)) {
+                return Container();
+              }
+              return VisibilityDetector(
+                key: Key(_post.id),
+                onVisibilityChanged: (VisibilityInfo info) {
+                  double _visibilePercentage = info.visibleFraction * 100;
+                  Timer(
+                    Duration(milliseconds: 2300),
+                    () {
+                      if (!_post.viewedPeople.contains(_userId)) {
+                        if (_visibilePercentage == 100) {
+                          DatabaseService.addView(
+                            'posts',
+                            _post.id,
+                            _userId,
+                          );
+                        }
+                      }
+                    },
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Card(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: <Widget>[
+                          _post.isShared == true
+                              ? _buildShareLabel()
+                              : SizedBox.shrink(),
+                          _buildTopPostWidget(),
+                          _buildLocationWidget(),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              _post.audioDescribtion.isEmpty
+                                  ? Container()
+                                  : Padding(
+                                      padding:
+                                          EdgeInsets.only(left: 20, bottom: 10),
+                                      child: Text(
+                                        _post.audioDescribtion,
+                                        style: TextStyle(
+                                          fontSize: 18,
                                         ),
                                       ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Container(
-                                height: 50,
-                                width: 50,
-                                child: OutlineButton(
-                                  shape: CircleBorder(),
-                                  borderSide: BorderSide(color: Colors.black),
-                                  onPressed: () {
-                                    _seekToSecond(
-                                      _audioPosition.inSeconds < 10
-                                          ? 0
-                                          : _audioPosition.inSeconds - 100,
-                                    );
-                                  },
-                                  child: Icon(MdiIcons.rewind10),
+                                    ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: 10,
+                                  left: MediaQuery.of(context).size.width / 3,
+                                ),
+                                child: RotationTransition(
+                                  turns: _animation,
+                                  child: Container(
+                                    width: 100,
+                                    height: 100,
+                                    child: Card(
+                                      elevation: 20,
+                                      shape: CircleBorder(),
+                                      child: _post.audioImage == ''
+                                          ? Center(
+                                              child: Icon(
+                                                Icons.mic,
+                                                color: Colors.black,
+                                                size: 30,
+                                              ),
+                                            )
+                                          : ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              child: CachedNetworkImage(
+                                                imageUrl:
+                                                    _post.audioImage ?? '',
+                                                progressIndicatorBuilder:
+                                                    (context, url,
+                                                            downloadProgress) =>
+                                                        Padding(
+                                                  padding: EdgeInsets.all(8.0),
+                                                  child: CircularProgressIndicator(
+                                                      backgroundColor:
+                                                          Colors.grey,
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation(
+                                                              Colors.black),
+                                                      value: downloadProgress
+                                                          .progress),
+                                                ),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                              Container(
-                                width: 60,
-                                height: 60,
-                                child: OutlineButton(
-                                  shape: CircleBorder(),
-                                  borderSide: BorderSide(color: Colors.black),
-                                  onPressed: () {
-                                    if (_isPlaying) {
-                                      _animationController.stop();
-                                      _pause();
-                                    } else {
-                                      _animationController.repeat();
-                                      _play();
-                                    }
-                                  },
-                                  child: Icon(_getButtonIcon()),
-                                ),
-                              ),
-                              Container(
-                                width: 50,
-                                height: 50,
-                                child: OutlineButton(
-                                  shape: CircleBorder(),
-                                  borderSide: BorderSide(color: Colors.black),
-                                  onPressed: () {
-                                    if (_audioPosition.inSeconds <
-                                        _audioDuration.inSeconds) {
-                                      _seekToSecond(
-                                        _audioPosition.inSeconds >
-                                                _audioDuration.inSeconds - 10
-                                            ? _audioPosition.inSeconds +
-                                                (_audioDuration.inSeconds -
-                                                    _audioPosition.inSeconds)
-                                            : _audioPosition.inSeconds + 10,
-                                      );
-                                    }
-                                  },
-                                  child: Icon(MdiIcons.fastForward10),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Container(
+                                      height: 50,
+                                      width: 50,
+                                      child: OutlineButton(
+                                        shape: CircleBorder(),
+                                        borderSide:
+                                            BorderSide(color: Colors.black),
+                                        onPressed: () {
+                                          _seekToSecond(
+                                            _audioPosition.inSeconds < 10
+                                                ? 0
+                                                : _audioPosition.inSeconds -
+                                                    100,
+                                          );
+                                        },
+                                        child: Icon(MdiIcons.rewind10),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 60,
+                                      height: 60,
+                                      child: OutlineButton(
+                                        shape: CircleBorder(),
+                                        borderSide:
+                                            BorderSide(color: Colors.black),
+                                        onPressed: () {
+                                          if (_isPlaying) {
+                                            _animationController.stop();
+                                            _pause();
+                                          } else {
+                                            _animationController.repeat();
+                                            _play();
+                                          }
+                                        },
+                                        child: Icon(_getButtonIcon()),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: 50,
+                                      height: 50,
+                                      child: OutlineButton(
+                                        shape: CircleBorder(),
+                                        borderSide:
+                                            BorderSide(color: Colors.black),
+                                        onPressed: () {
+                                          if (_audioPosition.inSeconds <
+                                              _audioDuration.inSeconds) {
+                                            _seekToSecond(
+                                              _audioPosition.inSeconds >
+                                                      _audioDuration.inSeconds -
+                                                          10
+                                                  ? _audioPosition.inSeconds +
+                                                      (_audioDuration
+                                                              .inSeconds -
+                                                          _audioPosition
+                                                              .inSeconds)
+                                                  : _audioPosition.inSeconds +
+                                                      10,
+                                            );
+                                          }
+                                        },
+                                        child: Icon(MdiIcons.fastForward10),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                          _buildBottomPostPart(),
+                        ],
+                      ),
                     ),
-                    _buildBottomPostPart(),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ),
-        );
+              );
+            });
       } else {
-        return VisibilityDetector(
-          key: Key(_post.id),
-          onVisibilityChanged: (VisibilityInfo info) {
-            double _visibilePercentage = info.visibleFraction * 100;
-            Timer(
-              Duration(milliseconds: 2300),
-              () {
-                if (!_post.viewedPeople.contains(_userId)) {
-                  if (_visibilePercentage == 100) {
-                    DatabaseService.addView(
-                      'posts',
-                      _post.id,
-                      _userId,
-                    );
-                  }
-                }
-              },
-            );
-          },
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            child: Card(
-              elevation: 10,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    _post.isShared == true
-                        ? _buildShareLabel()
-                        : SizedBox.shrink(),
-                    _buildTopPostWidget(),
-                    _buildLocationWidget(),
-                    _post.type == 3 && _post.caption.isNotEmpty
-                        ? Padding(
-                            padding:
-                                const EdgeInsets.only(bottom: 10, left: 20),
-                            child: SelectableLinkify(
-                              onOpen: (link) async {
-                                if (await canLaunch(link.url)) {
-                                  await launch(link.url);
-                                } else {
-                                  Fluttertoast.showToast(
-                                    msg: 'can not launch this link',
-                                  );
-                                }
-                              },
-                              style: TextStyle(
-                                fontSize: 18,
-                              ),
-                              text: _post.caption,
-                            ),
-                          )
-                        : Container(),
-                    _post.type == 1
-                        ? Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: SelectableLinkify(
-                              onOpen: (link) async {
-                                if (await canLaunch(link.url)) {
-                                  await launch(link.url);
-                                } else {
-                                  Fluttertoast.showToast(
-                                    msg: 'can not launch this link',
-                                  );
-                                }
-                              },
-                              text: _post.text,
-                              style: TextStyle(
-                                fontSize: 20,
-                              ),
-                            ),
-                          )
-                        : _buildPostMediaContent(_screenWidth, _screenHeight),
-                    _post.mediaUrl.length == 1 || _post.mediaUrl.length == 0
-                        ? Container()
-                        : Padding(
-                            padding: EdgeInsets.only(
-                              left: MediaQuery.of(context).size.width / 2.5,
-                            ),
-                            child: DotsIndicator(
-                              dotsCount: _post.mediaUrl.length == 1 ||
-                                      _post.mediaUrl.length == 0
-                                  ? 1
-                                  : _post.mediaUrl.length,
-                              position: _mediaIndex.toDouble(),
-                            ),
-                          ),
-                    _post.type == 5
-                        ? Column(
-                            children: <Widget>[
-                              Container(
-                                width: 100,
-                                height: 100,
-                                child: Card(
-                                  elevation: 20,
-                                  child: _post.audioImage == null
-                                      ? Container()
-                                      : ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(50),
-                                          child: CachedNetworkImage(
-                                            imageUrl: _post.audioImage ?? '',
-                                          ),
-                                        ),
+        return StreamBuilder(
+            stream: _blockedUsers,
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return SizedBox.shrink();
+              }
+              final List<String> blockedUsers =
+                  snapshot.data.docs.map((e) => e.id).toList();
+              if (blockedUsers.contains(_post.authorId)) {
+                return Container();
+              }
+              return VisibilityDetector(
+                key: Key(_post.id),
+                onVisibilityChanged: (VisibilityInfo info) {
+                  double _visibilePercentage = info.visibleFraction * 100;
+                  Timer(
+                    Duration(milliseconds: 2300),
+                    () {
+                      if (!_post.viewedPeople.contains(_userId)) {
+                        if (_visibilePercentage == 100) {
+                          DatabaseService.addView(
+                            'posts',
+                            _post.id,
+                            _userId,
+                          );
+                        }
+                      }
+                    },
+                  );
+                },
+                child: Container(
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  child: Card(
+                    elevation: 10,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          _post.isShared == true
+                              ? _buildShareLabel()
+                              : SizedBox.shrink(),
+                          _buildTopPostWidget(),
+                          _buildLocationWidget(),
+                          _post.type == 3 && _post.caption.isNotEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 10, left: 20),
+                                  child: SelectableLinkify(
+                                    onOpen: (link) async {
+                                      if (await canLaunch(link.url)) {
+                                        await launch(link.url);
+                                      } else {
+                                        Fluttertoast.showToast(
+                                          msg: 'can not launch this link',
+                                        );
+                                      }
+                                    },
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                    ),
+                                    text: _post.caption,
+                                  ),
+                                )
+                              : Container(),
+                          _post.type == 1
+                              ? Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: SelectableLinkify(
+                                    onOpen: (link) async {
+                                      if (await canLaunch(link.url)) {
+                                        await launch(link.url);
+                                      } else {
+                                        Fluttertoast.showToast(
+                                          msg: 'can not launch this link',
+                                        );
+                                      }
+                                    },
+                                    text: _post.text,
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                )
+                              : _buildPostMediaContent(
+                                  _screenWidth, _screenHeight),
+                          _post.mediaUrl.length == 1 ||
+                                  _post.mediaUrl.length == 0
+                              ? Container()
+                              : Padding(
+                                  padding: EdgeInsets.only(
+                                    left:
+                                        MediaQuery.of(context).size.width / 2.5,
+                                  ),
+                                  child: DotsIndicator(
+                                    dotsCount: _post.mediaUrl.length == 1 ||
+                                            _post.mediaUrl.length == 0
+                                        ? 1
+                                        : _post.mediaUrl.length,
+                                    position: _mediaIndex.toDouble(),
+                                  ),
                                 ),
-                              ),
-                            ],
-                          )
-                        : Container(),
-                    _buildBottomPostPart(),
-                  ],
+                          _post.type == 5
+                              ? Column(
+                                  children: <Widget>[
+                                    Container(
+                                      width: 100,
+                                      height: 100,
+                                      child: Card(
+                                        elevation: 20,
+                                        child: _post.audioImage == null
+                                            ? Container()
+                                            : ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(50),
+                                                child: CachedNetworkImage(
+                                                  imageUrl:
+                                                      _post.audioImage ?? '',
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Container(),
+                          _buildBottomPostPart(),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-        );
+              );
+            });
       }
     } else {
       return SizedBox.shrink();
