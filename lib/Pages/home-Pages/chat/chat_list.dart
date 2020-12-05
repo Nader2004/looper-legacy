@@ -248,6 +248,7 @@ class _ChatListState extends State<ChatList> {
                                     }),
                                 onTap: () {
                                   _setGroupChatId(_followingUser.id);
+
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
