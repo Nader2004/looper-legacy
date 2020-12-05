@@ -42,6 +42,7 @@ class _ChallengeState extends State<Challenge> {
   int _normalCounter = 0;
   int _commentCounter = 0;
   challenge.Challenge _challenge;
+  Stream<QuerySnapshot> _blockedUsers;
   VideoPlayerController _controller;
   TextEditingController _textEditingController;
 
@@ -55,6 +56,11 @@ class _ChallengeState extends State<Challenge> {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = _prefs.get('id');
+      _blockedUsers = FirebaseFirestore.instance
+          .collection('users')
+          .doc(_userId)
+          .collection('blocked-users')
+          .snapshots();
       _challenge = challenge.Challenge.fromDoc(widget.data);
       _isLike = _challenge.likedPeople.contains(_userId);
       _isDisLike = _challenge.disLikedPeople.contains(_userId);
@@ -116,6 +122,20 @@ class _ChallengeState extends State<Challenge> {
                       _challenge.id,
                       _comment,
                     );
+                    NotificationsService.sendNotification(
+                      'New comment',
+                      '$_userName commented on your challenge',
+                      _challenge.creatorId,
+                      'challenge',
+                      _challenge.creatorId,
+                    );
+                    NotificationsService.sendNotificationToFollowers(
+                      'New comment',
+                      '$_userName commented on a challenge',
+                      _challenge.creatorId,
+                      'challenge',
+                      _challenge.creatorId,
+                    );
                   }
                   setState(() {
                     _commentCounter++;
@@ -154,6 +174,20 @@ class _ChallengeState extends State<Challenge> {
                       'challenge',
                       _challenge.id,
                       _comment,
+                    );
+                    NotificationsService.sendNotification(
+                      'New comment',
+                      '$_userName commented on your challenge',
+                      _challenge.creatorId,
+                      'challenge',
+                      _challenge.creatorId,
+                    );
+                    NotificationsService.sendNotificationToFollowers(
+                      'New comment',
+                      '$_userName commented on a challenge',
+                      _challenge.creatorId,
+                      'challenge',
+                      _challenge.creatorId,
                     );
                   }
                   setState(() {
@@ -557,6 +591,20 @@ class _ChallengeState extends State<Challenge> {
                           _challenge.id,
                           _comment,
                         );
+                        NotificationsService.sendNotification(
+                          'New comment',
+                          '$_userName commented on your challenge',
+                          _challenge.creatorId,
+                          'challenge',
+                          _challenge.creatorId,
+                        );
+                        NotificationsService.sendNotificationToFollowers(
+                          'New comment',
+                          '$_userName commented on a challenge',
+                          _challenge.creatorId,
+                          'challenge',
+                          _challenge.creatorId,
+                        );
                         _textEditingController.clear();
                         setState(() {
                           _commentCounter++;
@@ -591,468 +639,504 @@ class _ChallengeState extends State<Challenge> {
   @override
   Widget build(BuildContext context) {
     if (_challenge != null) {
-      return VisibilityDetector(
-        key: Key(_challenge.id),
-        onVisibilityChanged: (VisibilityInfo info) {
-          double _visibilePercentage = info.visibleFraction * 100;
-          Timer(
-            Duration(milliseconds: 2300),
-            () {
-              if (!_challenge.viewedPeople.contains(_userId)) {
-                if (_visibilePercentage == 100) {
-                  DatabaseService.addView(
-                    'challenge',
-                    _challenge.id,
-                    _userId,
-                  );
-                }
-              }
-            },
-          );
-        },
-        child: Stack(
-          children: <Widget>[
-            !_controller.value.initialized
-                ? Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1.2,
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                    ),
-                  )
-                : SizedBox.expand(
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: SizedBox(
-                        width: _controller.value.size?.width ?? 0,
-                        height: _controller.value.size?.height ?? 0,
-                        child: VideoPlayer(_controller),
-                      ),
-                    ),
-                  ),
-            !_controller.value.initialized
-                ? Container()
-                : Positioned.fill(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                      child: Container(
-                        color: Colors.black.withOpacity(0),
-                      ),
-                    ),
-                  ),
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: EdgeInsets.all(30),
-                child: IntrinsicWidth(
-                  child: Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 30),
-                        child: Bounce(
-                          duration: Duration(milliseconds: 100),
-                          onPressed: () {
-                            DatabaseService.saveContent(
-                              'saved-challenges',
-                              _challenge.id,
-                            );
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(7),
-                            child: Icon(
-                              Icons.bookmark,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ),
-                      ),
-                      IntrinsicHeight(
-                        child: Column(
-                          children: <Widget>[
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => ProfilePage(
-                                      userId: _challenge.creatorId,
-                                    ),
-                                  ),
-                                );
-                              },
-                              child: CircleAvatar(
-                                backgroundColor: Colors.grey[400],
-                                backgroundImage: CachedNetworkImageProvider(
-                                  _challenge.creatorProfileImage,
-                                ),
-                                radius: 40,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              _challenge.creatorName,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 25,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            _challenge.category != ''
-                                ? SizedBox(height: 5)
-                                : SizedBox.shrink(),
-                            _challenge.category != ''
-                                ? Text(
-                                    _challenge.category,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  )
-                                : SizedBox.shrink()
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 30),
-                        child: Bounce(
-                          duration: Duration(milliseconds: 100),
-                          onPressed: () async {
-                            var request = await HttpClient()
-                                .getUrl(Uri.parse(_challenge.videoUrl));
-                            var response = await request.close();
-                            Uint8List bytes =
-                                await consolidateHttpClientResponseBytes(
-                                    response);
-                            Share.file(
-                              'from ${_challenge.creatorName}',
-                              'media',
-                              bytes,
-                              'video/mp4',
-                            );
-                            PersonalityService.setVideoInput(
-                                _challenge.videoUrl);
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(7),
-                            child: Icon(
-                              Icons.share,
-                              color: Colors.white,
-                              size: 28,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment(0.0, 0.8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      return StreamBuilder(
+          stream: _blockedUsers,
+          builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return SizedBox.shrink();
+            }
+
+            final List<String> blockedUsers =
+                snapshot.data.docs.map((e) => e.id).toList();
+            if (blockedUsers.contains(_challenge.creatorId)) {
+              return Container();
+            }
+            return VisibilityDetector(
+              key: Key(_challenge.id),
+              onVisibilityChanged: (VisibilityInfo info) {
+                double _visibilePercentage = info.visibleFraction * 100;
+                Timer(
+                  Duration(milliseconds: 2300),
+                  () {
+                    if (!_challenge.viewedPeople.contains(_userId)) {
+                      if (_visibilePercentage == 100) {
+                        DatabaseService.addView(
+                          'challenge',
+                          _challenge.id,
+                          _userId,
+                        );
+                      }
+                    }
+                  },
+                );
+              },
+              child: Stack(
                 children: <Widget>[
-                  IntrinsicHeight(
-                    child: Bounce(
-                      duration: Duration(milliseconds: 100),
-                      onPressed: () {
-                        setState(() {
-                          if (!_isDisLike) {
-                            if (_isLike) {
-                              _isLike = false;
-                              _likeCounter--;
-                              DatabaseService.unLike(
-                                'challenge',
-                                _challenge.id,
-                                _userId,
-                              );
-                              PersonalityService.setTextInput('I dislike');
-                              PersonalityService.setVideoInput(
-                                _challenge.videoUrl,
-                              );
-                            }
-                            if (_isNormal) {
-                              _isNormal = false;
-                              _normalCounter--;
-                              DatabaseService.removeNeutral(
-                                _challenge.id,
-                                _userId,
-                              );
-                            }
-                            _isDisLike = true;
-                            _disLikeCounter++;
-                            DatabaseService.disLike(
-                              'challenge',
-                              _challenge.id,
-                              _userId,
-                            );
-                          } else {
-                            _isDisLike = false;
-                            _disLikeCounter--;
-                            DatabaseService.undisLike(
-                              'challenge',
-                              _challenge.id,
-                              _userId,
-                            );
-                          }
-                        });
-                      },
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            padding: EdgeInsets.all(12),
-                            child: Icon(
-                              Icons.thumb_down,
-                              color: _isDisLike ? Colors.black : Colors.white,
-                            ),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _isDisLike
-                                  ? Colors.white
-                                  : Colors.transparent,
-                              border: Border.all(color: Colors.white),
-                            ),
+                  
+                  !_controller.value.initialized
+                      ? Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1.2,
+                            valueColor: AlwaysStoppedAnimation(Colors.white),
                           ),
-                          SizedBox(height: 7),
-                          Text(
-                            _disLikeCounter.toString(),
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  IntrinsicHeight(
-                    child: Bounce(
-                      duration: Duration(milliseconds: 100),
-                      onPressed: () {
-                        setState(() {
-                          if (!_isNormal) {
-                            if (_isLike) {
-                              _isLike = false;
-                              _likeCounter--;
-                              DatabaseService.unLike(
-                                'challenge',
-                                _challenge.id,
-                                _userId,
-                              );
-                            }
-                            if (_isDisLike) {
-                              _isDisLike = false;
-                              _disLikeCounter--;
-                              DatabaseService.undisLike(
-                                'challenge',
-                                _challenge.id,
-                                _userId,
-                              );
-                            }
-                            _isNormal = true;
-                            _normalCounter++;
-                            DatabaseService.addNeutral(
-                              _challenge.id,
-                              _userId,
-                            );
-                            NotificationsService.sendNotificationToFollowers(
-                              'New Reaction 👀',
-                              '$_userName reacted normal to  your talent',
-                              _challenge.creatorId,
-                            );
-                            PersonalityService.setTextInput('I feel ok with');
-                            PersonalityService.setVideoInput(
-                              _challenge.videoUrl,
-                            );
-                          } else {
-                            _isNormal = false;
-                            _normalCounter--;
-                            DatabaseService.removeNeutral(
-                              _challenge.id,
-                              _userId,
-                            );
-                          }
-                        });
-                      },
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color:
-                                  _isNormal ? Colors.white : Colors.transparent,
-                              border: Border.all(color: Colors.white),
-                            ),
-                            child: Icon(
-                              Icons.thumbs_up_down,
-                              color: _isNormal ? Colors.black : Colors.white,
-                            ),
-                          ),
-                          SizedBox(height: 7),
-                          Text(
-                            _normalCounter.toString(),
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Bounce(
-                    duration: Duration(milliseconds: 100),
-                    onPressed: () {
-                      setState(() {
-                        if (!_isLike) {
-                          if (_isDisLike) {
-                            _isDisLike = false;
-                            _disLikeCounter--;
-                            DatabaseService.undisLike(
-                              'challenge',
-                              _challenge.id,
-                              _userId,
-                            );
-                          }
-                          if (_isNormal) {
-                            _isNormal = false;
-                            _normalCounter--;
-                            DatabaseService.removeNeutral(
-                              _challenge.id,
-                              _userId,
-                            );
-                          }
-                          _isLike = true;
-                          _likeCounter++;
-                          DatabaseService.like(
-                            'challenge',
-                            _challenge.id,
-                            _userId,
-                          );
-                          NotificationsService.sendNotificationToFollowers(
-                            'New Like 👍',
-                            '$_userName liked  your challenge',
-                            _challenge.creatorId,
-                          );
-                          PersonalityService.setTextInput('I like');
-                          PersonalityService.setVideoInput(
-                            _challenge.videoUrl,
-                          );
-                        } else {
-                          _isLike = false;
-                          _likeCounter--;
-                          DatabaseService.unLike(
-                            'challenge',
-                            _challenge.id,
-                            _userId,
-                          );
-                        }
-                      });
-                    },
-                    child: IntrinsicHeight(
-                      child: Column(
-                        children: <Widget>[
-                          Container(
-                            padding: EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color:
-                                  _isLike ? Colors.white : Colors.transparent,
-                              border: Border.all(color: Colors.white),
-                            ),
-                            child: Icon(
-                              Icons.thumb_up,
-                              color: _isLike ? Colors.black : Colors.white,
-                            ),
-                          ),
-                          SizedBox(height: 7),
-                          Text(
-                            _likeCounter.toString(),
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: MediaQuery.of(context).size.width / 5,
-                    height: 30,
-                    margin: EdgeInsets.all(8),
-                    padding: EdgeInsets.all(5),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 1.5,
-                      ),
-                    ),
-                    child: Text(
-                      '${_challenge.viewsCount} VIEWS',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Bounce(
-                    onPressed: openCommentSection,
-                    duration: Duration(milliseconds: 100),
-                    child: Container(
-                      width: MediaQuery.of(context).size.width / 4,
-                      height: 30,
-                      margin: EdgeInsets.all(8),
-                      padding: EdgeInsets.all(5),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Text(
-                        '$_commentCounter COMMENTS',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            !_controller.value.initialized
-                ? Container()
-                : Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width - 20,
-                        height: MediaQuery.of(context).size.height / 1.8,
-                        child: OverflowBox(
-                          alignment: Alignment.center,
+                        )
+                      : SizedBox.expand(
                           child: FittedBox(
                             fit: BoxFit.cover,
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.width /
-                                  _controller.value.aspectRatio,
+                            child: SizedBox(
+                              width: _controller.value.size?.width ?? 0,
+                              height: _controller.value.size?.height ?? 0,
                               child: VideoPlayer(_controller),
                             ),
                           ),
                         ),
+                  !_controller.value.initialized
+                      ? Container()
+                      : Positioned.fill(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                            child: Container(
+                              color: Colors.black.withOpacity(0),
+                            ),
+                          ),
+                        ),
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: EdgeInsets.all(30),
+                      child: IntrinsicWidth(
+                        child: Row(
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              child: Bounce(
+                                duration: Duration(milliseconds: 100),
+                                onPressed: () {
+                                  DatabaseService.saveContent(
+                                    'saved-challenges',
+                                    _challenge.id,
+                                  );
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(7),
+                                  child: Icon(
+                                    Icons.bookmark,
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            IntrinsicHeight(
+                              child: Column(
+                                children: <Widget>[
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (context) => ProfilePage(
+                                            userId: _challenge.creatorId,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: CircleAvatar(
+                                      backgroundColor: Colors.grey[400],
+                                      backgroundImage:
+                                          CachedNetworkImageProvider(
+                                        _challenge.creatorProfileImage,
+                                      ),
+                                      radius: 40,
+                                    ),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    _challenge.creatorName,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  _challenge.category != ''
+                                      ? SizedBox(height: 5)
+                                      : SizedBox.shrink(),
+                                  _challenge.category != ''
+                                      ? Text(
+                                          _challenge.category,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        )
+                                      : SizedBox.shrink()
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              child: Bounce(
+                                duration: Duration(milliseconds: 100),
+                                onPressed: () async {
+                                  var request = await HttpClient()
+                                      .getUrl(Uri.parse(_challenge.videoUrl));
+                                  var response = await request.close();
+                                  Uint8List bytes =
+                                      await consolidateHttpClientResponseBytes(
+                                          response);
+                                  Share.file(
+                                    'from ${_challenge.creatorName}',
+                                    'media',
+                                    bytes,
+                                    'video/mp4',
+                                  );
+                                  PersonalityService.setVideoInput(
+                                      _challenge.videoUrl);
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(7),
+                                  child: Icon(
+                                    Icons.share,
+                                    color: Colors.white,
+                                    size: 28,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-          ],
-        ),
-      );
+                  Align(
+                    alignment: Alignment(0.0, 0.8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        IntrinsicHeight(
+                          child: Bounce(
+                            duration: Duration(milliseconds: 100),
+                            onPressed: () {
+                              setState(() {
+                                if (!_isDisLike) {
+                                  if (_isLike) {
+                                    _isLike = false;
+                                    _likeCounter--;
+                                    DatabaseService.unLike(
+                                      'challenge',
+                                      _challenge.id,
+                                      _userId,
+                                    );
+                                    PersonalityService.setTextInput(
+                                        'I dislike');
+                                    PersonalityService.setVideoInput(
+                                      _challenge.videoUrl,
+                                    );
+                                  }
+                                  if (_isNormal) {
+                                    _isNormal = false;
+                                    _normalCounter--;
+                                    DatabaseService.removeNeutral(
+                                      _challenge.id,
+                                      _userId,
+                                    );
+                                  }
+                                  _isDisLike = true;
+                                  _disLikeCounter++;
+                                  DatabaseService.disLike(
+                                    'challenge',
+                                    _challenge.id,
+                                    _userId,
+                                  );
+                                } else {
+                                  _isDisLike = false;
+                                  _disLikeCounter--;
+                                  DatabaseService.undisLike(
+                                    'challenge',
+                                    _challenge.id,
+                                    _userId,
+                                  );
+                                }
+                              });
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Container(
+                                  padding: EdgeInsets.all(12),
+                                  child: Icon(
+                                    Icons.thumb_down,
+                                    color: _isDisLike
+                                        ? Colors.black
+                                        : Colors.white,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _isDisLike
+                                        ? Colors.white
+                                        : Colors.transparent,
+                                    border: Border.all(color: Colors.white),
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  _disLikeCounter.toString(),
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        IntrinsicHeight(
+                          child: Bounce(
+                            duration: Duration(milliseconds: 100),
+                            onPressed: () {
+                              setState(() {
+                                if (!_isNormal) {
+                                  if (_isLike) {
+                                    _isLike = false;
+                                    _likeCounter--;
+                                    DatabaseService.unLike(
+                                      'challenge',
+                                      _challenge.id,
+                                      _userId,
+                                    );
+                                  }
+                                  if (_isDisLike) {
+                                    _isDisLike = false;
+                                    _disLikeCounter--;
+                                    DatabaseService.undisLike(
+                                      'challenge',
+                                      _challenge.id,
+                                      _userId,
+                                    );
+                                  }
+                                  _isNormal = true;
+                                  _normalCounter++;
+                                  DatabaseService.addNeutral(
+                                    _challenge.id,
+                                    _userId,
+                                  );
+                                  NotificationsService
+                                      .sendNotificationToFollowers(
+                                    'New Reaction 👀',
+                                    '$_userName reacted normal to  your talent',
+                                    _challenge.creatorId,
+                                    'challenge',
+                                    _challenge.id,
+                                  );
+                                  PersonalityService.setTextInput(
+                                      'I feel ok with');
+                                  PersonalityService.setVideoInput(
+                                    _challenge.videoUrl,
+                                  );
+                                } else {
+                                  _isNormal = false;
+                                  _normalCounter--;
+                                  DatabaseService.removeNeutral(
+                                    _challenge.id,
+                                    _userId,
+                                  );
+                                }
+                              });
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Container(
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _isNormal
+                                        ? Colors.white
+                                        : Colors.transparent,
+                                    border: Border.all(color: Colors.white),
+                                  ),
+                                  child: Icon(
+                                    Icons.thumbs_up_down,
+                                    color:
+                                        _isNormal ? Colors.black : Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  _normalCounter.toString(),
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Bounce(
+                          duration: Duration(milliseconds: 100),
+                          onPressed: () {
+                            setState(() {
+                              if (!_isLike) {
+                                if (_isDisLike) {
+                                  _isDisLike = false;
+                                  _disLikeCounter--;
+                                  DatabaseService.undisLike(
+                                    'challenge',
+                                    _challenge.id,
+                                    _userId,
+                                  );
+                                }
+                                if (_isNormal) {
+                                  _isNormal = false;
+                                  _normalCounter--;
+                                  DatabaseService.removeNeutral(
+                                    _challenge.id,
+                                    _userId,
+                                  );
+                                }
+                                _isLike = true;
+                                _likeCounter++;
+                                DatabaseService.like(
+                                  'challenge',
+                                  _challenge.id,
+                                  _userId,
+                                );
+                                NotificationsService.sendNotification(
+                                  'New Like 👍',
+                                  '$_userName liked  your challenge',
+                                  _challenge.creatorId,
+                                  'challenge',
+                                  _challenge.id,
+                                );
+                                NotificationsService
+                                    .sendNotificationToFollowers(
+                                  'New Like 👍',
+                                  '$_userName liked  a challenge',
+                                  _challenge.creatorId,
+                                  'challenge',
+                                  _challenge.id,
+                                );
+                                PersonalityService.setTextInput('I like');
+                                PersonalityService.setVideoInput(
+                                  _challenge.videoUrl,
+                                );
+                              } else {
+                                _isLike = false;
+                                _likeCounter--;
+                                DatabaseService.unLike(
+                                  'challenge',
+                                  _challenge.id,
+                                  _userId,
+                                );
+                              }
+                            });
+                          },
+                          child: IntrinsicHeight(
+                            child: Column(
+                              children: <Widget>[
+                                Container(
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: _isLike
+                                        ? Colors.white
+                                        : Colors.transparent,
+                                    border: Border.all(color: Colors.white),
+                                  ),
+                                  child: Icon(
+                                    Icons.thumb_up,
+                                    color:
+                                        _isLike ? Colors.black : Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: 7),
+                                Text(
+                                  _likeCounter.toString(),
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          width: MediaQuery.of(context).size.width / 5,
+                          height: 30,
+                          margin: EdgeInsets.all(8),
+                          padding: EdgeInsets.all(5),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Text(
+                            '${_challenge.viewsCount} VIEWS',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        Bounce(
+                          onPressed: openCommentSection,
+                          duration: Duration(milliseconds: 100),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width / 4,
+                            height: 30,
+                            margin: EdgeInsets.all(8),
+                            padding: EdgeInsets.all(5),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Text(
+                              '$_commentCounter COMMENTS',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  !_controller.value.initialized
+                      ? Container()
+                      : Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              width: MediaQuery.of(context).size.width - 20,
+                              height: MediaQuery.of(context).size.height / 1.8,
+                              child: OverflowBox(
+                                alignment: Alignment.center,
+                                child: FittedBox(
+                                  fit: BoxFit.cover,
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    height: MediaQuery.of(context).size.width /
+                                        _controller.value.aspectRatio,
+                                    child: VideoPlayer(_controller),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                ],
+              ),
+            );
+          });
     } else {
       return SizedBox.shrink();
     }
