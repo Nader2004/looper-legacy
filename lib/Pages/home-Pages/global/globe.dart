@@ -224,15 +224,85 @@ class _GlobePageState extends State<GlobePage> {
         stream: _compatableUsers,
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.data == null) {
-            print(snapshot.data == null);
             return Center(
-              child: Text(
-                'No data yet',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    MdiIcons.transitConnectionVariant,
+                    color: Colors.grey,
+                    size: 30,
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    'Analyzing..',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        MdiIcons.headDotsHorizontal,
+                        color: Colors.grey,
+                        size: 25,
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        'create posts, jokes, talents, challenges...',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        MdiIcons.ticket,
+                        color: Colors.grey,
+                        size: 25,
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        'like, comment, clap, interact...',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        MdiIcons.recordCircleOutline,
+                        color: Colors.green,
+                        size: 20,
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        'Stay Active',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),SizedBox(width: 20),
+                    ],
+                  ),
+                ],
               ),
             );
           } else {
