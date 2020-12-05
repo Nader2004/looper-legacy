@@ -245,29 +245,48 @@ class _ChallengeCreationState extends State<ChallengeCreation>
                   ],
                 ),
               ),
-              child: _challengeNameController.text.length != 0
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 20),
-                      child: Text(
-                        _challengeNameController.text,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
-                      ),
-                    )
-                  : Container(
-                      width: MediaQuery.of(context).size.width - 30,
-                      height: 35,
-                      margin: EdgeInsets.only(top: 20),
-                      child: OutlineButton(
-                        borderSide: BorderSide(color: Colors.white),
-                        onPressed: () => _showNamingDialog('challenge name'),
-                        textColor: Colors.white,
-                        child: Text('Add your challenge name'),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 20, right: 10, left: 5),
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      color: Colors.black.withOpacity(0.5),
+                      icon: Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 30,
                       ),
                     ),
+                  ),
+                  _challengeNameController.text.length != 0
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: Text(
+                            _challengeNameController.text,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                            ),
+                          ),
+                        )
+                      : Container(
+                          width: MediaQuery.of(context).size.width / 1.3,
+                          height: 35,
+                          margin: EdgeInsets.only(top: 20),
+                          child: OutlineButton(
+                            borderSide: BorderSide(color: Colors.white),
+                            onPressed: () =>
+                                _showNamingDialog('challenge name'),
+                            textColor: Colors.white,
+                            child: Text('Add your challenge name'),
+                          ),
+                        ),
+                ],
+              ),
             ),
           ),
           Align(
@@ -393,6 +412,8 @@ class _VideoWidgetState extends State<VideoWidget> {
       'New Challenge',
       '$_userName uploaded a new challenge',
       _userId,
+      'challenge-creation',
+      DateTime.now().toUtc().toString(),
     );
     Fluttertoast.showToast(msg: 'Challenge Created');
     setState(() => _showSpinner = false);
