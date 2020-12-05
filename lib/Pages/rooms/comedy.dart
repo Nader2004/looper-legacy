@@ -88,7 +88,7 @@ class _ComedyRoomState extends State<ComedyRoom> {
   List<DocumentSnapshot> getComedyShowList(QuerySnapshot snapshot) {
     List<DocumentSnapshot> shows = [];
     snapshot.docs.forEach((element) {
-      if (element.data()['type'] == '1') {
+      if (element.data()['type'] == 'show') {
         shows.add(element);
       }
     });
