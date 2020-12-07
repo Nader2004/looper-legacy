@@ -240,7 +240,7 @@ class _PostWidgetState extends State<PostWidget>
     );
   }
 
-  Widget _buildTopPostWidget() {
+  Widget _buildTopPostWidget(List<String> blockedUsers) {
     return Container(
       margin: EdgeInsets.only(top: 8, left: 8, bottom: 10),
       child: Row(
@@ -374,9 +374,7 @@ class _PostWidgetState extends State<PostWidget>
                     builder: (context) {
                       return Container(
                         width: MediaQuery.of(context).size.width,
-                        height: _post.authorName == _userName
-                            ? MediaQuery.of(context).size.height / 2.7
-                            : MediaQuery.of(context).size.height / 3.5,
+                        height: MediaQuery.of(context).size.height / 2.7,
                         padding: EdgeInsets.only(top: 5),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -568,6 +566,51 @@ class _PostWidgetState extends State<PostWidget>
                                     ),
                                     onTap: () {
                                       DatabaseService.deletePost(_post.id);
+                                      Navigator.pop(context);
+                                    },
+                                  )
+                                : SizedBox.shrink(),
+                            _post.authorName != _userName
+                                ? ListTile(
+                                    leading: Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                      size: 22,
+                                    ),
+                                    title: Text(
+                                      !blockedUsers.contains(_post.authorId)
+                                          ? 'Block ${_post.authorName}'
+                                          : 'Unblock ${_post.authorName}',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                    onTap: () {
+                                      if (!blockedUsers
+                                          .contains(_post.authorId)) {
+                                        DatabaseService.blockUser(
+                                          _userId,
+                                          _post.authorId,
+                                        );
+                                        Fluttertoast.showToast(
+                                          msg: '${_post.authorName} is blocked',
+                                        ).then((_) {
+                                          Timer(
+                                            Duration(milliseconds: 1500),
+                                            () => Fluttertoast.showToast(
+                                              msg:
+                                                  'To unBlock ${_post.authorName} , go to his profile page',
+                                            ),
+                                          );
+                                        });
+                                      } else {
+                                        DatabaseService.unBlockUser(
+                                          _userId,
+                                          _post.authorId,
+                                        );
+                                        Fluttertoast.showToast(
+                                          msg:
+                                              '${_post.authorName} is unBlocked',
+                                        );
+                                      }
                                       Navigator.pop(context);
                                     },
                                   )
@@ -1616,7 +1659,7 @@ class _PostWidgetState extends State<PostWidget>
                           _post.isShared == true
                               ? _buildShareLabel()
                               : SizedBox.shrink(),
-                          _buildTopPostWidget(),
+                          _buildTopPostWidget(blockedUsers),
                           _buildLocationWidget(),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -2116,7 +2159,7 @@ class _PostWidgetState extends State<PostWidget>
                           _post.isShared == true
                               ? _buildShareLabel()
                               : SizedBox.shrink(),
-                          _buildTopPostWidget(),
+                          _buildTopPostWidget(blockedUsers),
                           _buildLocationWidget(),
                           _post.gif['caption'] == ''
                               ? Container()
@@ -2206,7 +2249,7 @@ class _PostWidgetState extends State<PostWidget>
                           _post.isShared == true
                               ? _buildShareLabel()
                               : SizedBox.shrink(),
-                          _buildTopPostWidget(),
+                          _buildTopPostWidget(blockedUsers),
                           _buildLocationWidget(),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2400,7 +2443,7 @@ class _PostWidgetState extends State<PostWidget>
                           _post.isShared == true
                               ? _buildShareLabel()
                               : SizedBox.shrink(),
-                          _buildTopPostWidget(),
+                          _buildTopPostWidget(blockedUsers),
                           _buildLocationWidget(),
                           _post.type == 3 && _post.caption.isNotEmpty
                               ? Padding(
