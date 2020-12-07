@@ -81,7 +81,7 @@ class _ChatPageState extends State<ChatPage> {
   void setDatabaseData() async {
     if (widget.isGlobal != true) {
       await FirebaseFirestore.instance
-          .collection(widget.isGlobal == true ? 'global-chat' : 'chat')
+          .collection('chat')
           .doc(widget.groupId)
           .set({});
     }
@@ -214,12 +214,8 @@ class _ChatPageState extends State<ChatPage> {
             ),
             widget.isGlobal,
           );
-          NotificationsService.sendNotification(
-            'New Message',
-            '${widget.followerName} sent a video',
-            widget.followerId,
-            'chat'
-          );
+          NotificationsService.sendNotification('New Message',
+              '${widget.followerName} sent a video', widget.followerId, 'chat');
         }
       },
     );
@@ -254,11 +250,10 @@ class _ChatPageState extends State<ChatPage> {
             widget.isGlobal,
           );
           NotificationsService.sendNotification(
-            'New Message',
-            '${widget.followerName} sent an image',
-            widget.followerId,
-            'chat'
-          );
+              'New Message',
+              '${widget.followerName} sent an image',
+              widget.followerId,
+              'chat');
         }
       },
     );
@@ -432,10 +427,7 @@ class _ChatPageState extends State<ChatPage> {
           widget.isGlobal == false
               ? SizedBox.shrink()
               : StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('global-chat')
-                      .doc(widget.groupId)
-                      .snapshots(),
+                  stream: _blockCheckerStream,
                   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return SizedBox.shrink();
@@ -754,8 +746,11 @@ class _ChatPageState extends State<ChatPage> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return SizedBox.shrink();
                     }
+                    print(_blockCheckerStream == null);
                     final DocumentSnapshot _snapshot = snapshot.data;
-
+                    if (_snapshot.data() == null) {
+                      return SizedBox.shrink();
+                    }
                     return _snapshot.data()['isBlocked'] == true
                         ? Container(
                             alignment: Alignment.center,
@@ -873,11 +868,10 @@ class _ChatPageState extends State<ChatPage> {
                                     PersonalityService.setTextInput(
                                         _textEditingController.text);
                                     NotificationsService.sendNotification(
-                                      'New Message',
-                                      '${widget.followerName} sent a message',
-                                      widget.followerId,
-                                      'chat'
-                                    );
+                                        'New Message',
+                                        '${widget.followerName} sent a message',
+                                        widget.followerId,
+                                        'chat');
                                     _textEditingController.clear();
                                   },
                                   icon: Icon(
@@ -987,11 +981,10 @@ class _ChatPageState extends State<ChatPage> {
                           PersonalityService.setTextInput(
                               _textEditingController.text);
                           NotificationsService.sendNotification(
-                            'New Message',
-                            '${widget.followerName} sent a message',
-                            widget.followerId,
-                            'chat'
-                          );
+                              'New Message',
+                              '${widget.followerName} sent a message',
+                              widget.followerId,
+                              'chat');
                           _textEditingController.clear();
                         },
                         icon: Icon(
