@@ -453,6 +453,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                                             .doc(widget.userId)
                                                             .set({});
                                                         _setGroupChatId();
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                'global-chat')
+                                                            .doc(_groupId)
+                                                            .set({});
                                                         Navigator.of(context)
                                                             .push(
                                                           MaterialPageRoute(
