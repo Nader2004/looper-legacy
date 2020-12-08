@@ -36,7 +36,8 @@ import 'home-Pages/chat/chat_list.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home';
-  const HomePage({Key key}) : super(key: key);
+  final String userId;
+  const HomePage({Key key, this.userId}) : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -55,6 +56,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void setPrefs() async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
+     if (!_prefs.containsKey('id')) {
+      _prefs.setString('id', widget.userId);
+    }
     setState(() {
       _id = _prefs.get('id');
     });
