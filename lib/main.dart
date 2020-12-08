@@ -47,7 +47,8 @@ class Looper extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return SplashScreen();
           }
-          return HomePage();
+          final User _user = snapshot.data;
+          return HomePage(_user.uid);
         } else {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return SplashScreen();
