@@ -392,6 +392,8 @@ PODS:
   - Flutter (1.0.0)
   - flutter_chat_bubble (0.0.1):
     - Flutter
+  - flutter_email_sender (0.0.1):
+    - Flutter
   - flutter_image_compress (0.0.1):
     - Flutter
     - Mantle
@@ -402,11 +404,11 @@ PODS:
     - PureLayout
   - flutter_plugin_android_lifecycle (0.0.1):
     - Flutter
-  - "flutter_sound (6.4.2+1)":
+  - "flutter_sound (6.4.3+44)":
     - Flutter
     - mobile-ffmpeg-audio (= 4.3.1.LTS)
-    - "TauEngine (= 6.4.2+1)"
-  - "flutter_sound_web (6.4.2+1)":
+    - "tau_sound_core (= 6.4.3+44)"
+  - "flutter_sound_web (6.4.3+44)":
     - Flutter
   - flutter_toggle_tab (0.0.1):
     - Flutter
@@ -559,7 +561,7 @@ PODS:
     - Flutter
     - FMDB (>= 2.7.5)
   - SwiftyGif (5.3.0)
-  - "TauEngine (6.4.2+9)"
+  - "tau_sound_core (6.4.3+44)"
   - Toast (4.0.0)
   - url_launcher (0.0.1):
     - Flutter
@@ -597,6 +599,7 @@ DEPENDENCIES:
   - flashy_tab_bar (from `.symlinks/plugins/flashy_tab_bar/ios`)
   - Flutter (from `Flutter`)
   - flutter_chat_bubble (from `.symlinks/plugins/flutter_chat_bubble/ios`)
+  - flutter_email_sender (from `.symlinks/plugins/flutter_email_sender/ios`)
   - flutter_image_compress (from `.symlinks/plugins/flutter_image_compress/ios`)
   - flutter_native_admob (from `.symlinks/plugins/flutter_native_admob/ios`)
   - flutter_plugin_android_lifecycle (from `.symlinks/plugins/flutter_plugin_android_lifecycle/ios`)
@@ -671,7 +674,7 @@ SPEC REPOS:
     - SDWebImage
     - SDWebImageWebPCoder
     - SwiftyGif
-    - TauEngine
+    - tau_sound_core
     - Toast
 
 EXTERNAL SOURCES:
@@ -709,6 +712,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_chat_bubble:
     :path: ".symlinks/plugins/flutter_chat_bubble/ios"
+  flutter_email_sender:
+    :path: ".symlinks/plugins/flutter_email_sender/ios"
   flutter_image_compress:
     :path: ".symlinks/plugins/flutter_image_compress/ios"
   flutter_native_admob:
@@ -808,11 +813,12 @@ SPEC CHECKSUMS:
   flashy_tab_bar: 4ce02dcf78db98c6a4a4bbf2ea1f4f4f592a5c45
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_chat_bubble: cad6265ec611ba0f7bede70eabc26fdfce9bf2b0
+  flutter_email_sender: 02d7443217d8c41483223627972bfdc09f74276b
   flutter_image_compress: 082f8daaf6c1b0c9fe798251c750ef0ecd98d7ae
   flutter_native_admob: 384f39f8b8dc0a96624c7cfa4cd255205e7c3da5
   flutter_plugin_android_lifecycle: dc0b544e129eebb77a6bfb1239d4d1c673a60a35
-  flutter_sound: 0ab66750f6d5a83198c54d343a9b34b58a5ff86d
-  flutter_sound_web: e1d4952927bb38193c7240f763014452f5981192
+  flutter_sound: e8c39746b9299573448ae29013238361206c14c3
+  flutter_sound_web: 0abb98519b94a677829bf6abc780b46dab42b433
   flutter_toggle_tab: ccaca23e5dc4fadacde1269d36fe0a56d7677962
   flutter_video_compress: 641fd3e03d970d79176a59d91d7a4392923710b0
   fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
@@ -855,7 +861,7 @@ SPEC CHECKSUMS:
   shared_preferences_windows: 36b76d6f54e76ead957e60b49e2f124b4cd3e6ae
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
   SwiftyGif: e466e86c660d343357ab944a819a101c4127cb40
-  TauEngine: b1f86e13efd66bd70c1b9d88426201fbbbd074f4
+  tau_sound_core: b1920e38a32a0a118bdd4b2debc7c01696390f95
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
   url_launcher_linux: ac237cb7a8058736e4aae38bdbcc748a4b394cc0

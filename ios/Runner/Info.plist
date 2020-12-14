@@ -1,73 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-
-	<dict>
-		<key>CFBundleDevelopmentRegion</key>
-		<string>en</string>
-		<key>CFBundleExecutable</key>
-		<string>$(EXECUTABLE_NAME)</string>
-		<key>CFBundleIdentifier</key>
-		<string>com.app.looper</string>
-		<key>CFBundleInfoDictionaryVersion</key>
-		<string>6.0</string>
-		<key>CFBundleName</key>
-		<string>looper</string>
-		<key>CFBundlePackageType</key>
-		<string>APPL</string>
-		<key>CFBundleShortVersionString</key>
-		<string>$(FLUTTER_BUILD_NAME)</string>
-		<key>CFBundleSignature</key>
-		<string>????</string>
-		<key>CFBundleVersion</key>
-		<string>$(FLUTTER_BUILD_NUMBER)</string>
-		<key>LSRequiresIPhoneOS</key>
-		<true/>
-		<key>NSCameraUsageDescription</key>
-		<string>Looper needs access to camera to capture pictures or videos for profile pictures or other content created by you</string>
-		<key>NSPhotoLibraryUsageDescription</key>
-		<string>Looper needs access to the photo library to use pictures or videos for profile pictures or other content created by you</string>
-		<key>NSMicrophoneUsageDescription</key>
-		<string>Looper needs access to mic to record audio in chat or by creating posts</string>
-		<key>NSLocationAlwaysUsageDescription</key>
-		<string>Looper needs access to location to use it by creating posts and suggesting content near your location.</string>
-		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Looper needs access to location to use it by creating posts and suggesting content near your location</string>
-		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>Looper needs access to location to use it by creating posts and suggesting content near your location</string>
-		<key>NSContactsUsageDescription</key>
-		<string>Looper needs an access to your contacts to suggest some people</string>
-		<key>NSCalendarsUsageDescription</key>
-		<string>Looper needs to access Calenders to manage some timing operations</string>
-		<key>NSAppleMusicUsageDescription</key>
-		<string>Looper needs to access Apple Music for some operations</string>
-		<key>NSMotionUsageDescription</key>
-		<string>Looper needs to access Motion Usage for some operations</string>
-		<key>NSSpeechRecognitionUsageDescription</key>
-		<string>Looper needs to access Speech Recognition for some PND Operations</string>
-		<key>GADApplicationIdentifier</key>
-		<string>ca-app-pub-9448985372006294~8353196845</string>
-		<key>io.flutter.embedded_views_preview</key>
-		<true/>
-		<key>UILaunchStoryboardName</key>
-		<string>LaunchScreen</string>
-		<key>UIMainStoryboardFile</key>
-		<string>Main</string>
-		<key>UISupportedInterfaceOrientations</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-			<string>UIInterfaceOrientationLandscapeLeft</string>
-			<string>UIInterfaceOrientationLandscapeRight</string>
-		</array>
-		<key>UISupportedInterfaceOrientations~ipad</key>
-		<array>
-			<string>UIInterfaceOrientationPortrait</string>
-			<string>UIInterfaceOrientationPortraitUpsideDown</string>
-			<string>UIInterfaceOrientationLandscapeLeft</string>
-			<string>UIInterfaceOrientationLandscapeRight</string>
-		</array>
-		<key>UIViewControllerBasedStatusBarAppearance</key>
-
-		<false/>
-	</dict>
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.app.looper</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>looper</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-9448985372006294~8353196845</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Looper needs to access Apple Music for some operations</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Looper needs to access Calenders to manage some timing operations</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Looper needs access to camera to capture pictures or videos for profile pictures or other content created by you</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Looper needs an access to your contacts to suggest some people</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Looper needs access to location to use it by creating posts and suggesting content near your location</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Looper needs access to location to use it by creating posts and suggesting content near your location.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Looper needs access to location to use it by creating posts and suggesting content near your location</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Looper needs access to mic to record audio in chat or by creating posts</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Looper needs to access Motion Usage for some operations</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Looper needs access to the photo library to use pictures or videos for profile pictures or other content created by you</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Looper needs to access Speech Recognition for some PND Operations</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
+</dict>
 </plist>

@@ -243,6 +243,28 @@
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
+		<key>5A2FA5202570EB4D00481DF7</key>
+		<dict>
+			<key>fileEncoding</key>
+			<string>4</string>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>text.plist.xml</string>
+			<key>name</key>
+			<string>GoogleService-Info.plist</string>
+			<key>path</key>
+			<string>GoogleService-Info.plist</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>5A2FA5212570EB4D00481DF7</key>
+		<dict>
+			<key>fileRef</key>
+			<string>5A2FA5202570EB4D00481DF7</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
 		<key>5AA8723A256E628B00186868</key>
 		<dict>
 			<key>isa</key>
@@ -530,6 +552,7 @@
 				<string>9740EEB41CF90195004384FC</string>
 				<string>97C146FE1CF9000F007C117D</string>
 				<string>97C146FC1CF9000F007C117D</string>
+				<string>5A2FA5212570EB4D00481DF7</string>
 			</array>
 			<key>isa</key>
 			<string>PBXResourcesBuildPhase</string>
@@ -596,6 +619,7 @@
 		<dict>
 			<key>children</key>
 			<array>
+				<string>5A2FA5202570EB4D00481DF7</string>
 				<string>5AA8723A256E628B00186868</string>
 				<string>7AFFD8ED1D35381100E5BB4D</string>
 				<string>7AFFD8EE1D35381100E5BB4D</string>
