@@ -712,13 +712,12 @@ class _PostCreationPageState extends State<PostCreationPage> {
                       });
                     },
                     controller: _questionController,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(30),
-                    ],
+                    maxLength: 30,
                     style: GoogleFonts.abel(
                       fontSize: 35,
                     ),
                     decoration: InputDecoration(
+                      counter: Container(),
                       border: InputBorder.none,
                       hintStyle: GoogleFonts.abel(
                         fontSize: 35,
