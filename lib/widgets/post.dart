@@ -1662,10 +1662,15 @@ class _PostWidgetState extends State<PostWidget>
                           _buildTopPostWidget(blockedUsers),
                           _buildLocationWidget(),
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(8.0),
                             child: Container(
-                              height: 40,
-                              width: MediaQuery.of(context).size.width / 1.6,
+                              height: MediaQuery.of(context).size.width / 9,
+                              constraints: BoxConstraints(
+                                minWidth:
+                                    MediaQuery.of(context).size.width / 10,
+                                maxWidth:
+                                    MediaQuery.of(context).size.width / 1.3,
+                              ),
                               decoration: ShapeDecoration(
                                 color: Colors.black,
                                 shape: SuperellipseShape(
