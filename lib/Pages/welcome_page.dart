@@ -16,7 +16,7 @@ class WelcomePage extends StatelessWidget {
         children: <Widget>[
           ButtonTheme(
             minWidth: deviceWidth / 2.4,
-            height: 50.0,
+            height: deviceWidth / 7,
             child: OutlineButton(
               borderSide: BorderSide(width: 1.2),
               onPressed: () {
@@ -28,7 +28,7 @@ class WelcomePage extends StatelessWidget {
           SizedBox(width: 3),
           ButtonTheme(
             minWidth: deviceWidth / 2.4,
-            height: 50.0,
+            height: deviceWidth / 7,
             child: FlatButton(
               color: Colors.black,
               onPressed: () {
@@ -56,8 +56,8 @@ class WelcomePage extends StatelessWidget {
         children: <Widget>[
           Image.asset(
             'assets/social-media (2).jpg',
-            height: 350,
-            width: 350,
+            height: MediaQuery.of(context).size.width,
+            width: MediaQuery.of(context).size.width,
           ),
           Container(
             margin: EdgeInsets.only(top: 10),
