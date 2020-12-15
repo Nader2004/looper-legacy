@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:looper/creation/post-create.dart';
@@ -299,7 +300,8 @@ class _GlobePageState extends State<GlobePage> {
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
-                      ),SizedBox(width: 20),
+                      ),
+                      SizedBox(width: 20),
                     ],
                   ),
                 ],
@@ -317,6 +319,50 @@ class _GlobePageState extends State<GlobePage> {
             );
           }
         });
+  }
+
+  Widget _postCreation() {
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.symmetric(
+        vertical: 13,
+        horizontal: MediaQuery.of(context).size.width / 6,
+      ),
+      height: MediaQuery.of(context).size.height / 10,
+      width: MediaQuery.of(context).size.width,
+      child: OutlineButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PostCreationPage(),
+            ),
+          );
+        },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        borderSide: BorderSide(color: Colors.black),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.add,
+              size: 20,
+              color: Colors.black,
+            ),
+            SizedBox(width: 5),
+            Text(
+              'create your post 🎯',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSimilarPeople() {
@@ -346,6 +392,49 @@ class _GlobePageState extends State<GlobePage> {
         body: ListView(
           children: <Widget>[
             _buildSimilarPeople(),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: _postCreation(),
+            ),
+            Container(
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width / 4,
+                vertical: 5,
+              ),
+              child: OutlineButton(
+                onPressed: () {
+                  Share.text(
+                    'Invite your friends to Looper via..',
+                    'Hello there. You are invited to Looper. A new social media app that will connect you to amazing people. To download the app you can use the following link https://play.google.com/store/apps/details?id=com.app.looper&hl=en-GB&ah=gndMBVH4KxJfvz1x85LPq04vnaw (for android) , https://apps.apple.com/eg/app/looper-social/id1537223572 (for ios), Hope you enjoy it 👌',
+                    'text/plain',
+                  );
+                },
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                borderSide: BorderSide(color: Colors.blue),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.group_add,
+                      size: 20,
+                      color: Colors.blue,
+                    ),
+                    SizedBox(width: 5),
+                    Text(
+                      'invite your friends',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
               child: Text(
