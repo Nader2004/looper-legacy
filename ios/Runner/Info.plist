@@ -24,6 +24,8 @@
 	<string>ca-app-pub-9448985372006294~8353196845</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+        <false/>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Looper needs to access Apple Music for some operations</string>
 	<key>NSCalendarsUsageDescription</key>
