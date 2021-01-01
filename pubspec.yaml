@@ -29,7 +29,7 @@ dependencies:
   firebase_storage: ^4.0.0
   firebase_core: ^0.5.1
   cloud_firestore: ^0.14.2
-  firebase_messaging: ^8.0.0-dev.11
+  firebase_messaging: ^7.0.0
   firebase_auth: ^0.18.0+1
   flutter_native_admob: ^2.1.0+3
   firebase_ml_vision: ^0.9.5
