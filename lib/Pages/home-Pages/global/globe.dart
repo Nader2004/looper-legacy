@@ -43,7 +43,6 @@ class _GlobePageState extends State<GlobePage> {
     super.initState();
     _firestore = FirebaseFirestore.instance;
     setPrefs();
-
     PersonalityService.analyzePersonality();
   }
 
@@ -80,6 +79,114 @@ class _GlobePageState extends State<GlobePage> {
           'author-personality',
         ),
       ]);
+    });
+    _firestore
+        .collection('posts')
+        .where('author', isEqualTo: _userId)
+        .get()
+        .then((QuerySnapshot snapshot) {
+      if (snapshot.docs.isEmpty) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Dialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadiusDirectional.circular(20),
+            ),
+            child: IntrinsicHeight(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(
+                      right: MediaQuery.of(context).size.width / 1.6,
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(Icons.close, color: Colors.black),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(
+                      MdiIcons.infinity,
+                      color: Colors.black,
+                      size: 50,
+                    ),
+                  ),
+                  Text(
+                    'Welcome to Looper',
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(
+                      MdiIcons.earth,
+                      color: Colors.black,
+                      size: 50,
+                    ),
+                  ),
+                  Text(
+                    'create your first post to the world',
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 20,
+                    ),
+                    child: Container(
+                      color: Colors.white,
+                      height: MediaQuery.of(context).size.height / 20,
+                      child: OutlineButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PostCreationPage(),
+                            ),
+                          );
+                        },
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        borderSide: BorderSide(color: Colors.black),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add,
+                              size: 20,
+                              color: Colors.black,
+                            ),
+                            SizedBox(width: 5),
+                            Text(
+                              'create your post',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
     });
   }
 
