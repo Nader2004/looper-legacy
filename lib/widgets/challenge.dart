@@ -672,7 +672,6 @@ class _ChallengeState extends State<Challenge> {
               },
               child: Stack(
                 children: <Widget>[
-                  
                   !_controller.value.initialized
                       ? Center(
                           child: CircularProgressIndicator(
@@ -918,9 +917,17 @@ class _ChallengeState extends State<Challenge> {
                                     _userId,
                                   );
                                   NotificationsService
+                                      .sendNotification(
+                                    'New Reaction 👀',
+                                    '$_userName reacted normal to  your challenge',
+                                    _challenge.creatorId,
+                                    'challenge',
+                                    _challenge.id,
+                                  );
+                                  NotificationsService
                                       .sendNotificationToFollowers(
                                     'New Reaction 👀',
-                                    '$_userName reacted normal to  your talent',
+                                    '$_userName reacted normal to  a challenge',
                                     _challenge.creatorId,
                                     'challenge',
                                     _challenge.id,
