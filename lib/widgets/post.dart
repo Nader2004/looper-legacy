@@ -846,7 +846,7 @@ class _PostWidgetState extends State<PostWidget>
                       _post.id,
                     );
                     NotificationsService.sendNotificationToFollowers(
-                      'New Like ❤',
+                      'New share',
                       '$_userName shared a post',
                       _post.authorId,
                       'post',
@@ -1111,6 +1111,20 @@ class _PostWidgetState extends State<PostWidget>
                       _post.id,
                       _comment,
                     );
+                    NotificationsService.sendNotification(
+                      'New comment',
+                      '$_userName commented on your post',
+                      _post.authorId,
+                      'post',
+                      _post.authorId,
+                    );
+                    NotificationsService.sendNotificationToFollowers(
+                      'New comment',
+                      '$_userName commented on a post',
+                      _post.authorId,
+                      'post',
+                      _post.authorId,
+                    );
                     setState(() {
                       _commentCount++;
                     });
@@ -1150,6 +1164,20 @@ class _PostWidgetState extends State<PostWidget>
                       'posts',
                       _post.id,
                       _comment,
+                    );
+                    NotificationsService.sendNotification(
+                      'New comment',
+                      '$_userName commented on your post',
+                      _post.authorId,
+                      'post',
+                      _post.authorId,
+                    );
+                    NotificationsService.sendNotificationToFollowers(
+                      'New comment',
+                      '$_userName commented on a post',
+                      _post.authorId,
+                      'post',
+                      _post.authorId,
                     );
                     setState(() {
                       _commentCount++;
@@ -1556,7 +1584,20 @@ class _PostWidgetState extends State<PostWidget>
                           _post.id,
                           _comment,
                         );
-
+                        NotificationsService.sendNotification(
+                          'New comment',
+                          '$_userName commented on your post',
+                          _post.authorId,
+                          'post',
+                          _post.authorId,
+                        );
+                        NotificationsService.sendNotificationToFollowers(
+                          'New comment',
+                          '$_userName commented on a post',
+                          _post.authorId,
+                          'post',
+                          _post.authorId,
+                        );
                         _textEditingController.clear();
                         setState(() {
                           _commentCount++;
