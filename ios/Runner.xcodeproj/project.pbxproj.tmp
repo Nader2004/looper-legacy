@@ -43,6 +43,8 @@
 		</dict>
 		<key>249021D3217E4FDB00AE95B9</key>
 		<dict>
+			<key>baseConfigurationReference</key>
+			<string>7AFA3C8E1D35360C0083082E</string>
 			<key>buildSettings</key>
 			<dict>
 				<key>ALWAYS_SEARCH_USER_PATHS</key>
@@ -124,7 +126,7 @@
 				<key>SDKROOT</key>
 				<string>iphoneos</string>
 				<key>TARGETED_DEVICE_FAMILY</key>
-				<string>1,2</string>
+				<string>1</string>
 				<key>VALIDATE_PRODUCT</key>
 				<string>YES</string>
 			</dict>
@@ -141,16 +143,10 @@
 			<dict>
 				<key>ASSETCATALOG_COMPILER_APPICON_NAME</key>
 				<string>AppIcon</string>
-				<key>CODE_SIGN_ENTITLEMENTS</key>
-				<string>Runner/Runner.entitlements</string>
-				<key>CODE_SIGN_IDENTITY[sdk=iphoneos*]</key>
-				<string>iPhone Distribution: Sahar Ahmed (JT28P8YMBN)</string>
-				<key>CODE_SIGN_STYLE</key>
-				<string>Manual</string>
 				<key>CURRENT_PROJECT_VERSION</key>
 				<string>$(FLUTTER_BUILD_NUMBER)</string>
 				<key>DEVELOPMENT_TEAM</key>
-				<string>JT28P8YMBN</string>
+				<string>S8QB4VV633</string>
 				<key>ENABLE_BITCODE</key>
 				<string>NO</string>
 				<key>FRAMEWORK_SEARCH_PATHS</key>
@@ -171,8 +167,6 @@
 				<string>com.app.looper</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
-				<key>PROVISIONING_PROFILE_SPECIFIER</key>
-				<string>com app looper ios_app_store 1606297762</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
 				<string>Runner/Runner-Bridging-Header.h</string>
 				<key>SWIFT_VERSION</key>
@@ -219,7 +213,7 @@
 			<key>shellPath</key>
 			<string>/bin/sh</string>
 			<key>shellScript</key>
-			<string>/bin/sh "$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh" embed_and_thin</string>
+			<string>/bin/sh "$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh" thin</string>
 		</dict>
 		<key>3B3967151E833CAA004F5970</key>
 		<dict>
@@ -243,56 +237,40 @@
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
-		<key>5A2FA5202570EB4D00481DF7</key>
+		<key>3B80C3931E831B6300D905FE</key>
 		<dict>
-			<key>fileEncoding</key>
-			<string>4</string>
 			<key>isa</key>
 			<string>PBXFileReference</string>
 			<key>lastKnownFileType</key>
-			<string>text.plist.xml</string>
+			<string>wrapper.framework</string>
 			<key>name</key>
-			<string>GoogleService-Info.plist</string>
+			<string>App.framework</string>
 			<key>path</key>
-			<string>GoogleService-Info.plist</string>
+			<string>Flutter/App.framework</string>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
 		</dict>
-		<key>5A2FA5212570EB4D00481DF7</key>
+		<key>3B80C3941E831B6300D905FE</key>
 		<dict>
 			<key>fileRef</key>
-			<string>5A2FA5202570EB4D00481DF7</string>
+			<string>3B80C3931E831B6300D905FE</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
-		<key>5AA8723A256E628B00186868</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>text.plist.entitlements</string>
-			<key>path</key>
-			<string>Runner.entitlements</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5ABE8B2F255C5B9400FACC32</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.swift</string>
-			<key>path</key>
-			<string>File.swift</string>
-			<key>sourceTree</key>
-			<string>&lt;group&gt;</string>
-		</dict>
-		<key>5ABE8B30255C5B9400FACC32</key>
+		<key>3B80C3951E831B6300D905FE</key>
 		<dict>
 			<key>fileRef</key>
-			<string>5ABE8B2F255C5B9400FACC32</string>
+			<string>3B80C3931E831B6300D905FE</string>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>CodeSignOnCopy</string>
+					<string>RemoveHeadersOnCopy</string>
+				</array>
+			</dict>
 		</dict>
 		<key>7AFA3C8E1D35360C0083082E</key>
 		<dict>
@@ -342,7 +320,10 @@
 			<key>dstSubfolderSpec</key>
 			<string>10</string>
 			<key>files</key>
-			<array/>
+			<array>
+				<string>3B80C3951E831B6300D905FE</string>
+				<string>9705A1C71CF904A300538489</string>
+			</array>
 			<key>isa</key>
 			<string>PBXCopyFilesBuildPhase</string>
 			<key>name</key>
@@ -350,11 +331,35 @@
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<string>0</string>
 		</dict>
+		<key>9705A1C61CF904A100538489</key>
+		<dict>
+			<key>fileRef</key>
+			<string>9740EEBA1CF902C7004384FC</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>9705A1C71CF904A300538489</key>
+		<dict>
+			<key>fileRef</key>
+			<string>9740EEBA1CF902C7004384FC</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+			<key>settings</key>
+			<dict>
+				<key>ATTRIBUTES</key>
+				<array>
+					<string>CodeSignOnCopy</string>
+					<string>RemoveHeadersOnCopy</string>
+				</array>
+			</dict>
+		</dict>
 		<key>9740EEB11CF90186004384FC</key>
 		<dict>
 			<key>children</key>
 			<array>
+				<string>3B80C3931E831B6300D905FE</string>
 				<string>3B3967151E833CAA004F5970</string>
+				<string>9740EEBA1CF902C7004384FC</string>
 				<string>9740EEB21CF90195004384FC</string>
 				<string>7AFA3C8E1D35360C0083082E</string>
 				<string>9740EEB31CF90195004384FC</string>
@@ -424,6 +429,19 @@
 			<key>shellScript</key>
 			<string>/bin/sh "$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh" build</string>
 		</dict>
+		<key>9740EEBA1CF902C7004384FC</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>wrapper.framework</string>
+			<key>name</key>
+			<string>Flutter.framework</string>
+			<key>path</key>
+			<string>Flutter/Flutter.framework</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
 		<key>978B8F6F1D3862AE00F588F7</key>
 		<dict>
 			<key>fileRef</key>
@@ -435,7 +453,6 @@
 		<dict>
 			<key>children</key>
 			<array>
-				<string>5ABE8B2F255C5B9400FACC32</string>
 				<string>9740EEB11CF90186004384FC</string>
 				<string>97C146F01CF9000F007C117D</string>
 				<string>97C146EF1CF9000F007C117D</string>
@@ -461,10 +478,6 @@
 					<dict>
 						<key>CreatedOnToolsVersion</key>
 						<string>7.3.1</string>
-						<key>DevelopmentTeam</key>
-						<string>JT28P8YMBN</string>
-						<key>ProvisioningStyle</key>
-						<string>Manual</string>
 					</dict>
 				</dict>
 			</dict>
@@ -480,7 +493,6 @@
 			<string>PBXProject</string>
 			<key>knownRegions</key>
 			<array>
-				<string>English</string>
 				<string>en</string>
 				<string>Base</string>
 			</array>
@@ -519,7 +531,6 @@
 			<key>files</key>
 			<array>
 				<string>978B8F6F1D3862AE00F588F7</string>
-				<string>5ABE8B30255C5B9400FACC32</string>
 				<string>97C146F31CF9000F007C117D</string>
 				<string>1498D2341E8E89220040F4C2</string>
 			</array>
@@ -534,6 +545,8 @@
 			<string>2147483647</string>
 			<key>files</key>
 			<array>
+				<string>9705A1C61CF904A100538489</string>
+				<string>3B80C3941E831B6300D905FE</string>
 				<string>A5AA2FF752C5EFB57DF481DE</string>
 			</array>
 			<key>isa</key>
@@ -552,7 +565,6 @@
 				<string>9740EEB41CF90195004384FC</string>
 				<string>97C146FE1CF9000F007C117D</string>
 				<string>97C146FC1CF9000F007C117D</string>
-				<string>5A2FA5212570EB4D00481DF7</string>
 			</array>
 			<key>isa</key>
 			<string>PBXResourcesBuildPhase</string>
@@ -572,7 +584,6 @@
 				<string>97C146EC1CF9000F007C117D</string>
 				<string>9705A1C41CF9048500538489</string>
 				<string>3B06AD1E1E4923F5004D2608</string>
-				<string>9AD976F82BAA2DAE672D9DEE</string>
 			</array>
 			<key>buildRules</key>
 			<array/>
@@ -619,8 +630,6 @@
 		<dict>
 			<key>children</key>
 			<array>
-				<string>5A2FA5202570EB4D00481DF7</string>
-				<string>5AA8723A256E628B00186868</string>
 				<string>7AFFD8ED1D35381100E5BB4D</string>
 				<string>7AFFD8EE1D35381100E5BB4D</string>
 				<string>97C146FA1CF9000F007C117D</string>
@@ -766,6 +775,8 @@
 		</dict>
 		<key>97C147031CF9000F007C117D</key>
 		<dict>
+			<key>baseConfigurationReference</key>
+			<string>9740EEB21CF90195004384FC</string>
 			<key>buildSettings</key>
 			<dict>
 				<key>ALWAYS_SEARCH_USER_PATHS</key>
@@ -858,7 +869,7 @@
 				<key>SDKROOT</key>
 				<string>iphoneos</string>
 				<key>TARGETED_DEVICE_FAMILY</key>
-				<string>1,2</string>
+				<string>1</string>
 			</dict>
 			<key>isa</key>
 			<string>XCBuildConfiguration</string>
@@ -867,6 +878,8 @@
 		</dict>
 		<key>97C147041CF9000F007C117D</key>
 		<dict>
+			<key>baseConfigurationReference</key>
+			<string>7AFA3C8E1D35360C0083082E</string>
 			<key>buildSettings</key>
 			<dict>
 				<key>ALWAYS_SEARCH_USER_PATHS</key>
@@ -948,7 +961,7 @@
 				<key>SDKROOT</key>
 				<string>iphoneos</string>
 				<key>TARGETED_DEVICE_FAMILY</key>
-				<string>1,2</string>
+				<string>1</string>
 				<key>VALIDATE_PRODUCT</key>
 				<string>YES</string>
 			</dict>
@@ -980,16 +993,8 @@
 			<dict>
 				<key>ASSETCATALOG_COMPILER_APPICON_NAME</key>
 				<string>AppIcon</string>
-				<key>CODE_SIGN_ENTITLEMENTS</key>
-				<string>Runner/Runner.entitlements</string>
-				<key>CODE_SIGN_IDENTITY[sdk=iphoneos*]</key>
-				<string>iPhone Distribution: Sahar Ahmed (JT28P8YMBN)</string>
-				<key>CODE_SIGN_STYLE</key>
-				<string>Manual</string>
 				<key>CURRENT_PROJECT_VERSION</key>
 				<string>$(FLUTTER_BUILD_NUMBER)</string>
-				<key>DEVELOPMENT_TEAM</key>
-				<string>JT28P8YMBN</string>
 				<key>ENABLE_BITCODE</key>
 				<string>NO</string>
 				<key>FRAMEWORK_SEARCH_PATHS</key>
@@ -1010,8 +1015,6 @@
 				<string>com.app.looper</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
-				<key>PROVISIONING_PROFILE_SPECIFIER</key>
-				<string>com app looper ios_app_store 1606297762</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
 				<string>Runner/Runner-Bridging-Header.h</string>
 				<key>SWIFT_VERSION</key>
@@ -1032,16 +1035,8 @@
 			<dict>
 				<key>ASSETCATALOG_COMPILER_APPICON_NAME</key>
 				<string>AppIcon</string>
-				<key>CODE_SIGN_ENTITLEMENTS</key>
-				<string>Runner/Runner.entitlements</string>
-				<key>CODE_SIGN_IDENTITY[sdk=iphoneos*]</key>
-				<string>iPhone Distribution: Sahar Ahmed (JT28P8YMBN)</string>
-				<key>CODE_SIGN_STYLE</key>
-				<string>Manual</string>
 				<key>CURRENT_PROJECT_VERSION</key>
 				<string>$(FLUTTER_BUILD_NUMBER)</string>
-				<key>DEVELOPMENT_TEAM</key>
-				<string>JT28P8YMBN</string>
 				<key>ENABLE_BITCODE</key>
 				<string>NO</string>
 				<key>FRAMEWORK_SEARCH_PATHS</key>
@@ -1062,8 +1057,6 @@
 				<string>com.app.looper</string>
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
-				<key>PROVISIONING_PROFILE_SPECIFIER</key>
-				<string>com app looper ios_app_store 1606297762</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
 				<string>Runner/Runner-Bridging-Header.h</string>
 				<key>SWIFT_VERSION</key>
@@ -1076,30 +1069,6 @@
 			<key>name</key>
 			<string>Release</string>
 		</dict>
-		<key>9AD976F82BAA2DAE672D9DEE</key>
-		<dict>
-			<key>buildActionMask</key>
-			<string>2147483647</string>
-			<key>files</key>
-			<array/>
-			<key>inputPaths</key>
-			<array/>
-			<key>isa</key>
-			<string>PBXShellScriptBuildPhase</string>
-			<key>name</key>
-			<string>[CP] Embed Pods Frameworks</string>
-			<key>outputPaths</key>
-			<array/>
-			<key>runOnlyForDeploymentPostprocessing</key>
-			<string>0</string>
-			<key>shellPath</key>
-			<string>/bin/sh</string>
-			<key>shellScript</key>
-			<string>"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh"
-</string>
-			<key>showEnvVarsInLog</key>
-			<string>0</string>
-		</dict>
 		<key>A4A56567F7E18F546A25A7CE</key>
 		<dict>
 			<key>children</key>
@@ -1110,6 +1079,8 @@
 			</array>
 			<key>isa</key>
 			<string>PBXGroup</string>
+			<key>name</key>
+			<string>Pods</string>
 			<key>path</key>
 			<string>Pods</string>
 			<key>sourceTree</key>
