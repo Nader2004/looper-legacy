@@ -10,7 +10,7 @@ class WelcomePage extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(
         right: 10,
-        top: 80,
+        top: MediaQuery.of(context).size.height / 5.5,
       ),
       child: ButtonBar(
         children: <Widget>[
@@ -56,7 +56,7 @@ class WelcomePage extends StatelessWidget {
         children: <Widget>[
           Image.asset(
             'assets/social-media (2).jpg',
-            height: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 2,
             width: MediaQuery.of(context).size.width,
           ),
           Container(
