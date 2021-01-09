@@ -33,7 +33,7 @@ dependencies:
   firebase_auth: ^0.18.0+1
   flutter_native_admob: ^2.1.0+3
   firebase_ml_vision: ^0.9.5
-  camera: ^0.5.8+7
+  camera: ^0.6.4+5
   video_player: ^0.11.1+4
   path_provider: ^1.1.0
   image_picker: ^0.6.7+1
@@ -91,7 +91,7 @@ dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/looper-icon.jpg" 
+  image_path: "assets/icon/infinity.png" 
 
 dev_dependencies:
   flutter_test:
@@ -121,8 +121,8 @@ flutter:
     - assets/comedy.jpg
     - assets/eye.png
     - assets/clap.png
-    - assets/female-hair (2).png
-    - assets/male-hair (2).png
+    - assets/female-hair.png
+    - assets/male-hair.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
