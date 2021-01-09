@@ -121,8 +121,8 @@ flutter:
     - assets/comedy.jpg
     - assets/eye.png
     - assets/clap.png
-    - assets/female-hair.png
-    - assets/male-hair.png
+    - assets/female-hair (2).png
+    - assets/male-hair (2).png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
