@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import 'package:path/path.dart';
 import 'package:camera/camera.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
@@ -241,13 +238,12 @@ class _CameraState extends State<Camera>
   }
 
   Future<String> _capturePhoto() async {
-    final String _path = join(
-      (await getApplicationDocumentsDirectory()).path,
-      '${DateTime.now()}.png',
-    );
+    String _path = '';
     try {
       await _initializeControllerFuture;
-      await _cameraController.takePicture(_path);
+      _cameraController.takePicture().then((XFile file) {
+        _path = file.path;
+      });
     } catch (_) {
       setState(() {
         _displayCaptureEffect = false;
@@ -273,29 +269,22 @@ class _CameraState extends State<Camera>
   }
 
   void onVideoRecordButtonPressed() {
-    startVideoRecording().then((String filePath) {
+    startVideoRecording().then((_) {
       if (mounted) setState(() {});
-      if (filePath != null) showInSnackBar('Saving video to $filePath');
     });
   }
 
   void onStopButtonPressed() {
     stopVideoRecording().then((_) {
       if (mounted) setState(() {});
-      showInSnackBar('Video recorded to: $videoPath');
     });
   }
 
-  Future<String> startVideoRecording() async {
+  Future<void> startVideoRecording() async {
     if (!_cameraController.value.isInitialized) {
       showInSnackBar('Error: select a camera first.');
       return null;
     }
-
-    final Directory extDir = await getApplicationDocumentsDirectory();
-    final String dirPath = '${extDir.path}/Talent/Videos';
-    await Directory(dirPath).create(recursive: true);
-    final String filePath = '$dirPath/${timestamp()}.mp4';
 
     if (_cameraController.value.isRecordingVideo) {
       // A recording is already started, do nothing.
@@ -303,13 +292,11 @@ class _CameraState extends State<Camera>
     }
 
     try {
-      videoPath = filePath;
-      await _cameraController.startVideoRecording(filePath);
+      await _cameraController.startVideoRecording();
     } on CameraException catch (e) {
       _showCameraException(e.description);
       return null;
     }
-    return filePath;
   }
 
   Future<void> stopVideoRecording() async {
@@ -318,14 +305,14 @@ class _CameraState extends State<Camera>
     }
 
     try {
-      await _cameraController.stopVideoRecording();
+      await _cameraController.stopVideoRecording().then((XFile file) {
+        videoPath = file.path;
+      });
     } on CameraException catch (e) {
       _showCameraException(e.description);
       return null;
     }
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
