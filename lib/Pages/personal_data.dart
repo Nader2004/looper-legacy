@@ -3,10 +3,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intro_slider/intro_slider.dart';
+import 'package:intro_slider/slide_object.dart';
+import 'package:looper/Pages/home.dart';
 import 'package:looper/services/auth.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import '../Pages/home.dart';
 import '../services/storage.dart';
 import '../Pages/profile_picture_setUp.dart';
 
@@ -161,7 +165,14 @@ class _PersonalPageState extends State<PersonalPage> {
           Timer(
             Duration(milliseconds: 800),
             () {
-              Navigator.of(context).pushNamed(HomePage.id);
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (context) => IntroPage(
+                    username: widget.username,
+                    deviceWidth: MediaQuery.of(context).size.width,
+                  ),
+                ),
+              );
             },
           );
         },
@@ -504,6 +515,282 @@ class _PersonalPageState extends State<PersonalPage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class IntroPage extends StatefulWidget {
+  final String username;
+  final double deviceWidth;
+  IntroPage({Key key, this.username, this.deviceWidth}) : super(key: key);
+
+  @override
+  _IntroPageState createState() => _IntroPageState();
+}
+
+class _IntroPageState extends State<IntroPage> {
+  List<Slide> _slides = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _slides.add(
+      Slide(
+        title: 'Hello ${widget.username}',
+        styleTitle: GoogleFonts.aBeeZee(
+          color: Colors.black,
+          fontSize: 40,
+          fontWeight: FontWeight.w600,
+        ),
+        pathImage: 'assets/network.png',
+        heightImage: widget.deviceWidth / 2,
+        widthImage: widget.deviceWidth / 2,
+        description:
+            'Looper keeps you connected with the compatible ones. Create long term friendships and relationships',
+        styleDescription: GoogleFonts.aBeeZee(
+          color: Colors.black,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
+        backgroundColor: Colors.white,
+      ),
+    );
+    _slides.add(
+      Slide(
+        title: 'Global rooms',
+        styleTitle: GoogleFonts.aBeeZee(
+          color: Colors.black,
+          fontSize: 40,
+          fontWeight: FontWeight.w600,
+        ),
+        description:
+            'Global rooms are content categories, where you can create and interact with',
+        centerWidget: Column(
+          children: [
+            Icon(
+              FontAwesomeIcons.globe,
+              size: widget.deviceWidth / 3,
+              color: Colors.black,
+            ),
+            SizedBox(height: widget.deviceWidth / 8),
+            Wrap(
+              children: [
+                Container(
+                  height: widget.deviceWidth / 5.2,
+                  width: widget.deviceWidth / 5.2,
+                  child: Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.favorite,
+                        size: 24,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: widget.deviceWidth / 5.2,
+                  width: widget.deviceWidth / 5.2,
+                  child: Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        MdiIcons.dramaMasks,
+                        size: 26,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: widget.deviceWidth / 5.2,
+                  width: widget.deviceWidth / 5.2,
+                  child: Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        MdiIcons.flagCheckered,
+                        size: 24,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: widget.deviceWidth / 5.2,
+                  width: widget.deviceWidth / 5.2,
+                  child: Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        MdiIcons.star,
+                        size: 24,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: widget.deviceWidth / 5.2,
+                  width: widget.deviceWidth / 5.2,
+                  child: Card(
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        MdiIcons.baseball,
+                        size: 24,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        styleDescription: GoogleFonts.aBeeZee(
+          color: Colors.black,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
+        backgroundColor: Colors.white,
+      ),
+    );
+    _slides.add(
+      Slide(
+        title: 'L O V E',
+        backgroundColor: Colors.redAccent,
+        centerWidget: Padding(
+          padding: EdgeInsets.only(top: widget.deviceWidth / 8),
+          child: Icon(
+            MdiIcons.heartMultiple,
+            size: widget.deviceWidth / 2.5,
+            color: Colors.white,
+          ),
+        ),
+        description:
+            'In this room, you can create love cards and you can wish how your partner character or look will be like',
+        styleDescription: GoogleFonts.aBeeZee(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+    _slides.add(
+      Slide(
+        title: 'T A L E N T S',
+        backgroundColor: Colors.deepPurple,
+        centerWidget: Padding(
+          padding: EdgeInsets.only(top: widget.deviceWidth / 8),
+          child: FaIcon(
+            FontAwesomeIcons.star,
+            size: widget.deviceWidth / 2.5,
+            color: Colors.white,
+          ),
+        ),
+        description:
+            'Here you can upload short video clips showing your talents like : singing, dancing, acting, painting and other ones too',
+        styleDescription: GoogleFonts.aBeeZee(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+
+    _slides.add(
+      Slide(
+        title: 'S P O R T S',
+        backgroundColor: Colors.blue[700],
+        centerWidget: Padding(
+          padding: EdgeInsets.only(top: widget.deviceWidth / 8),
+          child: FaIcon(
+            FontAwesomeIcons.basketballBall,
+            size: widget.deviceWidth / 2.5,
+            color: Colors.white,
+          ),
+        ),
+        description:
+            'Here you can upload short video clips about different types of sports like : swimming, basketball, football, soccer and even more',
+        styleDescription: GoogleFonts.aBeeZee(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+    _slides.add(
+      Slide(
+        title: 'C O M E D Y',
+        backgroundColor: Colors.yellow[700],
+        centerWidget: Padding(
+          padding: EdgeInsets.only(top: widget.deviceWidth / 8),
+          child: Icon(
+            MdiIcons.dramaMasks,
+            size: widget.deviceWidth / 2.5,
+            color: Colors.white,
+          ),
+        ),
+        description:
+            'Here you can upload jokes, images and videos . You can even create your own comedy shows where other people could join the show and comment on it',
+        styleDescription: GoogleFonts.aBeeZee(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+    _slides.add(
+      Slide(
+        title: 'C H A L L E N G E S',
+        backgroundColor: Colors.indigo,
+        centerWidget: Padding(
+          padding: EdgeInsets.only(top: widget.deviceWidth / 8),
+          child: Icon(
+            MdiIcons.flagCheckered,
+            size: widget.deviceWidth / 2.5,
+            color: Colors.white,
+          ),
+        ),
+        description:
+            'Have some challeging ideas ? Then this is the place. Upload short videos showing your challenges to the world',
+        styleDescription: GoogleFonts.aBeeZee(
+          color: Colors.white,
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IntroSlider(
+      slides: _slides,
+      colorDoneBtn: Colors.black,
+      isShowSkipBtn: false,
+      onDonePress: () => Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => HomePage(firstTime: true),
         ),
       ),
     );
