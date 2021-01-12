@@ -45,6 +45,7 @@ dependencies:
   shimmer: ^1.0.1
   bubble: ^1.1.9+1
   badges: ^1.1.1
+  intro_slider: ^2.3.3
   superellipse_shape: ^0.1.5
   carousel_slider: ^2.3.1
   flutter_swiper: ^1.1.6  
@@ -69,6 +70,7 @@ dependencies:
   flutter_image_compress: ^0.7.0
   flutter_video_compress: ^0.3.7+8
   audioplayers: ^0.16.1
+  tutorial_coach_mark: ^0.5.2
   flutter_sound: ^6.4.3+44
   location: ^3.0.2
   geocoder: ^0.2.1
