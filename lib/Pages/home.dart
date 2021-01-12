@@ -36,8 +36,10 @@ import 'home-Pages/chat/chat_list.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home';
+  final bool firstTime;
   final String userId;
-  const HomePage({Key key, this.userId}) : super(key: key);
+  const HomePage({Key key, this.userId, this.firstTime = false})
+      : super(key: key);
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -56,7 +58,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void setPrefs() async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
-     if (!_prefs.containsKey('id')) {
+    if (!_prefs.containsKey('id')) {
       _prefs.setString('id', widget.userId);
     }
     setState(() {
@@ -120,7 +122,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         return SearchPage();
         break;
       case 1:
-        return GlobePage();
+        return GlobePage(
+          firstTime: widget.firstTime == true ? widget.firstTime : false,
+        );
         break;
       case 2:
         return GlobalRoomsPage();
