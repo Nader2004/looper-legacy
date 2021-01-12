@@ -180,50 +180,15 @@ class _GlobePageState extends State<GlobePage> {
         paddingFocus: 10,
         focusAnimationDuration: Duration(milliseconds: 500),
         pulseAnimationDuration: Duration(milliseconds: 500), onFinish: () {
-      print("finish");
-    }, onClickTarget: (target) {
-      print(target);
-    }, onClickSkip: () {
-      print("skip");
+      showPostMethod();
+    },  onClickSkip: () {
+      showPostMethod();
     })
       ..show();
   }
 
-  void setPrefs() async {
-    final SharedPreferences _prefs = await SharedPreferences.getInstance();
-    final DocumentSnapshot _user =
-        await _firestore.collection('users').doc(_prefs.get('id')).get();
-
-    _querySnapshot = await _firestore
-        .collection('users')
-        .doc(_userId)
-        .collection('following')
-        .get();
-    for (DocumentSnapshot doc in _querySnapshot.docs) {
-      _followIds.add(doc.data()['creatorId']);
-    }
-    setState(() {
-      _userId = _prefs.get('id');
-      _personalityType = _user?.data()['personality-type'];
-      _compatableUsers = PersonalityService.setUserPersonalityStream(
-        _personalityType,
-        _firestore,
-      );
-      _future = Future.wait([
-        DatabaseService.getFollowedContentFeed(
-          'posts',
-          'author',
-          _querySnapshot,
-        ),
-        PersonalityService.getCompatibleContentStream(
-          _personalityType,
-          _firestore,
-          'posts',
-          'author-personality',
-        ),
-      ]);
-    });
-    _firestore
+ void showPostMethod() {
+   _firestore
         .collection('posts')
         .where('author', isEqualTo: _userId)
         .get()
@@ -331,6 +296,43 @@ class _GlobePageState extends State<GlobePage> {
         );
       }
     });
+ }
+
+  void setPrefs() async {
+    final SharedPreferences _prefs = await SharedPreferences.getInstance();
+    final DocumentSnapshot _user =
+        await _firestore.collection('users').doc(_prefs.get('id')).get();
+
+    _querySnapshot = await _firestore
+        .collection('users')
+        .doc(_userId)
+        .collection('following')
+        .get();
+    for (DocumentSnapshot doc in _querySnapshot.docs) {
+      _followIds.add(doc.data()['creatorId']);
+    }
+    setState(() {
+      _userId = _prefs.get('id');
+      _personalityType = _user?.data()['personality-type'];
+      _compatableUsers = PersonalityService.setUserPersonalityStream(
+        _personalityType,
+        _firestore,
+      );
+      _future = Future.wait([
+        DatabaseService.getFollowedContentFeed(
+          'posts',
+          'author',
+          _querySnapshot,
+        ),
+        PersonalityService.getCompatibleContentStream(
+          _personalityType,
+          _firestore,
+          'posts',
+          'author-personality',
+        ),
+      ]);
+    });
+    
   }
 
   Future<String> get _localPath async {
