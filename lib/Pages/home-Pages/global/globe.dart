@@ -15,6 +15,8 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+import 'package:tutorial_coach_mark/animated_focus_light.dart';
 import 'package:stringprocess/stringprocess.dart';
 
 import '../../../widgets/post.dart';
@@ -22,7 +24,8 @@ import '../../../widgets/post.dart';
 import '../../../widgets/pnd-showcase.dart';
 
 class GlobePage extends StatefulWidget {
-  const GlobePage({Key key}) : super(key: key);
+  final bool firstTime;
+  const GlobePage({Key key, this.firstTime = false}) : super(key: key);
 
   @override
   _GlobePageState createState() => _GlobePageState();
@@ -35,6 +38,10 @@ class _GlobePageState extends State<GlobePage> {
   QuerySnapshot _querySnapshot;
   List<String> _followIds = [];
   List<String> _ids = [];
+  List<TargetFocus> _targets = [];
+  GlobalKey keyPersonalities = GlobalKey();
+  GlobalKey progressKey = GlobalKey();
+  GlobalKey postKey = GlobalKey();
   Stream<QuerySnapshot> _compatableUsers;
   Future<List<dynamic>> _future;
 
@@ -42,8 +49,144 @@ class _GlobePageState extends State<GlobePage> {
   void initState() {
     super.initState();
     _firestore = FirebaseFirestore.instance;
+
     setPrefs();
     PersonalityService.analyzePersonality();
+    if (widget.firstTime != false) {
+      _targets.add(
+        TargetFocus(
+          identify: 'Target 0',
+          keyTarget: keyPersonalities,
+          color: Colors.blue,
+          contents: [
+            ContentTarget(
+              align: AlignContent.bottom,
+              child: Container(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Discover a List of compatible people',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 20.0),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Text(
+                        'Here you will see a list of people who are compatible with you. These people are similar to your personality',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+          shape: ShapeLightFocus.RRect,
+          radius: 5,
+        ),
+      );
+      _targets.add(
+        TargetFocus(
+          identify: 'Target 1',
+          keyTarget: progressKey,
+          color: Colors.blue,
+          contents: [
+            ContentTarget(
+              align: AlignContent.bottom,
+              child: Container(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Your personality recognition Progress',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 20.0),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Text(
+                        'Here you will see a list of people who are compatible with you. These people are similar to your personality',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+          shape: ShapeLightFocus.RRect,
+          radius: 5,
+        ),
+      );
+      _targets.add(
+        TargetFocus(
+          identify: 'Target 2',
+          keyTarget: postKey,
+          color: Colors.blue,
+          contents: [
+            ContentTarget(
+              align: AlignContent.bottom,
+              child: Container(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Create a post from here',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 20.0),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Text(
+                        'Do you think about something and wanna share it with the world, just click here',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
+          shape: ShapeLightFocus.RRect,
+          radius: 5,
+        ),
+      );
+      WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
+    }
+  }
+
+  void _afterLayout(_) {
+    Future.delayed(Duration(seconds: 3), () {
+      showTutorial();
+    });
+  }
+
+  void showTutorial() {
+    TutorialCoachMark(context,
+        targets: _targets, // List<TargetFocus>
+        colorShadow: Colors.red, // DEFAULT Colors.black
+        alignSkip: Alignment.bottomRight,
+        textSkip: "SKIP",
+        paddingFocus: 10,
+        focusAnimationDuration: Duration(milliseconds: 500),
+        pulseAnimationDuration: Duration(milliseconds: 500), onFinish: () {
+      print("finish");
+    }, onClickTarget: (target) {
+      print(target);
+    }, onClickSkip: () {
+      print("skip");
+    })
+      ..show();
   }
 
   void setPrefs() async {
@@ -239,6 +382,7 @@ class _GlobePageState extends State<GlobePage> {
                     print(_percentage);
                     return Text(
                       '${_percentageLeft.toStringAsFixed(1)}% left',
+                      key: progressKey,
                       style: GoogleFonts.abel(
                         fontSize: 24,
                       ),
@@ -430,43 +574,29 @@ class _GlobePageState extends State<GlobePage> {
 
   Widget _postCreation() {
     return Container(
+      key: postKey,
       color: Colors.white,
       padding: EdgeInsets.symmetric(
         vertical: 13,
-        horizontal: MediaQuery.of(context).size.width / 6,
+        horizontal: MediaQuery.of(context).size.width / 15,
       ),
       height: MediaQuery.of(context).size.height / 10,
       width: MediaQuery.of(context).size.width,
-      child: OutlineButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PostCreationPage(),
-            ),
-          );
-        },
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+      alignment: Alignment.centerLeft,
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PostCreationPage(),
+          ),
         ),
-        borderSide: BorderSide(color: Colors.black),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.add,
-              size: 20,
-              color: Colors.black,
-            ),
-            SizedBox(width: 5),
-            Text(
-              'create your post 🎯',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+        child: Text(
+          'What are you up to...?',
+          style: TextStyle(
+            color: Colors.grey,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          ),
         ),
       ),
     );
@@ -478,6 +608,7 @@ class _GlobePageState extends State<GlobePage> {
         bottom: 10,
       ),
       child: Column(
+        key: keyPersonalities,
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
