@@ -33,7 +33,7 @@ dependencies:
   firebase_auth: ^0.18.0+1
   flutter_native_admob: ^2.1.0+3
   firebase_ml_vision: ^0.9.5
-  camera: ^0.5.8
+  camera: ^0.6.4+5
   video_player: ^0.11.1+4
   path_provider: ^1.1.0
   image_picker: ^0.6.7+1
@@ -93,7 +93,7 @@ dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/infinity.png" 
+  image_path: "assets/icon/looper-icon.jpg" 
 
 dev_dependencies:
   flutter_test:
