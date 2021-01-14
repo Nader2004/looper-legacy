@@ -7,7 +7,6 @@ import 'package:looper/services/personality.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../services/database.dart';
@@ -92,17 +91,11 @@ class _ChallengeCreationState extends State<ChallengeCreation>
     );
   }
 
-  Future<String> startVideoRecording() async {
+  Future<void> startVideoRecording() async {
     if (!_cameraController.value.isInitialized) {
       showInSnackBar('Open Camera first.');
       return null;
     }
-
-    final Directory extDir = await getApplicationDocumentsDirectory();
-    final String _timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final String dirPath = '${extDir.path}/Talents';
-    await Directory(dirPath).create(recursive: true);
-    final String filePath = '$dirPath/$_timestamp.mp4';
 
     if (_cameraController.value.isRecordingVideo) {
       // A recording is already started, do nothing.
@@ -110,13 +103,11 @@ class _ChallengeCreationState extends State<ChallengeCreation>
     }
 
     try {
-      _videoPath = filePath;
-      await _cameraController.startVideoRecording(filePath);
+      await _cameraController.startVideoRecording();
     } on CameraException catch (_) {
       _showCameraException('Can\'t record Video');
       return null;
     }
-    return filePath;
   }
 
   Future<void> stopVideoRecording() async {
@@ -124,7 +115,9 @@ class _ChallengeCreationState extends State<ChallengeCreation>
       return null;
     }
     try {
-      await _cameraController.stopVideoRecording();
+      await _cameraController.stopVideoRecording().then((XFile file) {
+        _videoPath = file.path;
+      });
     } on CameraException catch (_) {
       _showCameraException('Can\'t stop recording');
       return null;
@@ -132,7 +125,7 @@ class _ChallengeCreationState extends State<ChallengeCreation>
   }
 
   void onVideoRecordButtonPressed() {
-    startVideoRecording().then((String filePath) {
+    startVideoRecording().then((_) {
       if (mounted) setState(() {});
     });
   }
