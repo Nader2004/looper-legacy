@@ -99,7 +99,9 @@ class NotificationsService {
       ),
     );
 
-    _fcm.getToken().then((String token) {
+    _fcm.getToken().then((String token) async {
+      final SharedPreferences _prefs = await SharedPreferences.getInstance();
+      _id = _prefs.get('id');
       FirebaseFirestore.instance.collection('users').doc(_id).set(
         {
           'token': token,
