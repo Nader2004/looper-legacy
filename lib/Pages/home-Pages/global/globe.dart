@@ -139,7 +139,7 @@ class _GlobePageState extends State<GlobePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      'Create a post from here',
+                      'Share your thought from here',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
@@ -241,7 +241,7 @@ class _GlobePageState extends State<GlobePage> {
                     ),
                   ),
                   Text(
-                    'create your first post to the world',
+                    'Start by sharing a thought',
                     style: TextStyle(
                       fontSize: 20,
                     ),
@@ -278,7 +278,7 @@ class _GlobePageState extends State<GlobePage> {
                             ),
                             SizedBox(width: 5),
                             Text(
-                              'create your post',
+                              'create your thought',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -593,7 +593,7 @@ class _GlobePageState extends State<GlobePage> {
           ),
         ),
         child: Text(
-          'What are you up to...?',
+          'What do you think...?',
           style: TextStyle(
             color: Colors.grey,
             fontWeight: FontWeight.w600,
@@ -676,9 +676,9 @@ class _GlobePageState extends State<GlobePage> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 30),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
               child: Text(
-                'Posts',
+                'Thoughts',
                 style: TextStyle(
                   fontSize: 35,
                   fontWeight: FontWeight.bold,
