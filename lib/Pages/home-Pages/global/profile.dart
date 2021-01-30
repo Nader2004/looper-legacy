@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:superellipse_shape/superellipse_shape.dart';
@@ -26,9 +27,12 @@ class _ProfilePageState extends State<ProfilePage> {
   String _id = 'empty';
   String _groupId = '';
   String _userName = '';
+  String _userBio = '';
+  String _userStatus = '';
   int _creationSelectedIndex = 0;
   int _likesSelectedIndex = 0;
   bool _isFollowing = false;
+  TextEditingController _bioController;
   Stream<QuerySnapshot> _blockedUsers;
   Future<DocumentSnapshot> _userFuture;
   Future<QuerySnapshot> _following;
@@ -53,6 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void setPrefs() async {
+    _bioController = TextEditingController();
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     final DocumentSnapshot _doc = await FirebaseFirestore.instance
         .collection('users')
@@ -69,6 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
           .snapshots();
       _isFollowing = isFollowing;
       _userName = _doc.data()['username'];
+
       _userFuture = FirebaseFirestore.instance
           .collection('users')
           .doc(widget.userId)
@@ -140,6 +146,187 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  void _showBioDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AnimatedContainer(
+        duration: Duration(milliseconds: 300),
+        child: AlertDialog(
+          content: Row(
+            children: <Widget>[
+              Expanded(
+                child: TextField(
+                  controller: _bioController,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: 'Your Bio',
+                  ),
+                  maxLength: 150,
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            FlatButton(
+                child: Text('CANCEL'),
+                onPressed: () {
+                  _bioController.clear();
+                  Navigator.pop(context);
+                }),
+            FlatButton(
+                child: Text('DONE'),
+                onPressed: () {
+                  if (_bioController.text.length != 0) {
+                    Navigator.pop(context);
+                    setState(() => _userBio = _bioController.text);
+                    print(_userBio);
+                    FirebaseFirestore.instance.collection('users').doc(_id).set(
+                      {'bio': _bioController.text},
+                      SetOptions(merge: true),
+                    );
+                    Fluttertoast.showToast(
+                      msg: 'Revisit your profile to see ur update',
+                    );
+                  } else {
+                    Fluttertoast.showToast(msg: 'Add your bio first');
+                  }
+                })
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showStatusDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        child: AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey[300],
+                  ),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: ButtonTheme(
+                  height: 20,
+                  minWidth: MediaQuery.of(context).size.width / 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: FlatButton(
+                    color: Colors.grey[50],
+                    onPressed: () {
+                      setState(() {
+                        _userStatus = 'single';
+                      });
+                      Navigator.pop(context);
+                      FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(_id)
+                          .set(
+                        {'status': _userStatus},
+                        SetOptions(merge: true),
+                      );
+                      Fluttertoast.showToast(
+                        msg: 'Revisit your profile to see ur update',
+                      );
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(right: 25),
+                          child: Icon(
+                            MdiIcons.account,
+                            color: Colors.black,
+                            size: 50,
+                          ),
+                        ),
+                        Text(
+                          'SINGLE',
+                          style: TextStyle(
+                            fontSize: 18.5,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 15),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey[300],
+                  ),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: ButtonTheme(
+                  height: 20,
+                  minWidth: MediaQuery.of(context).size.width / 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: FlatButton(
+                    color: Colors.white,
+                    onPressed: () {
+                      setState(() {
+                        _userStatus = 'couple';
+                      });
+                      Navigator.pop(context);
+                      FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(_id)
+                          .set(
+                        {'status': _userStatus},
+                        SetOptions(merge: true),
+                      );
+                    },
+                    child: Row(
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(right: 25),
+                          child: Icon(
+                            MdiIcons.accountMultiple,
+                            color: Colors.black,
+                            size: 50,
+                          ),
+                        ),
+                        Text(
+                          'COUPLE',
+                          style: TextStyle(
+                            fontSize: 18.5,
+                            fontWeight: FontWeight.w400,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            FlatButton(
+                child: const Text('CANCEL'),
+                onPressed: () {
+                  Navigator.pop(context);
+                }),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return _id == 'empty'
@@ -197,7 +384,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         onPressed: () {
                           if (!blockedUsers.contains(widget.userId)) {
-                            print('triggered');
                             DatabaseService.blockUser(
                               _id,
                               widget.userId,
@@ -248,8 +434,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                         ),
                                       );
                                     }
+
                                     final User _user =
                                         User.fromDoc(snapshot.data);
+                                    _userBio = _user.bio;
+                                    _userStatus = _user.status;
                                     return Column(
                                       children: <Widget>[
                                         SizedBox(height: 20),
@@ -297,7 +486,21 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ),
                                           ],
                                         ),
-                                        SizedBox(height: 16),
+                                        SizedBox(
+                                          height:
+                                              _userBio != '' || _userBio != null
+                                                  ? 10
+                                                  : 16,
+                                        ),
+                                        _userBio != '' && _userBio != null
+                                            ? Text(
+                                                _userBio,
+                                                style: TextStyle(fontSize: 18),
+                                              )
+                                            : SizedBox.shrink(),
+                                        _userBio != '' || _userBio != null
+                                            ? SizedBox(height: 10)
+                                            : SizedBox.shrink(),
                                         Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
@@ -401,6 +604,53 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ),
                                           ],
                                         ),
+                                        _userStatus != '' && _userStatus != null
+                                            ? Container(
+                                                alignment: Alignment.center,
+                                                margin:
+                                                    EdgeInsets.only(top: 16),
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    17,
+                                                width: _userStatus == 'single'
+                                                    ? MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        3.3
+                                                    : MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        2.4,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(7),
+                                                  border: Border.all(
+                                                    color: Colors.red,
+                                                    width: 1.3,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      MdiIcons.heartMultiple,
+                                                      color: Colors.red,
+                                                    ),
+                                                    SizedBox(width: 5),
+                                                    Text(
+                                                      _userStatus == 'single'
+                                                          ? 'SINGLE'
+                                                          : 'IN A RELATIONSHIP',
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            : SizedBox.shrink(),
                                         blockedUsers.contains(widget.userId)
                                             ? SizedBox(height: 30)
                                             : SizedBox.shrink(),
@@ -575,6 +825,58 @@ class _ProfilePageState extends State<ProfilePage> {
                                         blockedUsers.contains(widget.userId)
                                             ? SizedBox.shrink()
                                             : SizedBox(height: 20),
+                                        widget.userId == _id
+                                            ? Column(
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width -
+                                                            20,
+                                                    child: OutlineButton(
+                                                      onPressed: () =>
+                                                          _showBioDialog(),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5),
+                                                      ),
+                                                      borderSide: BorderSide(
+                                                          color: Colors.blue),
+                                                      textColor: Colors.blue,
+                                                      child:
+                                                          Text('Edit your bio'),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 10),
+                                                  Container(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width -
+                                                            20,
+                                                    child: OutlineButton(
+                                                      onPressed: () =>
+                                                          _showStatusDialog(),
+                                                      shape:
+                                                          RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5),
+                                                      ),
+                                                      borderSide: BorderSide(
+                                                          color: Colors.blue),
+                                                      textColor: Colors.blue,
+                                                      child: Text(
+                                                        'Edit your status',
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            : SizedBox.shrink(),
                                         blockedUsers.contains(widget.userId)
                                             ? SizedBox.shrink()
                                             : Divider(),
