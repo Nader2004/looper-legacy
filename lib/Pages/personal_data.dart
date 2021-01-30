@@ -1,15 +1,19 @@
 import 'dart:io';
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intro_slider/intro_slider.dart';
 import 'package:intro_slider/slide_object.dart';
 import 'package:looper/Pages/home.dart';
 import 'package:looper/services/auth.dart';
+import 'package:looper/services/personality.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/storage.dart';
 import '../Pages/profile_picture_setUp.dart';
@@ -167,7 +171,7 @@ class _PersonalPageState extends State<PersonalPage> {
             () {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => IntroPage(
+                  builder: (context) => BioPage(
                     username: widget.username,
                     deviceWidth: MediaQuery.of(context).size.width,
                   ),
@@ -512,6 +516,370 @@ class _PersonalPageState extends State<PersonalPage> {
                               ),
                             ),
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BioPage extends StatefulWidget {
+  final String username;
+  final double deviceWidth;
+  BioPage({Key key, this.username, this.deviceWidth}) : super(key: key);
+
+  @override
+  _BioPageState createState() => _BioPageState();
+}
+
+class _BioPageState extends State<BioPage> {
+  String bio = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        margin: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height / 2.5,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Center(
+                child: Text(
+                  'Add your bio',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 30,
+                  ),
+                ),
+              ),
+              SizedBox(height: 25),
+              Center(
+                child: FaIcon(
+                  FontAwesomeIcons.userEdit,
+                  color: Colors.black,
+                  size: 45,
+                ),
+              ),
+              SizedBox(height: 25),
+              Center(
+                child: Container(
+                  margin: EdgeInsets.only(bottom: 20),
+                  width: widget.deviceWidth / 1.2,
+                  child: TextFormField(
+                    autocorrect: true,
+                    maxLength: 150,
+                    decoration: InputDecoration(
+                      labelText: 'your bio',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(
+                        Icons.person,
+                        color: Colors.black,
+                      ),
+                    ),
+                    onChanged: (String value) {
+                      bio = value;
+                    },
+                    validator: (String value) {
+                      if (value.isEmpty || value.length <= 5) {
+                        return 'your bio is too short';
+                      } else {
+                        return null;
+                      }
+                    },
+                    onEditingComplete: () {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 7,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: Colors.white,
+                    textColor: Colors.black,
+                    child: Text('S K I P'),
+                    onPressed: () => Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => RelationshipStatus(
+                          username: widget.username,
+                          deviceWidth: MediaQuery.of(context).size.width,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      color: Colors.black,
+                      textColor: Colors.white,
+                      child: Text('N E X T'),
+                      onPressed: () async {
+                        if (bio.isNotEmpty) {
+                          PersonalityService.setTextInput(bio);
+                          SharedPreferences _prefs =
+                              await SharedPreferences.getInstance();
+                          String _id = _prefs.getString('id');
+                          FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(_id)
+                              .set(
+                            {'bio': bio},
+                            SetOptions(merge: true),
+                          );
+                          
+                          Fluttertoast.showToast(msg: 'Bio saved');
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => RelationshipStatus(
+                                username: widget.username,
+                                deviceWidth: MediaQuery.of(context).size.width,
+                              ),
+                            ),
+                          );
+                        } else {
+                          Fluttertoast.showToast(msg: 'Add your bio first');
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class RelationshipStatus extends StatefulWidget {
+  final String username;
+  final double deviceWidth;
+  RelationshipStatus({Key key, this.username, this.deviceWidth})
+      : super(key: key);
+
+  @override
+  _RelationshipStatusState createState() => _RelationshipStatusState();
+}
+
+class _RelationshipStatusState extends State<RelationshipStatus> {
+  String status = '';
+  bool _isSinglePressed = false;
+  bool _isNotSinglePressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        margin: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height / 3.5,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Center(
+                child: Text(
+                  'Add your Relationship status',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 25,
+                  ),
+                ),
+              ),
+              SizedBox(height: 25),
+              Center(
+                child: Icon(
+                  MdiIcons.heartMultipleOutline,
+                  color: Colors.black,
+                  size: 45,
+                ),
+              ),
+              SizedBox(height: 20),
+              Center(
+                child: Container(
+                  margin: EdgeInsets.only(top: 40),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey[300],
+                          ),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: ButtonTheme(
+                          height: 140,
+                          minWidth: 140,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: FlatButton(
+                            color: _isSinglePressed == true
+                                ? Colors.black
+                                : Colors.grey[50],
+                            onPressed: () {
+                              setState(() {
+                                _isSinglePressed = true;
+                                _isNotSinglePressed = false;
+                                status = 'single';
+                              });
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 25),
+                                  child: Icon(
+                                    MdiIcons.account,
+                                    color: _isSinglePressed == true
+                                        ? Colors.white
+                                        : Colors.black,
+                                    size: 50,
+                                  ),
+                                ),
+                                Text(
+                                  'SINGLE',
+                                  style: TextStyle(
+                                    fontSize: 18.5,
+                                    fontWeight: FontWeight.w400,
+                                    color: _isSinglePressed == true
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.grey[300],
+                          ),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: ButtonTheme(
+                          height: 140,
+                          minWidth: 140,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: FlatButton(
+                            color: _isNotSinglePressed == true
+                                ? Colors.black
+                                : Colors.white,
+                            onPressed: () {
+                              setState(() {
+                                _isNotSinglePressed = true;
+                                _isSinglePressed = false;
+                                status = 'couple';
+                              });
+                            },
+                            child: Column(
+                              children: <Widget>[
+                                Container(
+                                  margin: EdgeInsets.only(bottom: 25),
+                                  child: Icon(
+                                    MdiIcons.accountMultiple,
+                                    color: _isNotSinglePressed == true
+                                        ? Colors.white
+                                        : Colors.black,
+                                    size: 50,
+                                  ),
+                                ),
+                                Text(
+                                  'COUPLE',
+                                  style: TextStyle(
+                                    fontSize: 18.5,
+                                    fontWeight: FontWeight.w400,
+                                    color: _isNotSinglePressed == true
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 7,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: Colors.white,
+                    textColor: Colors.black,
+                    child: Text('S K I P'),
+                    onPressed: () => Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => IntroPage(
+                          username: widget.username,
+                          deviceWidth: MediaQuery.of(context).size.width,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      color: Colors.black,
+                      textColor: Colors.white,
+                      child: Text('N E X T'),
+                      onPressed: () async {
+                        if (status.isNotEmpty) {
+                          SharedPreferences _prefs =
+                              await SharedPreferences.getInstance();
+                          String _id = _prefs.getString('id');
+                          FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(_id)
+                              .set(
+                            {'status': status},
+                            SetOptions(merge: true),
+                          );
+                          Fluttertoast.showToast(msg: 'your status is saved');
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => IntroPage(
+                                username: widget.username,
+                                deviceWidth: MediaQuery.of(context).size.width,
+                              ),
+                            ),
+                          );
+                        } else {
+                          Fluttertoast.showToast(msg: 'Add your status first');
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
