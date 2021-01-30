@@ -6,6 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:looper/Pages/home-Pages/chat/chat_page.dart';
+import 'package:looper/Pages/home-Pages/global/profile.dart';
 import 'package:looper/creation/post-create.dart';
 import 'package:looper/models/userModel.dart';
 import 'package:looper/services/database.dart';
@@ -33,6 +35,9 @@ class GlobePage extends StatefulWidget {
 
 class _GlobePageState extends State<GlobePage> {
   String _userId = 'empty';
+  String _userImage = '';
+  String _groupId = '';
+  int _yearOfBirth = 0;
   FirebaseFirestore _firestore;
   Map<String, dynamic> _personalityType;
   QuerySnapshot _querySnapshot;
@@ -43,6 +48,7 @@ class _GlobePageState extends State<GlobePage> {
   GlobalKey progressKey = GlobalKey();
   GlobalKey postKey = GlobalKey();
   Stream<QuerySnapshot> _compatableUsers;
+  Future<QuerySnapshot> _discoveredUsers;
   Future<List<dynamic>> _future;
 
   @override
@@ -181,14 +187,14 @@ class _GlobePageState extends State<GlobePage> {
         focusAnimationDuration: Duration(milliseconds: 500),
         pulseAnimationDuration: Duration(milliseconds: 500), onFinish: () {
       showPostMethod();
-    },  onClickSkip: () {
+    }, onClickSkip: () {
       showPostMethod();
     })
       ..show();
   }
 
- void showPostMethod() {
-   _firestore
+  void showPostMethod() {
+    _firestore
         .collection('posts')
         .where('author', isEqualTo: _userId)
         .get()
@@ -296,13 +302,13 @@ class _GlobePageState extends State<GlobePage> {
         );
       }
     });
- }
+  }
 
   void setPrefs() async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     final DocumentSnapshot _user =
         await _firestore.collection('users').doc(_prefs.get('id')).get();
-
+    _yearOfBirth = _user.data()['birthdate']['year'];
     _querySnapshot = await _firestore
         .collection('users')
         .doc(_userId)
@@ -313,11 +319,13 @@ class _GlobePageState extends State<GlobePage> {
     }
     setState(() {
       _userId = _prefs.get('id');
+      _userImage = _user.data()['profilePictureUrl'];
       _personalityType = _user?.data()['personality-type'];
       _compatableUsers = PersonalityService.setUserPersonalityStream(
         _personalityType,
         _firestore,
       );
+      _discoveredUsers = FirebaseFirestore.instance.collection('users').get();
       _future = Future.wait([
         DatabaseService.getFollowedContentFeed(
           'posts',
@@ -332,7 +340,6 @@ class _GlobePageState extends State<GlobePage> {
         ),
       ]);
     });
-    
   }
 
   Future<String> get _localPath async {
@@ -356,7 +363,7 @@ class _GlobePageState extends State<GlobePage> {
           ),
           child: Text(
             'Discover',
-            style: TextStyle(
+            style: GoogleFonts.comfortaa(
               fontWeight: FontWeight.bold,
               fontSize: 35,
             ),
@@ -437,6 +444,14 @@ class _GlobePageState extends State<GlobePage> {
     );
   }
 
+  void _setGroupChatId(String userId) {
+    if (_userId.hashCode < userId.hashCode) {
+      _groupId = '$userId-$_userId';
+    } else {
+      _groupId = '$_userId-$userId';
+    }
+  }
+
   Widget _buildSimilarUserWidget(DocumentSnapshot snapshot) {
     final User _user = User.fromDoc(snapshot);
     return Stack(
@@ -478,87 +493,233 @@ class _GlobePageState extends State<GlobePage> {
         stream: _compatableUsers,
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.data == null) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    MdiIcons.transitConnectionVariant,
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  MdiIcons.transitConnectionVariant,
+                  color: Colors.grey,
+                  size: 30,
+                ),
+                SizedBox(height: 5),
+                Text(
+                  'Analyzing..',
+                  style: TextStyle(
                     color: Colors.grey,
-                    size: 30,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
-                  SizedBox(height: 5),
-                  Text(
-                    'Analyzing..',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        MdiIcons.headDotsHorizontal,
-                        color: Colors.grey,
-                        size: 25,
-                      ),
-                      SizedBox(width: 5),
-                      Text(
-                        'create posts, jokes, talents, challenges...',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 5),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        MdiIcons.ticket,
-                        color: Colors.grey,
-                        size: 25,
-                      ),
-                      SizedBox(width: 5),
-                      Text(
-                        'like, comment, clap, interact...',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        MdiIcons.recordCircleOutline,
-                        color: Colors.green,
-                        size: 20,
-                      ),
-                      SizedBox(width: 5),
-                      Text(
-                        'Stay Active',
-                        style: TextStyle(
-                          color: Colors.green,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 20),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+                SizedBox(height: 8),
+                FutureBuilder(
+                  future: _discoveredUsers,
+                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    print(_yearOfBirth);
+                    if (!snapshot.hasData) {
+                      return SizedBox.shrink();
+                    } else {
+                      List<User> _suggestedUsers = [];
+                      snapshot.data.docs.forEach((querySnapshot) {
+                        final User _user = User.fromDoc(querySnapshot);
+                        if (_user.birthdate['year'] == _yearOfBirth) {
+                          print(_user.username);
+                          _suggestedUsers.add(_user);
+                        }
+                        if (_user.birthdate['year'] == _yearOfBirth - 1) {
+                          _suggestedUsers.add(_user);
+                        }
+                        if (_user.birthdate['year'] == _yearOfBirth - 2) {
+                          _suggestedUsers.add(_user);
+                        }
+                        if (_user.birthdate['year'] == _yearOfBirth - 3) {
+                          _suggestedUsers.add(_user);
+                        }
+                        if (_user.birthdate['year'] == _yearOfBirth - 4) {
+                          _suggestedUsers.add(_user);
+                        }
+                        if (_user.birthdate['year'] == _yearOfBirth - 5) {
+                          _suggestedUsers.add(_user);
+                        }
+                        if (_user.birthdate['year'] == _yearOfBirth + 1) {
+                          _suggestedUsers.add(_user);
+                        }
+                        if (_user.birthdate['year'] == _yearOfBirth + 2) {
+                          _suggestedUsers.add(_user);
+                        }
+                        if (_user.birthdate['year'] == _yearOfBirth + 3) {
+                          _suggestedUsers.add(_user);
+                        }
+                        if (_user.birthdate['year'] == _yearOfBirth + 4) {
+                          _suggestedUsers.add(_user);
+                        }
+                        if (_user.birthdate['year'] == _yearOfBirth + 5) {
+                          _suggestedUsers.add(_user);
+                        }
+                      });
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            height: MediaQuery.of(context).size.height / 3,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, int index) {
+                                final User _user = _suggestedUsers[index];
+                                print(_user.birthdate['year']);
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => ProfilePage(
+                                          userId: _user.id,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Stack(
+                                    children: <Widget>[
+                                      Container(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                3,
+                                        margin:
+                                            EdgeInsets.symmetric(horizontal: 5),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(16),
+                                          child: CachedNetworkImage(
+                                            imageUrl: _user.profileImageUrl,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned.fill(
+                                        child: Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height /
+                                              3,
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.black54.withOpacity(0.5),
+                                            borderRadius:
+                                                BorderRadius.circular(16),
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned.fill(
+                                        child: Align(
+                                          alignment: Alignment(1.6, 2.0),
+                                          child: Column(
+                                            children: [
+                                              _user.status == '' ||
+                                                      _user.status == null
+                                                  ? SizedBox.shrink()
+                                                  : FlatButton(
+                                                      shape: CircleBorder(),
+                                                      onPressed: () {},
+                                                      color: Colors.white,
+                                                      child: Icon(
+                                                        _user.status == 'single'
+                                                            ? MdiIcons.heart
+                                                            : MdiIcons
+                                                                .heartMultiple,
+                                                        size: 18,
+                                                        color: Colors.red[700],
+                                                      ),
+                                                    ),
+                                              FlatButton(
+                                                shape: CircleBorder(),
+                                                onPressed: () {
+                                                  FirebaseFirestore.instance
+                                                      .collection('users')
+                                                      .doc(_userId)
+                                                      .collection(
+                                                          'global-chatters')
+                                                      .doc(_user.id)
+                                                      .set({});
+                                                  _setGroupChatId(_user.id);
+                                                  FirebaseFirestore.instance
+                                                      .collection('global-chat')
+                                                      .doc(_groupId)
+                                                      .set({});
+                                                  Navigator.of(context).push(
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ChatPage(
+                                                        followerId: _user.id,
+                                                        followerName:
+                                                            _user.username,
+                                                        id: _userId,
+                                                        groupId: _groupId,
+                                                        isGlobal: true,
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                                color: Colors.white,
+                                                child: Transform.rotate(
+                                                  angle: -0.5,
+                                                  child: Icon(
+                                                    Icons.send,
+                                                    size: 18,
+                                                    color: Colors.blue,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned.fill(
+                                        child: Align(
+                                          alignment: Alignment.bottomCenter,
+                                          child: Padding(
+                                            padding: EdgeInsets.all(10),
+                                            child: Text(
+                                              _user.username,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              itemCount: _suggestedUsers.length,
+                            ),
+                          ),
+                          SizedBox(height: 25),
+                          Text(
+                            '${snapshot.data.size} People joined',
+                            style: GoogleFonts.quicksand(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                              textStyle: TextStyle(
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  },
+                ),
+              ],
             );
           } else {
             return Container(
@@ -585,21 +746,52 @@ class _GlobePageState extends State<GlobePage> {
       height: MediaQuery.of(context).size.height / 10,
       width: MediaQuery.of(context).size.width,
       alignment: Alignment.centerLeft,
-      child: GestureDetector(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PostCreationPage(),
+      child: Row(
+        children: [
+          Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(shape: BoxShape.circle),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(50),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ProfilePage(
+                        userId: _userId,
+                      ),
+                    ),
+                  );
+                },
+                child: CachedNetworkImage(
+                  imageUrl: _userImage,
+                  placeholder: (context, url) => Container(
+                    color: Colors.grey[400],
+                  ),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
           ),
-        ),
-        child: Text(
-          'What do you think...?',
-          style: TextStyle(
-            color: Colors.grey,
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
+          SizedBox(width: 10),
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PostCreationPage(),
+              ),
+            ),
+            child: Text(
+              'What do you think...?',
+              style: TextStyle(
+                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+                fontSize: 20,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -679,9 +871,9 @@ class _GlobePageState extends State<GlobePage> {
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
               child: Text(
                 'Thoughts',
-                style: TextStyle(
-                  fontSize: 35,
+                style: GoogleFonts.comfortaa(
                   fontWeight: FontWeight.bold,
+                  fontSize: 35,
                 ),
               ),
             ),
