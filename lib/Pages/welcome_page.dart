@@ -9,8 +9,8 @@ class WelcomePage extends StatelessWidget {
   Widget _buildButtons(BuildContext context, double deviceWidth) {
     return Container(
       margin: EdgeInsets.only(
-        right: 10,
-        top: MediaQuery.of(context).size.height / 5.5,
+        right: 12,
+        top: MediaQuery.of(context).size.height / 8 - 3,
       ),
       child: ButtonBar(
         children: <Widget>[
@@ -73,21 +73,21 @@ class WelcomePage extends StatelessWidget {
             margin: EdgeInsets.only(top: 30),
             child: Text(
               'Discover the world around you along with new moments',
-              style: TextStyle(fontSize: 15.5, color: Colors.grey),
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ),
           Container(
             margin: EdgeInsets.only(top: 10),
             child: Text(
               'Build new Relationships with amazing people',
-              style: TextStyle(fontSize: 15.5, color: Colors.grey),
+              style: TextStyle(fontSize: 14.5, color: Colors.grey),
             ),
           ),
           Container(
             margin: EdgeInsets.only(top: 10),
             child: Text(
               'Change the way you see your life !',
-              style: TextStyle(fontSize: 15.5, color: Colors.grey),
+              style: TextStyle(fontSize: 14.5, color: Colors.grey),
             ),
           ),
           _buildButtons(context, _deviceWidth),
