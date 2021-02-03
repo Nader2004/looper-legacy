@@ -116,7 +116,11 @@ class NotificationsService {
       [String contentId]) async {
     await _fcm.requestNotificationPermissions(
       const IosNotificationSettings(
-          sound: true, badge: true, alert: true, provisional: false),
+        sound: true,
+        badge: true,
+        alert: true,
+        provisional: false,
+      ),
     );
     final DocumentSnapshot doc =
         await FirebaseFirestore.instance.collection('users').doc(peerId).get();
@@ -134,6 +138,7 @@ class NotificationsService {
             'title': title,
           },
           'priority': 'high',
+          'content-available': true,
           'data': <String, dynamic>{
             'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'id': '1',
@@ -171,6 +176,7 @@ class NotificationsService {
             'title': title,
           },
           'priority': 'high',
+          'content-available': true,
           'data': <String, dynamic>{
             'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'id': '1',
