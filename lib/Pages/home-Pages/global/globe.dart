@@ -831,7 +831,7 @@ class _GlobePageState extends State<GlobePage> {
             Container(
               color: Colors.white,
               padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width / 4,
+                horizontal: MediaQuery.of(context).size.width / 5,
                 vertical: 5,
               ),
               child: OutlineButton(
