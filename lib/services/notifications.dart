@@ -47,11 +47,6 @@ class NotificationsService {
       },
       onLaunch: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(message);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => GlobePage(),
-          ),
-        );
         FirebaseFirestore.instance
             .collection('users')
             .doc(_id)
