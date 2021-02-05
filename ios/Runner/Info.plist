@@ -47,7 +47,7 @@
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Looper needs to access Speech Recognition for some PND Operations</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
-        <false/>
+        <string>NO</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
