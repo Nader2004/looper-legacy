@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Notification {
@@ -20,8 +22,12 @@ class Notification {
 
   factory Notification.fromJSON(Map<String, dynamic> notif) {
     return Notification(
-      title: notif['notification']['title'],
-      body: notif['notification']['body'],
+      title: Platform.isIOS
+          ? notif['aps']['alert']['title']
+          : notif['notification']['title'],
+      body: Platform.isIOS
+          ? notif['aps']['alert']['body']
+          : notif['notification']['body'],
       userId: notif['data']['userId'],
       navigator: notif['data']['navigator'],
       contentId: notif['data']['contentId'],
