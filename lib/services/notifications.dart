@@ -138,7 +138,7 @@ class NotificationsService {
             'title': title,
           },
           'priority': 'high',
-          'content-available': true,
+          'content_available': "true",
           'data': <String, dynamic>{
             'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'id': '1',
@@ -176,7 +176,7 @@ class NotificationsService {
             'title': title,
           },
           'priority': 'high',
-          'content-available': true,
+          'content_available': "true",
           'data': <String, dynamic>{
             'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'id': '1',
