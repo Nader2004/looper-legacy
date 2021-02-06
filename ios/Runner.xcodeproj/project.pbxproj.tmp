@@ -172,7 +172,7 @@
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>PROVISIONING_PROFILE_SPECIFIER</key>
-				<string>com app looper ios_app_store 1606297762</string>
+				<string>com app looper ios_app_store 1603952262</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
 				<string>Runner/Runner-Bridging-Header.h</string>
 				<key>SWIFT_VERSION</key>
@@ -251,8 +251,6 @@
 			<string>PBXFileReference</string>
 			<key>lastKnownFileType</key>
 			<string>text.plist.xml</string>
-			<key>name</key>
-			<string>GoogleService-Info.plist</string>
 			<key>path</key>
 			<string>GoogleService-Info.plist</string>
 			<key>sourceTree</key>
@@ -1011,7 +1009,7 @@
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>PROVISIONING_PROFILE_SPECIFIER</key>
-				<string>com app looper ios_app_store 1606297762</string>
+				<string>com app looper ios_app_store 1603952262</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
 				<string>Runner/Runner-Bridging-Header.h</string>
 				<key>SWIFT_VERSION</key>
@@ -1063,7 +1061,7 @@
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>PROVISIONING_PROFILE_SPECIFIER</key>
-				<string>com app looper ios_app_store 1606297762</string>
+				<string>com app looper ios_app_store 1603952262</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
 				<string>Runner/Runner-Bridging-Header.h</string>
 				<key>SWIFT_VERSION</key>

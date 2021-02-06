@@ -222,7 +222,7 @@ PODS:
   - BoringSSL-GRPC/Interface (0.0.7)
   - camera (0.0.1):
     - Flutter
-  - cloud_firestore (0.14.2):
+  - cloud_firestore (0.14.4):
     - Firebase/CoreOnly (~> 6.33.0)
     - Firebase/Firestore (~> 6.33.0)
     - firebase_core
@@ -287,14 +287,14 @@ PODS:
   - Firebase/Storage (6.33.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 3.9.0)
-  - firebase_auth (0.18.2):
+  - firebase_auth (0.18.4-1):
     - Firebase/Auth (~> 6.33.0)
     - Firebase/CoreOnly (~> 6.33.0)
     - firebase_core
     - Flutter
   - firebase_auth_web (0.1.0):
     - Flutter
-  - firebase_core (0.5.1):
+  - firebase_core (0.5.3):
     - Firebase/CoreOnly (~> 6.33.0)
     - Flutter
   - firebase_core_web (0.1.0):
@@ -784,7 +784,7 @@ SPEC CHECKSUMS:
   audioplayers: 53f0f30789b10ab2009771c6c79def00980945e4
   BoringSSL-GRPC: 8edf627ee524575e2f8d19d56f068b448eea3879
   camera: a0ca5080336f7af47b88436e5e26da3dee5568f0
-  cloud_firestore: 814580227d2487e317fe797a495c0c5c76b8cb8b
+  cloud_firestore: b8c0e15fa49dfff87c2817d288b577e5dca2df13
   cloud_firestore_web: 9ec3dc7f5f98de5129339802d491c1204462bfec
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
@@ -792,9 +792,9 @@ SPEC CHECKSUMS:
   export_video_frame: dbafa7c2b73a12ab277685634a3c90601abaed85
   file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
   Firebase: 8db6f2d1b2c5e2984efba4949a145875a8f65fe5
-  firebase_auth: 11173868a022c9cece0290a250087f2b8c1ea2ad
+  firebase_auth: d5159db3873478d1ac839af7b10d2f831516136a
   firebase_auth_web: 0955c07bcc06e84af76b9d4e32e6f31518f2d7de
-  firebase_core: aa25a5dc6b492ecab37587c53d8420135f0cac90
+  firebase_core: 5d6a02f3d85acd5f8321c2d6d62877626a670659
   firebase_core_web: d501d8b946b60c8af265428ce483b0fff5ad52d1
   firebase_messaging: 0aea2cd5885b65e19ede58ee3507f485c992cc75
   firebase_ml_vision: bcb4b9834727a96600969386e0c81fae829ea7a1
