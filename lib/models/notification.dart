@@ -20,14 +20,19 @@ class Notification {
     this.userId,
   });
 
-  factory Notification.fromJSON(Map<String, dynamic> notif) {
+  factory Notification.fromJSON(Map<String, dynamic> notif,
+      {bool isBackground = false}) {
     return Notification(
-      title: Platform.isIOS
-          ? notif['aps']['alert']['title']
-          : notif['notification']['title'],
-      body: Platform.isIOS
-          ? notif['aps']['alert']['body']
-          : notif['notification']['body'],
+      title: isBackground == true
+          ? notif['data']['title']
+          : Platform.isIOS
+              ? notif['aps']['alert']['title']
+              : notif['notification']['title'],
+      body: isBackground == true
+          ? notif['data']['title']
+          : Platform.isIOS
+              ? notif['aps']['alert']['body']
+              : notif['notification']['body'],
       userId: notif['data']['userId'],
       navigator: notif['data']['navigator'],
       contentId: notif['data']['contentId'],
