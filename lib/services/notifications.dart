@@ -3,7 +3,6 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:looper/Pages/home-Pages/global/globe.dart';
 import 'package:looper/models/notification.dart' as not;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -20,6 +19,7 @@ class NotificationsService {
 
     _fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
+        print(message);
         final not.Notification _notif = not.Notification.fromJSON(message);
         Flushbar(
           backgroundColor: Colors.grey[700],
@@ -46,14 +46,18 @@ class NotificationsService {
         });
       },
       onLaunch: (Map<String, dynamic> message) async {
-        final not.Notification _notif = not.Notification.fromJSON(message);
+        final not.Notification _notif = not.Notification.fromJSON(
+          message,
+          isBackground: true,
+        );
+        print(message);
         FirebaseFirestore.instance
             .collection('users')
             .doc(_id)
             .collection('notifications')
             .add({
-          'title': _notif.title,
-          'body': _notif.body,
+          'title': message['data']['title'],
+          'body': message['data']['body'],
           'userId': _notif.userId,
           'navigator': _notif.navigator,
           'contentId': _notif.contentId,
@@ -63,19 +67,18 @@ class NotificationsService {
         });
       },
       onResume: (Map<String, dynamic> message) async {
-        final not.Notification _notif = not.Notification.fromJSON(message);
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => GlobePage(),
-          ),
+        print(message);
+        final not.Notification _notif = not.Notification.fromJSON(
+          message,
+          isBackground: true,
         );
         FirebaseFirestore.instance
             .collection('users')
             .doc(_id)
             .collection('notifications')
             .add({
-          'title': _notif.title,
-          'body': _notif.body,
+          'title': message['data']['title'],
+          'body': message['data']['body'],
           'userId': _notif.userId,
           'navigator': _notif.navigator,
           'contentId': _notif.contentId,
@@ -131,12 +134,16 @@ class NotificationsService {
           'notification': <String, dynamic>{
             'body': body,
             'title': title,
+            'sound': 'default',
+            //  'click_action': 'FLUTTER_NOTIFICATION_CLICK',
           },
           'priority': 'high',
-          'content_available': "true",
+          'content_available': true,
+          'mutable_content': true,
           'data': <String, dynamic>{
-            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'id': '1',
+            'body': body,
+            'title': title,
             'status': 'done',
             'userId': peerId,
             'contentId': contentId,
@@ -169,12 +176,16 @@ class NotificationsService {
           'notification': <String, dynamic>{
             'body': body,
             'title': title,
+            'sound': 'default',
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
           },
           'priority': 'high',
-          'content_available': "true",
+          'content_available': true,
+          'mutable_content': true,
           'data': <String, dynamic>{
-            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'id': '1',
+            'body': body,
+            'title': title,
             'status': 'done',
             'userId': senderId,
             'contentId': contentId,
