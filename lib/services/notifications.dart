@@ -16,6 +16,7 @@ class NotificationsService {
   static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   static void configureFcm(BuildContext context) async {
+     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('app_icon');
     final IOSInitializationSettings initializationSettingsIOS =
@@ -31,7 +32,7 @@ class NotificationsService {
     _id = _prefs.get('id');
 
     _fcm.configure(
-      onMessage: (Map<String, dynamic> message) async {
+      onMessage: (Map<String, dynamic> message) async {     
         final not.Notification _notif = not.Notification.fromJSON(message);
         const AndroidNotificationDetails androidPlatformChannelSpecifics =
             AndroidNotificationDetails(
