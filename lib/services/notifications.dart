@@ -135,7 +135,7 @@ class NotificationsService {
             'body': body,
             'title': title,
             'sound': 'default',
-            //  'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
           },
           'priority': 'high',
           'content_available': true,
