@@ -11,7 +11,8 @@ description: A new Flutter project.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.0.75+18
+
 
 environment:
   sdk: ">=2.3.0 <3.0.0"
@@ -33,12 +34,14 @@ dependencies:
   firebase_auth: ^0.18.0+1
   flutter_native_admob: ^2.1.0+3
   firebase_ml_vision: ^0.9.5
+  device_preview: ^0.5.5
   camera: ^0.6.4+5
   video_player: ^0.11.1+4
   path_provider: ^1.1.0
   image_picker: ^0.6.7+1
   fluttertoast: ^7.1.1
   permission_handler: ^5.0.1
+  flutter_local_notifications: ^4.0.0
   flutter_launcher_icons: ^0.8.0
   uuid: ^2.0.4
   flutter_svg: ^0.19.1
@@ -93,7 +96,7 @@ dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon/looper-icon.jpg" 
+  image_path: "assets/icon/looper.png"
 
 dev_dependencies:
   flutter_test:
