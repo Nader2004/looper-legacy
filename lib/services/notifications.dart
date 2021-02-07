@@ -1,35 +1,47 @@
 import 'dart:convert';
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:looper/Pages/home-Pages/global/notifications.dart';
 import 'package:looper/models/notification.dart' as not;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationsService {
   static String _id;
   static FirebaseMessaging _fcm = FirebaseMessaging();
   static const String serverToken =
       'AAAA-QO9xBE:APA91bFd5w4aky2m_eZJlLpGEHPo9YpLnTFq7upwrVNIGJbK-CA3es0OCi5rGO_zEHCp_mQ-iEQUOVERTeIj8XxW_hT7U2MyK61jpOaypDTJf9wrJOKv9UV8YaPX7wwUGQFCKD8TpKcn';
+  static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   static void configureFcm(BuildContext context) async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('app_icon');
+    final IOSInitializationSettings initializationSettingsIOS =
+        IOSInitializationSettings();
+    final InitializationSettings initializationSettings =
+        InitializationSettings(
+            android: initializationSettingsAndroid,
+            iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+    );
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     _id = _prefs.get('id');
 
     _fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
-        print(message);
         final not.Notification _notif = not.Notification.fromJSON(message);
-        Flushbar(
-          backgroundColor: Colors.grey[700],
-          flushbarPosition: FlushbarPosition.TOP,
-          title: _notif.title,
-          message: _notif.body,
-          duration: Duration(seconds: 5),
-          margin: EdgeInsets.symmetric(horizontal: 10),
-          borderRadius: 16,
-        )..show(context);
+        const AndroidNotificationDetails androidPlatformChannelSpecifics =
+            AndroidNotificationDetails(
+          '2021',
+          'Looper Channel',
+          'This is Looper\'s Notifications Channel',
+          importance: Importance.max,
+          priority: Priority.high,
+        );
+
         FirebaseFirestore.instance
             .collection('users')
             .doc(_id)
@@ -44,13 +56,29 @@ class NotificationsService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
+        const NotificationDetails platformChannelSpecifics =
+            NotificationDetails(android: androidPlatformChannelSpecifics);
+        await flutterLocalNotificationsPlugin.show(
+          0,
+          _notif.title,
+          _notif.body,
+          platformChannelSpecifics,
+        );
       },
       onLaunch: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(
           message,
           isBackground: true,
         );
-        print(message);
+        const AndroidNotificationDetails androidPlatformChannelSpecifics =
+            AndroidNotificationDetails(
+          '2021',
+          'Looper Channel',
+          'This is Looper\'s Notifications Channel',
+          importance: Importance.max,
+          priority: Priority.high,
+        );
+
         FirebaseFirestore.instance
             .collection('users')
             .doc(_id)
@@ -65,13 +93,29 @@ class NotificationsService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
+        const NotificationDetails platformChannelSpecifics =
+            NotificationDetails(android: androidPlatformChannelSpecifics);
+        await flutterLocalNotificationsPlugin.show(
+          0,
+          _notif.title,
+          _notif.body,
+          platformChannelSpecifics,
+        );
       },
       onResume: (Map<String, dynamic> message) async {
-        print(message);
         final not.Notification _notif = not.Notification.fromJSON(
           message,
           isBackground: true,
         );
+        const AndroidNotificationDetails androidPlatformChannelSpecifics =
+            AndroidNotificationDetails(
+          '2021',
+          'Looper Channel',
+          'This is Looper\'s Notifications Channel',
+          importance: Importance.max,
+          priority: Priority.high,
+        );
+
         FirebaseFirestore.instance
             .collection('users')
             .doc(_id)
@@ -86,6 +130,14 @@ class NotificationsService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
+        const NotificationDetails platformChannelSpecifics =
+            NotificationDetails(android: androidPlatformChannelSpecifics);
+        await flutterLocalNotificationsPlugin.show(
+          0,
+          _notif.title,
+          _notif.body,
+          platformChannelSpecifics,
+        );
       },
     );
     _fcm.requestNotificationPermissions(
@@ -135,7 +187,6 @@ class NotificationsService {
             'body': body,
             'title': title,
             'sound': 'default',
-            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
           },
           'priority': 'high',
           'content_available': true,
@@ -144,6 +195,7 @@ class NotificationsService {
             'id': '1',
             'body': body,
             'title': title,
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'status': 'done',
             'userId': peerId,
             'contentId': contentId,
@@ -177,7 +229,6 @@ class NotificationsService {
             'body': body,
             'title': title,
             'sound': 'default',
-            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
           },
           'priority': 'high',
           'content_available': true,
@@ -186,6 +237,7 @@ class NotificationsService {
             'id': '1',
             'body': body,
             'title': title,
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
             'status': 'done',
             'userId': senderId,
             'contentId': contentId,
