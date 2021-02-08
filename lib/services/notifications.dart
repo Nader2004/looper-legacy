@@ -2,55 +2,44 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:looper/Pages/home-Pages/global/notifications.dart';
 import 'package:looper/models/notification.dart' as not;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+Future<dynamic> _handleNotification(Map<String, dynamic> message) async {
+  final not.Notification _notif = not.Notification.fromJSON(message);
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    '2021',
+    'Looper Channel',
+    'This is Looper\'s Notifications Channel',
+    importance: Importance.max,
+    priority: Priority.high,
+  );
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+  await flutterLocalNotificationsPlugin.show(
+    0,
+    _notif.title,
+    _notif.body,
+    platformChannelSpecifics,
+  );
+}
 
 class NotificationsService {
   static String _id;
   static FirebaseMessaging _fcm = FirebaseMessaging();
   static const String serverToken =
       'AAAA-QO9xBE:APA91bFd5w4aky2m_eZJlLpGEHPo9YpLnTFq7upwrVNIGJbK-CA3es0OCi5rGO_zEHCp_mQ-iEQUOVERTeIj8XxW_hT7U2MyK61jpOaypDTJf9wrJOKv9UV8YaPX7wwUGQFCKD8TpKcn';
-  static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   static void configureFcm(BuildContext context) async {
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('app_icon');
-    final IOSInitializationSettings initializationSettingsIOS =
-        IOSInitializationSettings();
-    final InitializationSettings initializationSettings =
-        InitializationSettings(
-            android: initializationSettingsAndroid,
-            iOS: initializationSettingsIOS);
-    flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-    );
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     _id = _prefs.get('id');
 
     _fcm.configure(
-      onBackgroundMessage: (Map<String, dynamic> message) async {
-        final not.Notification _notif = not.Notification.fromJSON(message);
-        const AndroidNotificationDetails androidPlatformChannelSpecifics =
-            AndroidNotificationDetails(
-          '2021',
-          'Looper Channel',
-          'This is Looper\'s Notifications Channel',
-          importance: Importance.max,
-          priority: Priority.high,
-        );
-        const NotificationDetails platformChannelSpecifics =
-            NotificationDetails(android: androidPlatformChannelSpecifics);
-        await flutterLocalNotificationsPlugin.show(
-          0,
-          _notif.title,
-          _notif.body,
-          platformChannelSpecifics,
-        );
-      },
       onMessage: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(message);
 
@@ -68,6 +57,7 @@ class NotificationsService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
+        _handleNotification(message);
       },
       onLaunch: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(
@@ -89,6 +79,7 @@ class NotificationsService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
+        _handleNotification(message);
       },
       onResume: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(
@@ -110,6 +101,7 @@ class NotificationsService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
+        _handleNotification(message);
       },
     );
     _fcm.requestNotificationPermissions(
