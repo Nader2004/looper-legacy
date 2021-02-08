@@ -16,7 +16,7 @@ class NotificationsService {
   static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   static void configureFcm(BuildContext context) async {
-     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('app_icon');
     final IOSInitializationSettings initializationSettingsIOS =
@@ -32,7 +32,7 @@ class NotificationsService {
     _id = _prefs.get('id');
 
     _fcm.configure(
-      onMessage: (Map<String, dynamic> message) async {     
+      onBackgroundMessage: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(message);
         const AndroidNotificationDetails androidPlatformChannelSpecifics =
             AndroidNotificationDetails(
@@ -42,6 +42,17 @@ class NotificationsService {
           importance: Importance.max,
           priority: Priority.high,
         );
+        const NotificationDetails platformChannelSpecifics =
+            NotificationDetails(android: androidPlatformChannelSpecifics);
+        await flutterLocalNotificationsPlugin.show(
+          0,
+          _notif.title,
+          _notif.body,
+          platformChannelSpecifics,
+        );
+      },
+      onMessage: (Map<String, dynamic> message) async {
+        final not.Notification _notif = not.Notification.fromJSON(message);
 
         FirebaseFirestore.instance
             .collection('users')
@@ -57,28 +68,12 @@ class NotificationsService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
-        const NotificationDetails platformChannelSpecifics =
-            NotificationDetails(android: androidPlatformChannelSpecifics);
-        await flutterLocalNotificationsPlugin.show(
-          0,
-          _notif.title,
-          _notif.body,
-          platformChannelSpecifics,
-        );
       },
       onLaunch: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(
           message,
           isBackground: true,
         );
-        const AndroidNotificationDetails androidPlatformChannelSpecifics =
-            AndroidNotificationDetails(
-          '2021',
-          'Looper Channel',
-          'This is Looper\'s Notifications Channel',
-          importance: Importance.max,
-          priority: Priority.high,
-        );
 
         FirebaseFirestore.instance
             .collection('users')
@@ -94,28 +89,12 @@ class NotificationsService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
-        const NotificationDetails platformChannelSpecifics =
-            NotificationDetails(android: androidPlatformChannelSpecifics);
-        await flutterLocalNotificationsPlugin.show(
-          0,
-          _notif.title,
-          _notif.body,
-          platformChannelSpecifics,
-        );
       },
       onResume: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(
           message,
           isBackground: true,
         );
-        const AndroidNotificationDetails androidPlatformChannelSpecifics =
-            AndroidNotificationDetails(
-          '2021',
-          'Looper Channel',
-          'This is Looper\'s Notifications Channel',
-          importance: Importance.max,
-          priority: Priority.high,
-        );
 
         FirebaseFirestore.instance
             .collection('users')
@@ -131,14 +110,6 @@ class NotificationsService {
           'timestamp': DateTime.now().millisecondsSinceEpoch,
           'seen': false,
         });
-        const NotificationDetails platformChannelSpecifics =
-            NotificationDetails(android: androidPlatformChannelSpecifics);
-        await flutterLocalNotificationsPlugin.show(
-          0,
-          _notif.title,
-          _notif.body,
-          platformChannelSpecifics,
-        );
       },
     );
     _fcm.requestNotificationPermissions(
