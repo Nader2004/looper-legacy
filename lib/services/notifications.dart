@@ -40,6 +40,7 @@ class NotificationsService {
     _id = _prefs.get('id');
 
     _fcm.configure(
+      onBackgroundMessage: null,
       onMessage: (Map<String, dynamic> message) async {
         final not.Notification _notif = not.Notification.fromJSON(message);
 
