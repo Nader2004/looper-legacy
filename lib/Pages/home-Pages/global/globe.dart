@@ -85,7 +85,14 @@ class _GlobePageState extends State<GlobePage> {
                         'Here you will see a list of people who are compatible with you. These people are similar to your personality',
                         style: TextStyle(color: Colors.white),
                       ),
-                    )
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: Text(
+                        '(Click the white Area)',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -121,7 +128,14 @@ class _GlobePageState extends State<GlobePage> {
                         'Here you will see a list of people who are compatible with you. These people are similar to your personality',
                         style: TextStyle(color: Colors.white),
                       ),
-                    )
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: Text(
+                        '(Click the white Area)',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -147,9 +161,10 @@ class _GlobePageState extends State<GlobePage> {
                     Text(
                       'Share your thought from here',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 20.0),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 10.0),
@@ -157,7 +172,14 @@ class _GlobePageState extends State<GlobePage> {
                         'Do you think about something and wanna share it with the world, just click here',
                         style: TextStyle(color: Colors.white),
                       ),
-                    )
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: Text(
+                        '(Click the white Area)',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -521,6 +543,7 @@ class _GlobePageState extends State<GlobePage> {
                       List<User> _suggestedUsers = [];
                       snapshot.data.docs.forEach((querySnapshot) {
                         final User _user = User.fromDoc(querySnapshot);
+                        print(_user.birthdate);
                         if (_user.birthdate['year'] == _yearOfBirth) {
                           print(_user.username);
                           _suggestedUsers.add(_user);
