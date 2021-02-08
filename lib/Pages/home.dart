@@ -5,6 +5,7 @@ import 'package:badges/badges.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 
@@ -47,12 +48,25 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   int _bottomIndex = 1;
   String _id = 'empty';
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   @override
   void initState() {
     setPrefs();
     super.initState();
     _addLocalPersonalityFile();
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('looper');
+    final IOSInitializationSettings initializationSettingsIOS =
+        IOSInitializationSettings();
+    final InitializationSettings initializationSettings =
+        InitializationSettings(
+            android: initializationSettingsAndroid,
+            iOS: initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+    );
     NotificationsService.configureFcm(context);
   }
 
