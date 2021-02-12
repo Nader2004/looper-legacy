@@ -124,6 +124,21 @@ class _ChallengeCreationState extends State<ChallengeCreation>
     }
   }
 
+  void onVideoStopButtonPressed() {
+    stopVideoRecording().then((_) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VideoWidget(
+            videoPath: _videoPath,
+            challengeName: _challengeNameController.text,
+          ),
+        ),
+      );
+      if (mounted) setState(() {});
+    });
+  }
+
   void onVideoRecordButtonPressed() {
     startVideoRecording().then((_) {
       if (mounted) setState(() {});
@@ -296,18 +311,7 @@ class _ChallengeCreationState extends State<ChallengeCreation>
                   color: Colors.blue,
                   onPressed: () {
                     if (_cameraController?.value?.isRecordingVideo == true) {
-                      setState(() {
-                        stopVideoRecording();
-                      });
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => VideoWidget(
-                            videoPath: _videoPath,
-                            challengeName: _challengeNameController.text,
-                          ),
-                        ),
-                      );
+                      onVideoStopButtonPressed();
                     } else {
                       setState(() {
                         onVideoRecordButtonPressed();
