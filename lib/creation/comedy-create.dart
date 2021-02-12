@@ -397,27 +397,25 @@ class _ComedyCreationState extends State<ComedyCreation>
               )
             : Container(),
         _jokeController.text.isNotEmpty
-            ? Positioned.fill(
-                child: Align(
-                  alignment: Alignment(0.0, 0.5),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width / 2,
-                    margin: EdgeInsets.only(
-                      bottom: 20,
+            ? Align(
+                alignment: Alignment(0.0, 0.5),
+                child: Container(
+                  width: MediaQuery.of(context).size.width / 2,
+                  margin: EdgeInsets.only(
+                    bottom: 20,
+                  ),
+                  child: FlatButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                    child: FlatButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      textColor: Colors.white,
-                      color: Colors.black,
-                      onPressed: sendComedy,
-                      child: Text('Post'),
-                    ),
+                    textColor: Colors.white,
+                    color: Colors.black,
+                    onPressed: sendComedy,
+                    child: Text('Post'),
                   ),
                 ),
               )
-            : Container(),
+            : SizedBox.shrink(),
         _namingController.text != '' && _media != ''
             ? SingleChildScrollView(
                 child: Container(
@@ -654,7 +652,7 @@ class _ComedyCreationState extends State<ComedyCreation>
     );
   }
 
-Future<void> startVideoRecording() async {
+  Future<void> startVideoRecording() async {
     if (!_cameraController.value.isInitialized) {
       showInSnackBar('Open Camera first.');
       return null;
