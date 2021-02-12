@@ -272,8 +272,8 @@ class _CameraState extends State<Camera>
 
   void onStopButtonPressed() {
     stopVideoRecording().then((String video) {
-      if (mounted) setState(() {});
       Navigator.of(context).pop(video);
+      if (mounted) setState(() {});
     });
   }
 
