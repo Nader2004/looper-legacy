@@ -173,7 +173,7 @@ class _TalentCreationState extends State<TalentCreation>
     _animationController.addListener(
       () {
         if (_animationController.isCompleted) {
-          onVideoStopButtonPressed(context);
+          onVideoStopButtonPressed();
           setState(() {
             _opacity = 1.0;
             _startRecording = false;
@@ -277,8 +277,19 @@ class _TalentCreationState extends State<TalentCreation>
     });
   }
 
-  void onVideoStopButtonPressed(BuildContext context) {
+  void onVideoStopButtonPressed() {
     stopVideoRecording().then((_) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => TalentViewPage(
+            movieFilter:
+                _filterName == 'normal' || _filterName == '' ? '' : _filterName,
+            talent: _talentName,
+            talentName: _title != '' ? _title : '',
+            videoUrl: _videoPath,
+          ),
+        ),
+      );
       if (mounted) setState(() {});
     });
   }
@@ -885,22 +896,9 @@ class _TalentCreationState extends State<TalentCreation>
                           _startRecording = false;
                           _opacity = 1.0;
                         });
-                        onVideoStopButtonPressed(context);
                         _animationController.reset();
                         _animationController.stop();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => TalentViewPage(
-                              movieFilter:
-                                  _filterName == 'normal' || _filterName == ''
-                                      ? ''
-                                      : _filterName,
-                              talent: _talentName,
-                              talentName: _title != '' ? _title : '',
-                              videoUrl: _videoPath,
-                            ),
-                          ),
-                        );
+                        onVideoStopButtonPressed();
                       }
                     },
                     customBorder: CircleBorder(),
