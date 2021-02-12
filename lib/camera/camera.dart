@@ -338,7 +338,7 @@ class _CameraState extends State<Camera>
               children: <Widget>[
                 AspectRatio(
                   aspectRatio: _cameraController != null
-                      ? _cameraController.value.aspectRatio
+                      ? _cameraController.value.aspectRatio / 3.16
                       : 0.1,
                   child: _cameraController?.value == null
                       ? Container()
