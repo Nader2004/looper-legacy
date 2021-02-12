@@ -22,7 +22,6 @@ class _CameraState extends State<Camera>
   bool _turnFlashOn = false;
   bool _displayCaptureEffect = false;
   List<bool> _isSelected = [false, false];
-  String videoPath;
   String _imagePath;
   CameraController _cameraController;
   List<CameraDescription> _cameras;
@@ -206,7 +205,7 @@ class _CameraState extends State<Camera>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _cameraController?.dispose();
+    // _cameraController?.dispose();
     _animationController?.dispose();
     _stopWatchTimer?.dispose();
     super.dispose();
@@ -238,12 +237,10 @@ class _CameraState extends State<Camera>
   }
 
   Future<String> _capturePhoto() async {
-    String _path = '';
     try {
       await _initializeControllerFuture;
-      _cameraController.takePicture().then((XFile file) {
-        _path = file.path;
-      });
+      final XFile _file = await _cameraController.takePicture();
+      return _file.path;
     } catch (_) {
       setState(() {
         _displayCaptureEffect = false;
@@ -251,7 +248,6 @@ class _CameraState extends State<Camera>
       _showCameraException('Can\'t capture a photo');
       return null;
     }
-    return _path;
   }
 
   void onTakePictureButtonPressed(BuildContext context) {
@@ -275,8 +271,9 @@ class _CameraState extends State<Camera>
   }
 
   void onStopButtonPressed() {
-    stopVideoRecording().then((_) {
+    stopVideoRecording().then((String video) {
       if (mounted) setState(() {});
+      Navigator.of(context).pop(video);
     });
   }
 
@@ -299,15 +296,14 @@ class _CameraState extends State<Camera>
     }
   }
 
-  Future<void> stopVideoRecording() async {
+  Future<String> stopVideoRecording() async {
     if (!_cameraController.value.isRecordingVideo) {
       return null;
     }
 
     try {
-      await _cameraController.stopVideoRecording().then((XFile file) {
-        videoPath = file.path;
-      });
+      final XFile _file = await _cameraController.stopVideoRecording();
+      return _file.path;
     } on CameraException catch (e) {
       _showCameraException(e.description);
       return null;
@@ -429,7 +425,6 @@ class _CameraState extends State<Camera>
                                 _stopWatchTimer.onExecute
                                     .add(StopWatchExecute.stop);
                                 onStopButtonPressed();
-                                Navigator.of(context).pop(videoPath);
                               } else {
                                 return;
                               }
