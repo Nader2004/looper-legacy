@@ -10,9 +10,6 @@ import FirebaseMessaging
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    if #available(iOS 10.0, *) {
-      UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
-    }
     GMSServices.provideAPIKey("")
     GeneratedPluginRegistrant.register(with: self)
     application.registerForRemoteNotifications()
