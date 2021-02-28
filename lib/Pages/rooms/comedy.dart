@@ -130,8 +130,8 @@ class _ComedyRoomState extends State<ComedyRoom> {
                 if (snapshot.data == null) {
                   return SizedBox.shrink();
                 }
-                if (snapshot.data[0].documents.isEmpty &&
-                    snapshot.data[1].documents.isEmpty) {
+                if (snapshot.data[0].docs.isEmpty &&
+                    snapshot.data[1].docs.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -181,7 +181,7 @@ class _ComedyRoomState extends State<ComedyRoom> {
                     ),
                   );
                 }
-                for (DocumentSnapshot doc in snapshot.data[0].documents) {
+                for (DocumentSnapshot doc in snapshot.data[0].docs) {
                   _ids.add(doc.data()['creatorId']);
                 }
                 if (_followIds != _ids) {
@@ -203,7 +203,7 @@ class _ComedyRoomState extends State<ComedyRoom> {
                 int lengthOfDocs = 0;
                 int querySnapShotCounter = 0;
                 snapshot.data.forEach((snap) {
-                  lengthOfDocs = lengthOfDocs + snap.documents.length;
+                  lengthOfDocs = lengthOfDocs + snap.docs.length;
                 });
 
                 int counter = 0;
@@ -254,8 +254,8 @@ class _ComedyRoomState extends State<ComedyRoom> {
               if (snapshot.data == null) {
                 return SizedBox.shrink();
               }
-              if (snapshot.data[0].documents.isEmpty &&
-                  snapshot.data[1].documents.isEmpty) {
+              if (snapshot.data[0].docs.isEmpty &&
+                  snapshot.data[1].docs.isEmpty) {
                 return Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -304,14 +304,14 @@ class _ComedyRoomState extends State<ComedyRoom> {
                   ),
                 );
               }
-              for (DocumentSnapshot doc in snapshot.data[0].documents) {
+              for (DocumentSnapshot doc in snapshot.data[0].docs) {
                 _ids.add(doc.data()['creatorId']);
               }
               if (_followIds != _ids) {
                 return ListView.separated(
                     shrinkWrap: true,
                     physics: ScrollPhysics(),
-                    itemCount: snapshot.data[1].documents.length,
+                    itemCount: snapshot.data[1].docs.length,
                     separatorBuilder: (context, index) {
                       if (index % 3 == 0 || index % 10 == 0) {
                         return ComedyNativeAd();
@@ -320,10 +320,10 @@ class _ComedyRoomState extends State<ComedyRoom> {
                       }
                     },
                     itemBuilder: (context, index) {
-                      if (snapshot.data[1].documents[index].data()['type'] !=
+                      if (snapshot.data[1].docs[index].data()['type'] !=
                           'show') {
                         return ComedyJoke(
-                          data: snapshot.data[1].documents[index],
+                          data: snapshot.data[1].docs[index],
                         );
                       } else {
                         return Container();
@@ -333,7 +333,7 @@ class _ComedyRoomState extends State<ComedyRoom> {
               int lengthOfDocs = 0;
               int querySnapShotCounter = 0;
               snapshot.data.forEach((snap) {
-                lengthOfDocs = lengthOfDocs + snap.documents.length;
+                lengthOfDocs = lengthOfDocs + snap.docs.length;
               });
               int counter = 0;
               return Column(
@@ -351,12 +351,12 @@ class _ComedyRoomState extends State<ComedyRoom> {
                           }
                         },
                         itemBuilder: (context, int index) {
-                          if (snapshot.data[1].documents[index]
+                          if (snapshot.data[1].docs[index]
                                   .data()['type'] !=
                               'show') {
                             try {
                               final DocumentSnapshot doc = snapshot
-                                  .data[querySnapShotCounter].documents.reversed
+                                  .data[querySnapShotCounter].docs.reversed
                                   .toList()[counter];
                               counter = counter + 1;
                               return ComedyJoke(
@@ -366,7 +366,7 @@ class _ComedyRoomState extends State<ComedyRoom> {
                               querySnapShotCounter = querySnapShotCounter + 1;
                               counter = 0;
                               final DocumentSnapshot doc = snapshot
-                                  .data[querySnapShotCounter].documents.reversed
+                                  .data[querySnapShotCounter].docs.reversed
                                   .toList()[counter];
                               counter = counter + 1;
                               return ComedyJoke(
