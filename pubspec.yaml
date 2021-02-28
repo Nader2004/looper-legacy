@@ -27,7 +27,7 @@ dependencies:
   material_design_icons_flutter: ^4.0.5755
   font_awesome_flutter: ^8.8.1
   google_fonts: ^1.1.1
-  firebase_storage: ^6.0.0
+  firebase_storage: ^7.0.0
   firebase_core: ^0.7.0
   firebase_messaging: ^8.0.0-dev.14
   firebase_auth: ^0.20.0+1
