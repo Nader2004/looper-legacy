@@ -88,8 +88,8 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
           if (snapshot.data == null) {
             return SizedBox.shrink();
           }
-          if (snapshot.data[0].documents.isEmpty &&
-              snapshot.data[1].documents.isEmpty) {
+          if (snapshot.data[0].docs.isEmpty &&
+              snapshot.data[1].docs.isEmpty) {
             return Stack(
               children: [
                 Positioned(
@@ -155,7 +155,7 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
               ],
             );
           }
-          for (DocumentSnapshot doc in snapshot.data[0].documents) {
+          for (DocumentSnapshot doc in snapshot.data[0].docs) {
             _ids.add(doc.data()['creatorId']);
           }
           if (_followIds != _ids) {
@@ -175,14 +175,14 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
                 ),
                 PageView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: snapshot.data[1].documents.length,
+                    itemCount: snapshot.data[1].docs.length,
                     itemBuilder: (context, index) {
                       if (index % 3 == 0 || index % 10 == 0) {
                         return Column(
                           children: [
                             Flexible(
                               child: Challenge(
-                                data: snapshot.data[1].documents[index],
+                                data: snapshot.data[1].docs[index],
                               ),
                             ),
                             MinimizedNativeAd(),
@@ -190,7 +190,7 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
                         );
                       }
                       return Challenge(
-                        data: snapshot.data[1].documents[index],
+                        data: snapshot.data[1].docs[index],
                       );
                     }),
               ],
@@ -199,7 +199,7 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
           int lengthOfDocs = 0;
           int querySnapShotCounter = 0;
           snapshot.data.forEach((snap) {
-            lengthOfDocs = lengthOfDocs + snap.documents.length;
+            lengthOfDocs = lengthOfDocs + snap.docs.length;
           });
           int counter = 0;
           return Stack(
@@ -222,7 +222,7 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
                 itemBuilder: (context, int index) {
                   try {
                     final DocumentSnapshot doc = snapshot
-                        .data[querySnapShotCounter].documents.reversed
+                        .data[querySnapShotCounter].docs.reversed
                         .toList()[counter];
                     counter = counter + 1;
                     if (index % 3 == 0 || index % 10 == 0) {
@@ -244,7 +244,7 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
                     querySnapShotCounter = querySnapShotCounter + 1;
                     counter = 0;
                     final DocumentSnapshot doc = snapshot
-                        .data[querySnapShotCounter].documents.reversed
+                        .data[querySnapShotCounter].docs.reversed
                         .toList()[counter];
                     counter = counter + 1;
                     if (index % 3 == 0 || index % 10 == 0) {
