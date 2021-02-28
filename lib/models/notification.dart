@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class Notification {
   final String id;
@@ -20,23 +19,14 @@ class Notification {
     this.userId,
   });
 
-  factory Notification.fromJSON(Map<String, dynamic> notif,
-      {bool isBackground = false}) {
+  factory Notification.fromMessage(RemoteMessage notif) {
     return Notification(
-      title: isBackground == true
-          ? notif['data']['title']
-          : Platform.isIOS
-              ? notif['aps']['alert']['title']
-              : notif['notification']['title'],
-      body: isBackground == true
-          ? notif['data']['title']
-          : Platform.isIOS
-              ? notif['aps']['alert']['body']
-              : notif['notification']['body'],
-      userId: notif['data']['userId'],
-      navigator: notif['data']['navigator'],
-      contentId: notif['data']['contentId'],
-      symbol: notif['data']['symbol'],
+      title: notif.notification.title,
+      body: notif.notification.body,
+      userId: notif.data['userId'],
+      navigator: notif.data['navigator'],
+      contentId: notif.data['contentId'],
+      symbol: notif.data['symbol'],
     );
   }
 
