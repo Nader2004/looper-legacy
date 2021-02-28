@@ -553,12 +553,14 @@ class _GlobePageState extends State<GlobePage> {
                         final StringProcessor _tps = StringProcessor();
                         final String _text = file.data.readAsStringSync();
                         final int _textWordCount = _tps.getWordCount(_text);
-                        final double _percentage =
+                        final double _percentage = (_textWordCount / 1500);
+                        final double _textPercentage =
                             (_textWordCount / 1500) * 100;
                         return CircularPercentIndicator(
                           radius: 60.0,
                           lineWidth: 5.0,
-                          center: Text(_percentage.toString() + '%'),
+                          center:
+                              Text(_textPercentage.toStringAsFixed(2) + '%'),
                           percent: _percentage,
                           progressColor: Colors.black,
                         );
