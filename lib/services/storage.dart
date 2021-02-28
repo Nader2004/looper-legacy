@@ -6,8 +6,6 @@ import 'package:flutter_video_compress/flutter_video_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
-
-
 class StorageService {
   static String getMediaFormatType(
     String path,
@@ -28,32 +26,33 @@ class StorageService {
     String path,
   ) async {
     if (mediaFiles.length == 1) {
-      final StorageReference _storageRef = FirebaseStorage.instance.ref();
+      final Reference _storageRef = FirebaseStorage.instance.ref();
       String _mediaId = Uuid().v4();
 
-      
-      final StorageUploadTask _uploadTask = _storageRef
+      final UploadTask _uploadTask = _storageRef
           .child(
             getMediaFormatType(path, mediaFiles[0].path, _mediaId),
           )
           .putFile(mediaFiles[0]);
-      final StorageTaskSnapshot _storageSnap = await _uploadTask.onComplete;
-      final String _downloadUrl = await _storageSnap.ref.getDownloadURL();
-      
+      final UploadTask _storageSnap = _uploadTask;
+      final String _downloadUrl =
+          await _storageSnap.snapshot.ref.getDownloadURL();
+
       return [_downloadUrl];
     } else {
       List<String> mediaUrls = [];
       for (File mediaFile in mediaFiles) {
-        final StorageReference _storageRef = FirebaseStorage.instance.ref();
+        final Reference _storageRef = FirebaseStorage.instance.ref();
         String _mediaId = Uuid().v4();
 
-        final StorageUploadTask _uploadTask = _storageRef
+        final UploadTask _uploadTask = _storageRef
             .child(
               getMediaFormatType(path, mediaFile.path, _mediaId),
             )
             .putFile(mediaFile);
-        final StorageTaskSnapshot _storageSnap = await _uploadTask.onComplete;
-        final String _downloadUrl = await _storageSnap.ref.getDownloadURL();
+        final UploadTask _storageSnap = _uploadTask;
+        final String _downloadUrl =
+            await _storageSnap.snapshot.ref.getDownloadURL();
         mediaUrls.add(_downloadUrl);
       }
       return mediaUrls;
