@@ -83,7 +83,32 @@ class NotificationsService {
       _handleNotification(message);
     });
 
-     _fcm.getToken().then((String token) async {
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage message) {
+      if (message != null) {
+        final not.Notification _notif = not.Notification.fromMessage(message);
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(_id)
+            .collection('notifications')
+            .add({
+          'title': _notif.title,
+          'body': _notif.body,
+          'userId': _notif.userId,
+          'navigator': _notif.navigator,
+          'contentId': _notif.contentId,
+          'symbol': _notif.symbol,
+          'timestamp': DateTime.now().millisecondsSinceEpoch,
+          'seen': false,
+        });
+        _handleNotification(message);
+      } else {
+        return;
+      }
+    });
+
+    _fcm.getToken().then((String token) async {
       final SharedPreferences _prefs = await SharedPreferences.getInstance();
       _id = _prefs.get('id');
       FirebaseFirestore.instance.collection('users').doc(_id).set(
