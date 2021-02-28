@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,8 +7,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-Future<dynamic> _handleNotification(Map<String, dynamic> message) async {
-  final not.Notification _notif = not.Notification.fromJSON(message);
+Future<dynamic> _handleNotification(RemoteMessage message) async {
+  final not.Notification _notif = not.Notification.fromMessage(message);
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
@@ -22,6 +21,11 @@ Future<dynamic> _handleNotification(Map<String, dynamic> message) async {
   );
   const NotificationDetails platformChannelSpecifics =
       NotificationDetails(android: androidPlatformChannelSpecifics);
+  FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
   await flutterLocalNotificationsPlugin.show(
     0,
     _notif.title,
@@ -32,7 +36,7 @@ Future<dynamic> _handleNotification(Map<String, dynamic> message) async {
 
 class NotificationsService {
   static String _id;
-  static FirebaseMessaging _fcm = FirebaseMessaging();
+  static FirebaseMessaging _fcm = FirebaseMessaging.instance;
   static const String serverToken =
       'AAAA-QO9xBE:APA91bFd5w4aky2m_eZJlLpGEHPo9YpLnTFq7upwrVNIGJbK-CA3es0OCi5rGO_zEHCp_mQ-iEQUOVERTeIj8XxW_hT7U2MyK61jpOaypDTJf9wrJOKv9UV8YaPX7wwUGQFCKD8TpKcn';
 
@@ -40,84 +44,46 @@ class NotificationsService {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     _id = _prefs.get('id');
 
-    _fcm.configure(
-      onBackgroundMessage: null,
-      onMessage: (Map<String, dynamic> message) async {
-        final not.Notification _notif = not.Notification.fromJSON(message);
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('listened');
+      final not.Notification _notif = not.Notification.fromMessage(message);
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(_id)
+          .collection('notifications')
+          .add({
+        'title': _notif.title,
+        'body': _notif.body,
+        'userId': _notif.userId,
+        'navigator': _notif.navigator,
+        'contentId': _notif.contentId,
+        'symbol': _notif.symbol,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+        'seen': false,
+      });
+      _handleNotification(message);
+    });
 
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(_id)
-            .collection('notifications')
-            .add({
-          'title': _notif.title,
-          'body': _notif.body,
-          'userId': _notif.userId,
-          'navigator': _notif.navigator,
-          'contentId': _notif.contentId,
-          'symbol': _notif.symbol,
-          'timestamp': DateTime.now().millisecondsSinceEpoch,
-          'seen': false,
-        });
-        if (Platform.isAndroid) {
-          _handleNotification(message);
-        }
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        final not.Notification _notif = not.Notification.fromJSON(
-          message,
-          isBackground: true,
-        );
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      final not.Notification _notif = not.Notification.fromMessage(message);
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(_id)
+          .collection('notifications')
+          .add({
+        'title': _notif.title,
+        'body': _notif.body,
+        'userId': _notif.userId,
+        'navigator': _notif.navigator,
+        'contentId': _notif.contentId,
+        'symbol': _notif.symbol,
+        'timestamp': DateTime.now().millisecondsSinceEpoch,
+        'seen': false,
+      });
+      _handleNotification(message);
+    });
 
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(_id)
-            .collection('notifications')
-            .add({
-          'title': message['data']['title'],
-          'body': message['data']['body'],
-          'userId': _notif.userId,
-          'navigator': _notif.navigator,
-          'contentId': _notif.contentId,
-          'symbol': _notif.symbol,
-          'timestamp': DateTime.now().millisecondsSinceEpoch,
-          'seen': false,
-        });
-        _handleNotification(message);
-      },
-      onResume: (Map<String, dynamic> message) async {
-        final not.Notification _notif = not.Notification.fromJSON(
-          message,
-          isBackground: true,
-        );
-
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(_id)
-            .collection('notifications')
-            .add({
-          'title': message['data']['title'],
-          'body': message['data']['body'],
-          'userId': _notif.userId,
-          'navigator': _notif.navigator,
-          'contentId': _notif.contentId,
-          'symbol': _notif.symbol,
-          'timestamp': DateTime.now().millisecondsSinceEpoch,
-          'seen': false,
-        });
-        _handleNotification(message);
-      },
-    );
-    _fcm.requestNotificationPermissions(
-      const IosNotificationSettings(
-        sound: true,
-        badge: true,
-        alert: true,
-        provisional: true,
-      ),
-    );
-
-    _fcm.getToken().then((String token) async {
+     _fcm.getToken().then((String token) async {
       final SharedPreferences _prefs = await SharedPreferences.getInstance();
       _id = _prefs.get('id');
       FirebaseFirestore.instance.collection('users').doc(_id).set(
@@ -132,19 +98,10 @@ class NotificationsService {
   static void sendNotification(
       String title, String body, String peerId, String navigator,
       [String contentId]) async {
-    await _fcm.requestNotificationPermissions(
-      const IosNotificationSettings(
-        sound: true,
-        badge: true,
-        alert: true,
-        provisional: false,
-      ),
-    );
     final DocumentSnapshot doc =
         await FirebaseFirestore.instance.collection('users').doc(peerId).get();
-
     await http.post(
-      'https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send',
+      'https://fcm.googleapis.com/fcm/send',
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': 'key=$serverToken',
@@ -179,14 +136,10 @@ class NotificationsService {
   static void sendNotificationToFollowers(String title, String body,
       String senderId, String navigator, String symbol,
       [String contentId]) async {
-    await _fcm.requestNotificationPermissions(
-      const IosNotificationSettings(
-          sound: true, badge: true, alert: true, provisional: false),
-    );
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     final String id = _prefs.get('id');
     await http.post(
-      'https://fcm.googleapis.com/v1/projects/myproject-b5ae1/messages:send',
+      'https://fcm.googleapis.com/fcm/send',
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': 'key=$serverToken',
@@ -212,7 +165,7 @@ class NotificationsService {
             'navigator': navigator,
             'symbol': symbol,
           },
-          'to': '/topics/following-$id',
+          'token': '/topics/following-$id',
         },
       ),
     );
