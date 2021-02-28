@@ -177,8 +177,8 @@ class _TalentRoomState extends State<TalentRoom> {
             if (snapshot.data == null) {
               return SizedBox.shrink();
             }
-            if (snapshot.data[0].documents.isEmpty &&
-                snapshot.data[1].documents.isEmpty) {
+            if (snapshot.data[0].docs.isEmpty &&
+                snapshot.data[1].docs.isEmpty) {
               return Stack(
                 children: [
                   Positioned(
@@ -244,7 +244,7 @@ class _TalentRoomState extends State<TalentRoom> {
                 ],
               );
             }
-            for (DocumentSnapshot doc in snapshot.data[0].documents) {
+            for (DocumentSnapshot doc in snapshot.data[0].docs) {
               _ids.add(doc.data()['creatorId']);
             }
             if (_followIds != _ids) {
@@ -288,7 +288,7 @@ class _TalentRoomState extends State<TalentRoom> {
             int lengthOfDocs = 0;
             int querySnapShotCounter = 0;
             snapshot.data.forEach((snap) {
-              lengthOfDocs = lengthOfDocs + snap.documents.length;
+              lengthOfDocs = lengthOfDocs + snap.docs.length;
             });
 
             int counter = 0;
