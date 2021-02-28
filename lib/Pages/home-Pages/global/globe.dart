@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_toggle_tab/flutter_toggle_tab.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:looper/Pages/home-Pages/chat/chat_page.dart';
 import 'package:looper/Pages/home-Pages/global/profile.dart';
@@ -20,6 +21,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:tutorial_coach_mark/animated_focus_light.dart';
 import 'package:stringprocess/stringprocess.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 import '../../../widgets/post.dart';
 
@@ -49,7 +51,9 @@ class _GlobePageState extends State<GlobePage> {
   GlobalKey postKey = GlobalKey();
   Stream<QuerySnapshot> _compatableUsers;
   Future<QuerySnapshot> _discoveredUsers;
+  Future<QuerySnapshot> _numberOfAccounts;
   Future<List<dynamic>> _future;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -347,7 +351,9 @@ class _GlobePageState extends State<GlobePage> {
         _personalityType,
         _firestore,
       );
-      _discoveredUsers = FirebaseFirestore.instance.collection('users').get();
+      _discoveredUsers =
+          FirebaseFirestore.instance.collection('users').limit(50).get();
+      _numberOfAccounts = FirebaseFirestore.instance.collection('users').get();
       _future = Future.wait([
         DatabaseService.getFollowedContentFeed(
           'posts',
@@ -524,223 +530,317 @@ class _GlobePageState extends State<GlobePage> {
                   size: 30,
                 ),
                 SizedBox(height: 5),
-                Text(
-                  'Analyzing..',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Column(
+                  children: [
+                    Text(
+                      'Analyzing  your Personality',
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    FutureBuilder(
+                      future: _localPersonalityFile,
+                      builder: (
+                        context,
+                        AsyncSnapshot<File> file,
+                      ) {
+                        if (file.connectionState == ConnectionState.waiting) {
+                          return SizedBox.shrink();
+                        }
+                        final StringProcessor _tps = StringProcessor();
+                        final String _text = file.data.readAsStringSync();
+                        final int _textWordCount = _tps.getWordCount(_text);
+                        final double _percentage =
+                            (_textWordCount / 1500) * 100;
+                        return CircularPercentIndicator(
+                          radius: 60.0,
+                          lineWidth: 5.0,
+                          center: Text(_percentage.toString() + '%'),
+                          percent: _percentage,
+                          progressColor: Colors.black,
+                        );
+                      },
+                    ),
+                  ],
                 ),
-                SizedBox(height: 8),
-                FutureBuilder(
-                  future: _discoveredUsers,
-                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                    print(_yearOfBirth);
-                    if (!snapshot.hasData) {
-                      return SizedBox.shrink();
-                    } else {
-                      List<User> _suggestedUsers = [];
-                      snapshot.data.docs.forEach((querySnapshot) {
-                        final User _user = User.fromDoc(querySnapshot);
-                        print(_user.birthdate);
-                        if (_user.birthdate['year'] == _yearOfBirth) {
-                          print(_user.username);
-                          _suggestedUsers.add(_user);
-                        }
-                        if (_user.birthdate['year'] == _yearOfBirth - 1) {
-                          _suggestedUsers.add(_user);
-                        }
-                        if (_user.birthdate['year'] == _yearOfBirth - 2) {
-                          _suggestedUsers.add(_user);
-                        }
-                        if (_user.birthdate['year'] == _yearOfBirth - 3) {
-                          _suggestedUsers.add(_user);
-                        }
-                        if (_user.birthdate['year'] == _yearOfBirth - 4) {
-                          _suggestedUsers.add(_user);
-                        }
-                        if (_user.birthdate['year'] == _yearOfBirth - 5) {
-                          _suggestedUsers.add(_user);
-                        }
-                        if (_user.birthdate['year'] == _yearOfBirth + 1) {
-                          _suggestedUsers.add(_user);
-                        }
-                        if (_user.birthdate['year'] == _yearOfBirth + 2) {
-                          _suggestedUsers.add(_user);
-                        }
-                        if (_user.birthdate['year'] == _yearOfBirth + 3) {
-                          _suggestedUsers.add(_user);
-                        }
-                        if (_user.birthdate['year'] == _yearOfBirth + 4) {
-                          _suggestedUsers.add(_user);
-                        }
-                        if (_user.birthdate['year'] == _yearOfBirth + 5) {
-                          _suggestedUsers.add(_user);
-                        }
-                      });
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            height: MediaQuery.of(context).size.height / 3,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, int index) {
-                                final User _user = _suggestedUsers[index];
-                                print(_user.birthdate['year']);
-                                return GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => ProfilePage(
-                                          userId: _user.id,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Stack(
-                                    children: <Widget>[
-                                      Container(
-                                        width:
-                                            MediaQuery.of(context).size.width /
+                SizedBox(height: 5),
+                Divider(),
+                Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 15,
+                      ),
+                      child: FlutterToggleTab(
+                        width: 50,
+                        height: 40,
+                        borderRadius: 40,
+                        selectedIndex: _selectedIndex,
+                        labels: ['', '', ''],
+                        icons: [MdiIcons.earth, MdiIcons.faceWoman, Icons.face],
+                        selectedBackgroundColors: [
+                          Colors.black,
+                          Colors.black,
+                        ],
+                        initialIndex: 0,
+                        selectedLabelIndex: (int index) {
+                          setState(() {
+                            _selectedIndex = index;
+                            if (index == 0) {
+                              _discoveredUsers = FirebaseFirestore.instance
+                                  .collection('users')
+                                  .limit(50)
+                                  .get();
+                            } else if (index == 1) {
+                              _discoveredUsers = FirebaseFirestore.instance
+                                  .collection('users')
+                                  .where('gender', isEqualTo: 'Female')
+                                  .limit(50)
+                                  .get();
+                            } else {
+                              _discoveredUsers = FirebaseFirestore.instance
+                                  .collection('users')
+                                  .where('gender', isEqualTo: 'Male')
+                                  .limit(50)
+                                  .get();
+                            }
+                          });
+                        },
+                        selectedTextStyle: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600),
+                        unSelectedTextStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400),
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    FutureBuilder(
+                      future: _discoveredUsers,
+                      builder:
+                          (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                        if (!snapshot.hasData) {
+                          return SizedBox.shrink();
+                        } else {
+                          List<User> _suggestedUsers = [];
+                          snapshot.data.docs.forEach((querySnapshot) {
+                            final User _user = User.fromDoc(querySnapshot);
+                            if (_user.birthdate['year'] == _yearOfBirth) {
+                              _suggestedUsers.add(_user);
+                            }
+                            if (_user.birthdate['year'] == _yearOfBirth - 1) {
+                              _suggestedUsers.add(_user);
+                            }
+                            if (_user.birthdate['year'] == _yearOfBirth - 2) {
+                              _suggestedUsers.add(_user);
+                            }
+                            if (_user.birthdate['year'] == _yearOfBirth - 3) {
+                              _suggestedUsers.add(_user);
+                            }
+                            if (_user.birthdate['year'] == _yearOfBirth - 4) {
+                              _suggestedUsers.add(_user);
+                            }
+                            if (_user.birthdate['year'] == _yearOfBirth - 5) {
+                              _suggestedUsers.add(_user);
+                            }
+                            if (_user.birthdate['year'] == _yearOfBirth + 1) {
+                              _suggestedUsers.add(_user);
+                            }
+                            if (_user.birthdate['year'] == _yearOfBirth + 2) {
+                              _suggestedUsers.add(_user);
+                            }
+                            if (_user.birthdate['year'] == _yearOfBirth + 3) {
+                              _suggestedUsers.add(_user);
+                            }
+                            if (_user.birthdate['year'] == _yearOfBirth + 4) {
+                              _suggestedUsers.add(_user);
+                            }
+                            if (_user.birthdate['year'] == _yearOfBirth + 5) {
+                              _suggestedUsers.add(_user);
+                            }
+                          });
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                height: MediaQuery.of(context).size.height / 3,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemBuilder: (context, int index) {
+                                    final User _user = _suggestedUsers[index];
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => ProfilePage(
+                                              userId: _user.id,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Stack(
+                                        children: <Widget>[
+                                          Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
                                                 3,
-                                        height:
-                                            MediaQuery.of(context).size.height /
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height /
                                                 3,
-                                        margin:
-                                            EdgeInsets.symmetric(horizontal: 5),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          child: CachedNetworkImage(
-                                            imageUrl: _user.profileImageUrl,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned.fill(
-                                        child: Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              3,
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height /
-                                              3,
-                                          margin: EdgeInsets.symmetric(
-                                              horizontal: 5),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                Colors.black54.withOpacity(0.5),
-                                            borderRadius:
-                                                BorderRadius.circular(16),
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned.fill(
-                                        child: Align(
-                                          alignment: Alignment(1.6, 2.0),
-                                          child: Column(
-                                            children: [
-                                              _user.status == '' ||
-                                                      _user.status == null
-                                                  ? SizedBox.shrink()
-                                                  : FlatButton(
-                                                      shape: CircleBorder(),
-                                                      onPressed: () {},
-                                                      color: Colors.white,
-                                                      child: Icon(
-                                                        _user.status == 'single'
-                                                            ? MdiIcons.heart
-                                                            : MdiIcons
-                                                                .heartMultiple,
-                                                        size: 18,
-                                                        color: Colors.red[700],
-                                                      ),
-                                                    ),
-                                              FlatButton(
-                                                shape: CircleBorder(),
-                                                onPressed: () {
-                                                  FirebaseFirestore.instance
-                                                      .collection('users')
-                                                      .doc(_userId)
-                                                      .collection(
-                                                          'global-chatters')
-                                                      .doc(_user.id)
-                                                      .set({});
-                                                  _setGroupChatId(_user.id);
-                                                  FirebaseFirestore.instance
-                                                      .collection('global-chat')
-                                                      .doc(_groupId)
-                                                      .set({});
-                                                  Navigator.of(context).push(
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          ChatPage(
-                                                        followerId: _user.id,
-                                                        followerName:
-                                                            _user.username,
-                                                        id: _userId,
-                                                        groupId: _groupId,
-                                                        isGlobal: true,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                                color: Colors.white,
-                                                child: Transform.rotate(
-                                                  angle: -0.5,
-                                                  child: Icon(
-                                                    Icons.send,
-                                                    size: 18,
-                                                    color: Colors.blue,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      Positioned.fill(
-                                        child: Align(
-                                          alignment: Alignment.bottomCenter,
-                                          child: Padding(
-                                            padding: EdgeInsets.all(10),
-                                            child: Text(
-                                              _user.username,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.w600,
+                                            margin: EdgeInsets.symmetric(
+                                                horizontal: 5),
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              child: CachedNetworkImage(
+                                                imageUrl: _user.profileImageUrl,
+                                                fit: BoxFit.cover,
                                               ),
                                             ),
                                           ),
+                                          Positioned.fill(
+                                            child: Container(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  3,
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  3,
+                                              margin: EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black54
+                                                    .withOpacity(0.5),
+                                                borderRadius:
+                                                    BorderRadius.circular(16),
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned.fill(
+                                            child: Align(
+                                              alignment: Alignment(1.6, 2.0),
+                                              child: Column(
+                                                children: [
+                                                  _user.status == '' ||
+                                                          _user.status == null
+                                                      ? SizedBox.shrink()
+                                                      : FlatButton(
+                                                          shape: CircleBorder(),
+                                                          onPressed: () {},
+                                                          color: Colors.white,
+                                                          child: Icon(
+                                                            _user.status ==
+                                                                    'single'
+                                                                ? MdiIcons.heart
+                                                                : MdiIcons
+                                                                    .heartMultiple,
+                                                            size: 18,
+                                                            color:
+                                                                Colors.red[700],
+                                                          ),
+                                                        ),
+                                                  FlatButton(
+                                                    shape: CircleBorder(),
+                                                    onPressed: () {
+                                                      FirebaseFirestore.instance
+                                                          .collection('users')
+                                                          .doc(_userId)
+                                                          .collection(
+                                                              'global-chatters')
+                                                          .doc(_user.id)
+                                                          .set({});
+                                                      _setGroupChatId(_user.id);
+                                                      FirebaseFirestore.instance
+                                                          .collection(
+                                                              'global-chat')
+                                                          .doc(_groupId)
+                                                          .set({});
+                                                      Navigator.of(context)
+                                                          .push(
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ChatPage(
+                                                            followerId:
+                                                                _user.id,
+                                                            followerName:
+                                                                _user.username,
+                                                            id: _userId,
+                                                            groupId: _groupId,
+                                                            isGlobal: true,
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                    color: Colors.white,
+                                                    child: Transform.rotate(
+                                                      angle: -0.5,
+                                                      child: Icon(
+                                                        Icons.send,
+                                                        size: 18,
+                                                        color: Colors.blue,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned.fill(
+                                            child: Align(
+                                              alignment: Alignment.bottomCenter,
+                                              child: Padding(
+                                                padding: EdgeInsets.all(10),
+                                                child: Text(
+                                                  _user.username,
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 24,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  itemCount: _suggestedUsers.length,
+                                ),
+                              ),
+                              SizedBox(height: 25),
+                              FutureBuilder(
+                                  future: _numberOfAccounts,
+                                  builder: (context, usersSnapshot) {
+                                    if (!usersSnapshot.hasData) {
+                                      return SizedBox.shrink();
+                                    }
+                                    return Text(
+                                      '${usersSnapshot.data.size} People joined',
+                                      style: GoogleFonts.quicksand(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w600,
+                                        textStyle: TextStyle(
+                                          color: Colors.grey[700],
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                );
-                              },
-                              itemCount: _suggestedUsers.length,
-                            ),
-                          ),
-                          SizedBox(height: 25),
-                          Text(
-                            '${snapshot.data.size} People joined',
-                            style: GoogleFonts.quicksand(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
-                              textStyle: TextStyle(
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-                  },
+                                    );
+                                  }),
+                            ],
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ],
             );
@@ -844,191 +944,213 @@ class _GlobePageState extends State<GlobePage> {
   Widget build(BuildContext context) {
     if (_userId != 'empty') {
       return Scaffold(
-        body: ListView(
-          children: <Widget>[
-            _buildSimilarPeople(),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: _postCreation(),
-            ),
-            Container(
-              color: Colors.white,
-              padding: EdgeInsets.symmetric(
-                horizontal: MediaQuery.of(context).size.width / 5,
-                vertical: 5,
-              ),
-              child: OutlineButton(
-                onPressed: () {
-                  Share.text(
-                    'Invite your friends to Looper via..',
-                    'Hello there. You are invited to Looper. A new social media app that will connect you to amazing people. To download the app you can use the following link https://play.google.com/store/apps/details?id=com.app.looper&hl=en-GB&ah=gndMBVH4KxJfvz1x85LPq04vnaw (for android) , https://apps.apple.com/eg/app/looper-social/id1537223572 (for ios), Hope you enjoy it 👌',
-                    'text/plain',
-                  );
-                },
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
+        body: RefreshIndicator(
+          backgroundColor: Colors.black,
+          color: Colors.white,
+          onRefresh: () async {
+            setState(() {
+              Future.delayed(Duration(seconds: 3));
+              _future = Future.wait([
+                DatabaseService.getFollowedContentFeed(
+                  'posts',
+                  'author',
+                  _querySnapshot,
                 ),
-                borderSide: BorderSide(color: Colors.blue),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.group_add,
-                      size: 20,
-                      color: Colors.blue,
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      'invite your friends',
-                      style: TextStyle(
-                        fontSize: 16,
+                PersonalityService.getCompatibleContentStream(
+                  _personalityType,
+                  _firestore,
+                  'posts',
+                  'author-personality',
+                ),
+              ]);
+            });
+          },
+          child: ListView(
+            children: <Widget>[
+              _buildSimilarPeople(),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: _postCreation(),
+              ),
+              Container(
+                color: Colors.white,
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width / 5,
+                  vertical: 5,
+                ),
+                child: OutlineButton(
+                  onPressed: () {
+                    Share.text(
+                      'Invite your friends to Looper via..',
+                      'Hello there. You are invited to Looper. A new social media app that will connect you to amazing people. To download the app you can use the following link https://play.google.com/store/apps/details?id=com.app.looper&hl=en-GB&ah=gndMBVH4KxJfvz1x85LPq04vnaw (for android) , https://apps.apple.com/eg/app/looper-social/id1537223572 (for ios), Hope you enjoy it 👌',
+                      'text/plain',
+                    );
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  borderSide: BorderSide(color: Colors.blue),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.group_add,
+                        size: 20,
                         color: Colors.blue,
-                        fontWeight: FontWeight.bold,
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 5),
+                      Text(
+                        'invite your friends',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-              child: Text(
-                'Thoughts',
-                style: GoogleFonts.comfortaa(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 35,
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                child: Text(
+                  'Thoughts',
+                  style: GoogleFonts.comfortaa(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 35,
+                  ),
                 ),
               ),
-            ),
-            FutureBuilder(
-              future: _future,
-              builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      strokeWidth: 1.2,
-                      valueColor: AlwaysStoppedAnimation(Colors.black),
-                    ),
-                  );
-                } else {
-                  if (snapshot.data == null) {
-                    return SizedBox.shrink();
-                  }
-                  if (snapshot.data[0].documents.isEmpty &&
-                      snapshot.data[1].documents.isEmpty) {
+              FutureBuilder(
+                future: _future,
+                builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
-                      child: Column(
-                        children: [
-                          Icon(
-                            MdiIcons.viewGridPlusOutline,
-                            color: Colors.grey,
-                            size: 60,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'No Posts uploaded yet',
-                            style: GoogleFonts.aBeeZee(
-                              textStyle: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 1.2,
+                        valueColor: AlwaysStoppedAnimation(Colors.black),
+                      ),
+                    );
+                  } else {
+                    if (snapshot.data == null) {
+                      return SizedBox.shrink();
+                    }
+                    if (snapshot.data[0].docs.isEmpty &&
+                        snapshot.data[1].docs.isEmpty) {
+                      return Center(
+                        child: Column(
+                          children: [
+                            Icon(
+                              MdiIcons.viewGridPlusOutline,
+                              color: Colors.grey,
+                              size: 60,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'No Posts uploaded yet',
+                              style: GoogleFonts.aBeeZee(
+                                textStyle: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 20,
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: 10),
-                          OutlineButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                            SizedBox(height: 10),
+                            OutlineButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              borderSide: BorderSide(color: Colors.black),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => PostCreationPage(),
+                                  ),
+                                );
+                              },
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    color: Colors.black,
+                                  ),
+                                  SizedBox(width: 5),
+                                  Text('create one now'),
+                                ],
+                              ),
                             ),
-                            borderSide: BorderSide(color: Colors.black),
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => PostCreationPage(),
-                                ),
-                              );
+                          ],
+                        ),
+                      );
+                    }
+                    for (DocumentSnapshot doc in snapshot.data[0].docs) {
+                      _ids.add(doc.data()['author']);
+                    }
+                    if (_followIds != _ids) {
+                      return Container(
+                        margin: EdgeInsets.only(bottom: 80),
+                        child: ListView.separated(
+                            shrinkWrap: true,
+                            physics: ScrollPhysics(),
+                            itemCount: snapshot.data[1].docs.length,
+                            separatorBuilder: (context, index) {
+                              if (index % 3 == 0 || index % 10 == 0) {
+                                return PostNativeAd();
+                              } else {
+                                return SizedBox.shrink();
+                              }
                             },
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  color: Colors.black,
-                                ),
-                                SizedBox(width: 5),
-                                Text('create one now'),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  for (DocumentSnapshot doc in snapshot.data[0].documents) {
-                    _ids.add(doc.data()['author']);
-                  }
-                  if (_followIds != _ids) {
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 80),
-                      child: ListView.separated(
-                          shrinkWrap: true,
-                          physics: ScrollPhysics(),
-                          itemCount: snapshot.data[1].documents.length,
-                          separatorBuilder: (context, index) {
-                            if (index % 3 == 0 || index % 10 == 0) {
-                              return PostNativeAd();
-                            } else {
-                              return SizedBox.shrink();
-                            }
-                          },
-                          itemBuilder: (context, index) {
+                            itemBuilder: (context, index) {
+                              return PostWidget(
+                                snapshot: snapshot.data[1].docs[index],
+                              );
+                            }),
+                      );
+                    }
+                    int lengthOfDocs = 0;
+                    int querySnapShotCounter = 0;
+                    snapshot.data.forEach((snap) {
+                      lengthOfDocs = lengthOfDocs + snap.docs.length;
+                    });
+                    int counter = 0;
+                    return ListView.separated(
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        itemCount: lengthOfDocs,
+                        separatorBuilder: (context, index) {
+                          if (index % 3 == 0 || index % 10 == 0) {
+                            return PostNativeAd();
+                          } else {
+                            return SizedBox.shrink();
+                          }
+                        },
+                        itemBuilder: (context, index) {
+                          try {
+                            final DocumentSnapshot doc = snapshot
+                                .data[querySnapShotCounter].docs
+                                .toList()[counter];
+                            counter = counter + 1;
                             return PostWidget(
-                              snapshot: snapshot.data[1].documents[index],
+                              snapshot: doc,
                             );
-                          }),
-                    );
+                          } catch (RangeError) {
+                            querySnapShotCounter = querySnapShotCounter + 1;
+                            counter = 0;
+                            final DocumentSnapshot doc = snapshot
+                                .data[querySnapShotCounter].docs
+                                .toList()[counter];
+                            counter = counter + 1;
+                            return PostWidget(
+                              snapshot: doc,
+                            );
+                          }
+                        });
                   }
-                  int lengthOfDocs = 0;
-                  int querySnapShotCounter = 0;
-                  snapshot.data.forEach((snap) {
-                    lengthOfDocs = lengthOfDocs + snap.documents.length;
-                  });
-                  int counter = 0;
-                  return ListView.separated(
-                      shrinkWrap: true,
-                      physics: ScrollPhysics(),
-                      itemCount: lengthOfDocs,
-                      separatorBuilder: (context, index) {
-                        if (index % 3 == 0 || index % 10 == 0) {
-                          return PostNativeAd();
-                        } else {
-                          return SizedBox.shrink();
-                        }
-                      },
-                      itemBuilder: (context, index) {
-                        try {
-                          final DocumentSnapshot doc = snapshot
-                              .data[querySnapShotCounter].documents
-                              .toList()[counter];
-                          counter = counter + 1;
-                          return PostWidget(
-                            snapshot: doc,
-                          );
-                        } catch (RangeError) {
-                          querySnapShotCounter = querySnapShotCounter + 1;
-                          counter = 0;
-                          final DocumentSnapshot doc = snapshot
-                              .data[querySnapShotCounter].documents
-                              .toList()[counter];
-                          counter = counter + 1;
-                          return PostWidget(
-                            snapshot: doc,
-                          );
-                        }
-                      });
-                }
-              },
-            ),
-          ],
+                },
+              ),
+            ],
+          ),
         ),
       );
     } else {
