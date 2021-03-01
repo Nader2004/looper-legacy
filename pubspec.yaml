@@ -11,7 +11,7 @@ description: A new Flutter project.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.9+21
+version: 1.0.85+20
 
 
 environment:
@@ -26,17 +26,18 @@ dependencies:
   cupertino_icons: ^1.0.0
   material_design_icons_flutter: ^4.0.5755
   font_awesome_flutter: ^8.8.1
-  google_fonts: ^2.0.0
-  firebase_storage: ^8.0.0
-  firebase_core: ^1.0.0
-  cloud_firestore: ^1.0.0
-  firebase_messaging: ^9.0.0 
-  firebase_auth: ^1.0.0
+  google_fonts: ^1.1.1
+  firebase_storage: ^7.0.0
+  firebase_core: ^7.0.0
+  cloud_firestore: ^0.16.0+1
+  firebase_messaging: ^8.0.0-dev.14
+  firebase_auth: ^0.20.1
   flutter_native_admob: ^2.1.0+3
-  firebase_ml_vision: ^0.11.0
-  camera: ^0.8.0-nullsafety.2
+  firebase_ml_vision: ^0.10.0
+  device_preview: ^0.5.5
+  camera: ^0.7.0+2
   video_player: ^1.0.1
-  path_provider: ^2.0.0
+  path_provider: ^1.1.0
   image_picker: ^0.6.7+1
   fluttertoast: ^7.1.1
   permission_handler: ^5.0.1
@@ -82,7 +83,7 @@ dependencies:
   dots_indicator: ^1.1.0
   percent_indicator: ^2.1.7+2
   url_launcher: ^5.4.10
-  intl: ^0.17.0
+  intl: ^0.16.1
   stringprocess: ^1.0.10
   visibility_detector: ^0.1.5
   esys_flutter_share: ^1.0.2
@@ -91,7 +92,7 @@ dependencies:
   file_picker: ^2.0.11
   photo_manager: ^0.5.3
   export_video_frame: ^0.0.5+4
-  http: ^0.13.0
+  http: ^0.12.0+2
 
 flutter_icons:
   android: "launcher_icon"
