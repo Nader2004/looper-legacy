@@ -26,7 +26,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   material_design_icons_flutter: ^4.0.5755
   font_awesome_flutter: ^8.8.1
-  google_fonts: ^1.1.1
+  google_fonts: ^2.0.0
   firebase_storage: ^8.0.0
   firebase_core: ^1.0.0
   cloud_firestore: ^1.0.0
