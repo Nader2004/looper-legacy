@@ -82,7 +82,7 @@ dependencies:
   dots_indicator: ^1.1.0
   percent_indicator: ^2.1.7+2
   url_launcher: ^5.4.10
-  intl: ^0.16.1
+  intl: ^0.17.0
   stringprocess: ^1.0.10
   visibility_detector: ^0.1.5
   esys_flutter_share: ^1.0.2
