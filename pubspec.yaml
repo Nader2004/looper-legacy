@@ -33,7 +33,7 @@ dependencies:
   firebase_messaging: ^8.0.0-dev.15
   firebase_auth: ^0.20.1
   flutter_native_admob: ^2.1.0+3
-  firebase_ml_vision: ^0.10.0
+  firebase_ml_vision: ^0.9.5
   device_preview: ^0.5.5
   camera: ^0.7.0+2
   video_player: ^1.0.1
