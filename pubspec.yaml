@@ -91,7 +91,7 @@ dependencies:
   file_picker: ^2.0.11
   photo_manager: ^0.5.3
   export_video_frame: ^0.0.5+4
-  http: ^0.12.0+2
+  http: ^0.13.0
 
 flutter_icons:
   android: "launcher_icon"
