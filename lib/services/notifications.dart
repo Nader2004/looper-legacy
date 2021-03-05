@@ -126,7 +126,7 @@ class NotificationsService {
     final DocumentSnapshot doc =
         await FirebaseFirestore.instance.collection('users').doc(peerId).get();
     await http.post(
-      'https://fcm.googleapis.com/fcm/send',
+      Uri.parse('https://fcm.googleapis.com/fcm/send'),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': 'key=$serverToken',
@@ -164,7 +164,7 @@ class NotificationsService {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     final String id = _prefs.get('id');
     await http.post(
-      'https://fcm.googleapis.com/fcm/send',
+      Uri.parse('https://fcm.googleapis.com/fcm/send'),
       headers: <String, String>{
         'Content-Type': 'application/json',
         'Authorization': 'key=$serverToken',
