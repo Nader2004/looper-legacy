@@ -26,7 +26,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   material_design_icons_flutter: ^4.0.5755
   font_awesome_flutter: ^8.8.1
-  google_fonts: ^1.1.1
+  google_fonts: ^2.0.0
   firebase_storage: ^8.0.0
   firebase_core: ^1.0.0
   cloud_firestore: ^1.0.0
@@ -36,14 +36,14 @@ dependencies:
   firebase_ml_vision: ^0.11.0
   camera: ^0.8.0
   video_player: ^1.0.1
-  path_provider: ^1.1.0
-  image_picker: ^0.6.7+1
+  path_provider: ^2.0.0
+  image_picker: ^0.7.2
   fluttertoast: ^7.1.1
-  permission_handler: ^5.0.1
-  flutter_local_notifications: ^4.0.0
-  flutter_launcher_icons: ^0.8.0
-  uuid: ^2.0.4
-  flutter_svg: ^0.19.1
+  permission_handler: ^5.1.0+2
+  flutter_local_notifications: ^5.0.0-nullsafety.0
+  flutter_launcher_icons: ^0.9.0
+  uuid: ^3.0.1
+  flutter_svg: ^0.21.0-nullsafety.0
   shimmer: ^1.0.1
   bubble: ^1.1.9+1
   badges: ^1.1.1
@@ -65,31 +65,31 @@ dependencies:
   validators: ^2.0.0+1
   string_validator: ^0.1.3
   email_validator: ^1.0.0
-  stop_watch_timer: ^0.6.0+1
+  stop_watch_timer: ^1.0.0
   shared_preferences: ^0.5.6+1
   enhanced_future_builder: ^1.0.2
-  cached_network_image: ^2.2.0+1
+  cached_network_image: ^3.0.0-nullsafety
   flutter_image_compress: ^0.7.0
   flutter_video_compress: ^0.3.7+8
-  audioplayers: ^0.16.1
   tutorial_coach_mark: ^0.5.2
-  flutter_sound: ^6.4.3+44
-  location: ^3.0.2
+  flutter_sound: ^7.7.0+1
+  location: ^4.0.2
   geocoder: ^0.2.1
   flutter_email_sender: ^4.0.0
-  giphy_picker: ^01.0.4
+  giphy_picker: ^2.0.0
   flutter_linkify: ^3.1.3
   dots_indicator: ^1.1.0
   percent_indicator: ^2.1.7+2
   url_launcher: ^5.4.10
   intl: ^0.17.0
   stringprocess: ^1.0.10
-  visibility_detector: ^0.1.5
+  visibility_detector: ^0.1.5  
+  dotted_border: ^2.0.0-nullsafety.0
   esys_flutter_share: ^1.0.2
-  dotted_border: ^1.0.5
   video_thumbnail: ^0.2.1
-  file_picker: ^2.0.11
+  file_picker: ^3.0.0
   photo_manager: ^0.5.3
+  audioplayers: ^0.17.4
   export_video_frame: ^0.0.5+4
   http: ^0.13.0
 
@@ -104,9 +104,16 @@ dev_dependencies:
   flutter_datetime_picker:
    git:
      url: https://github.com/espresso3389/flutter_datetime_picker # Repo
-    
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
+
+dependency_overrides:
+  plugin_platform_interface: '>=2.0.0'
+  uuid: '>=2.0.0'
+  path_provider: '>=2.0.0'
+  flutter_cache_manager: '>=2.0.0'
+  synchronized: '>=2.2.0'
+  markdown: '>=2.0.2'
 
 # The following section is specific to Flutter.
 flutter:
