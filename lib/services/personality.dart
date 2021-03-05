@@ -41,7 +41,7 @@ class PersonalityService {
       if ((_tps.getWordCount(_persFileText) % 1500) == 0 &&
           _persFileText.isNotEmpty) {
         final http.Response _response = await http.post(
-          Uri.encodeFull(
+          Uri.parse(
             '$PERSONALITY_URL/v3/profile?version=2017-10-13&consumption_preferences=true&raw_scores=true',
           ),
           body: _persFileText,
@@ -722,13 +722,13 @@ class PersonalityService {
     if (data.contains('http')) {
       final Directory dir = await getTemporaryDirectory();
       final String filePath = '${dir.path}/analyzed-video';
-      final http.Response response = await http.get(data);
+      final http.Response response = await http.get(Uri.parse(data));
       final File videoFile = File(filePath);
       videoFile.writeAsBytesSync(response.bodyBytes);
       final Stream<List<int>> _stream = videoFile.openRead();
       _stream.listen((event) async {
         final http.Response _response = await http.post(
-          Uri.encodeFull('$SPEECH_URL/v1/recognize'),
+          Uri.parse('$SPEECH_URL/v1/recognize'),
           body: event,
           headers: {
             HttpHeaders.authorizationHeader:
@@ -753,7 +753,7 @@ class PersonalityService {
         print(data);
         print(event);
         final http.Response _response = await http.post(
-          Uri.encodeFull('$SPEECH_URL/v1/recognize'),
+          Uri.parse('$SPEECH_URL/v1/recognize'),
           body: event,
           headers: {
             HttpHeaders.authorizationHeader:
@@ -797,7 +797,7 @@ class PersonalityService {
       print(videoFileName);
       final Directory dir = await getTemporaryDirectory();
       final String filePath = '${dir.path}/analyzed-video';
-      final http.Response response = await http.get(videoFileName);
+      final http.Response response = await http.get(Uri.parse(videoFileName));
       final File videoFile = File(filePath);
       videoFile.writeAsBytesSync(response.bodyBytes);
       final List<File> images = await ExportVideoFrame.exportImage(
@@ -862,7 +862,7 @@ class PersonalityService {
     if (imagePath.contains('http')) {
       final Directory dir = await getTemporaryDirectory();
       final String filePath = '${dir.path}/analyzed-image';
-      final http.Response response = await http.get(imagePath);
+      final http.Response response = await http.get(Uri.parse(imagePath));
       final File imageFile = File(filePath);
       imageFile.writeAsBytesSync(response.bodyBytes);
       _visionImage = FirebaseVisionImage.fromFile(imageFile);
