@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.looper">
+    package="com.app.looper">
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
@@ -7,9 +7,8 @@
          additional functionality it is fine to subclass or reimplement
          FlutterApplication and put your custom class here. -->
     <application
-        android:name="io.flutter.app.FlutterApplication"
         android:label="Looper"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
         
         <meta-data
         android:name="com.google.android.geo.API_KEY"
@@ -21,7 +20,9 @@
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:showWhenLocked="true"
+            android:turnScreenOn="true">
             <!-- This keeps the window background of the activity showing
                  until Flutter renders its first frame. It can be removed if
                  there is no splash screen (such as the default splash screen
@@ -38,8 +39,15 @@
                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        
        <meta-data
           android:name="com.google.android.gms.ads.APPLICATION_ID"
-          android:value="ca-app-pub-9448985372006294~9857850203"/> 
+          android:value="ca-app-pub-9448985372006294~9857850203"/>
+       <meta-data
+          android:name="com.google.firebase.messaging.default_notification_channel_id"
+          android:value="high_importance_channel" /> 
+        <meta-data
+          android:name="flutterEmbedding"
+          android:value="2" />  
     </application>
 </manifest>
