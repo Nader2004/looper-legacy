@@ -22,11 +22,15 @@ class LoveRoom extends StatefulWidget {
   _LoveRoomState createState() => _LoveRoomState();
 }
 
-class _LoveRoomState extends State<LoveRoom> {
+class _LoveRoomState extends State<LoveRoom>
+    with AutomaticKeepAliveClientMixin<LoveRoom> {
   String _userId = 'empty';
   int _selectedIndex = 0;
   FirebaseFirestore _firestore;
   User _user;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -38,9 +42,11 @@ class _LoveRoomState extends State<LoveRoom> {
 
   void setPrefs() async {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = _prefs.get('id');
-    });
+    if (mounted) {
+      setState(() {
+        _userId = _prefs.get('id');
+      });
+    }
   }
 
   Future<List<DocumentSnapshot>> getLoveFeed() async {
@@ -176,7 +182,6 @@ class _LoveRoomState extends State<LoveRoom> {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
-                              
                               _selectedIndex == 1
                                   ? SizedBox.shrink()
                                   : Padding(
@@ -305,7 +310,7 @@ class _LoveRoomState extends State<LoveRoom> {
                                               ? MediaQuery.of(context)
                                                       .size
                                                       .height /
-                                                  1.35
+                                                  1.8
                                               : MediaQuery.of(context)
                                                       .size
                                                       .height /
