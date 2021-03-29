@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/postModel.dart';
 import '../models/talentModel.dart';
 import '../models/sportModel.dart';
-import '../models/comedyModel.dart';
 import '../models/challengeModel.dart';
 import '../models/loveCardModel.dart';
 import '../models/loverCardModel.dart';
@@ -22,8 +21,6 @@ class DatabaseService {
       _firestore.collection('talents');
   static final CollectionReference _sportsDocRef =
       _firestore.collection('sports');
-  static final CollectionReference _comedyDocRef =
-      _firestore.collection('comedy');
   static final CollectionReference _challengesDocRef =
       _firestore.collection('challenge');
   static final CollectionReference _loveCardsDocRef =
@@ -256,33 +253,6 @@ class DatabaseService {
     }
   }
 
-  static void addComedy(Comedy comedy) {
-    try {
-      final DocumentReference _comedieDocRef = _comedyDocRef.doc();
-      _firestore.runTransaction((Transaction transaction) async {
-        transaction.set(_comedieDocRef, {
-          'creatorId': comedy.authorId,
-          'creator-name': comedy.authorName,
-          'creator-personality': comedy.authorPersonality,
-          'creator-image': comedy.authorImage,
-          'mediaUrl': comedy.mediaUrl,
-          'caption': comedy.caption,
-          'content': comedy.content,
-          'type': comedy.type,
-          'laughed-people': [],
-          'viewed-people': [],
-          'viewsCount': 0,
-          'visitCount': 0,
-          'laughs': 0,
-          'commentCount': 0,
-          'timestamp': comedy.timestamp,
-        });
-      });
-    } catch (_) {
-      _showError();
-    }
-  }
-
   static void addChallenge(Challenge challenge) {
     final DocumentReference _challengeDocRef = _challengesDocRef.doc();
     try {
@@ -405,60 +375,6 @@ class DatabaseService {
       _firestore.runTransaction((Transaction transaction) async {
         transaction.update(_docRef, {
           'interested-people': FieldValue.arrayRemove([loveCardAuthorId]),
-        });
-      });
-    } catch (_) {
-      _showError();
-    }
-  }
-
-  static void laugh(String comedyId, String userId) {
-    final DocumentReference _docRef = _comedyDocRef.doc(comedyId);
-    try {
-      _firestore.runTransaction((Transaction transaction) async {
-        transaction.update(_docRef, {
-          'laughs': FieldValue.increment(1),
-          'laughed-people': FieldValue.arrayUnion([userId]),
-        });
-      });
-    } catch (_) {
-      _showError();
-    }
-  }
-
-  static void unLaugh(String comedyId, String userId) {
-    final DocumentReference _docRef = _comedyDocRef.doc(comedyId);
-    try {
-      _firestore.runTransaction((Transaction transaction) async {
-        transaction.update(_docRef, {
-          'laughs': FieldValue.increment(-1),
-          'laughed-people': FieldValue.arrayRemove([userId]),
-        });
-      });
-    } catch (_) {
-      _showError();
-    }
-  }
-
-  static void addVisit(String comedyId) {
-    final DocumentReference _docRef = _comedyDocRef.doc(comedyId);
-    try {
-      _firestore.runTransaction((Transaction transaction) async {
-        transaction.update(_docRef, {
-          'visitCount': FieldValue.increment(1),
-        });
-      });
-    } catch (_) {
-      _showError();
-    }
-  }
-
-  static void removeVisit(String comedyId) {
-    final DocumentReference _docRef = _comedyDocRef.doc(comedyId);
-    try {
-      _firestore.runTransaction((Transaction transaction) async {
-        transaction.update(_docRef, {
-          'visitCount': FieldValue.increment(-1),
         });
       });
     } catch (_) {
@@ -810,6 +726,7 @@ class DatabaseService {
         transaction.set(_docFollowingRef, {
           'id': userId,
           'name': userName,
+          'timestamp': '',
         });
         transaction.set(_docFollowersRef, {
           'id': id,
@@ -897,15 +814,16 @@ class DatabaseService {
         .doc(_timeStamp);
     _firestore.runTransaction(
       (Transaction tx) async {
-        print('running');
         tx.set(
           _documentReference,
           {
             'id': _timeStamp,
             'from': message.author,
             'to': message.peerId,
+            'seenBy': '',
             'content': message.content,
             'type': message.type,
+            'seen': false,
             'timestamp': message.timestamp,
           },
         );
