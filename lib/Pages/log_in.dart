@@ -40,6 +40,7 @@ class _LogInPageState extends State<LogInPage> {
         margin: EdgeInsets.only(bottom: 20),
         child: TextFormField(
           autocorrect: true,
+          keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
             labelText: 'email address',
             border: OutlineInputBorder(),
