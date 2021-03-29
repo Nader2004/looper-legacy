@@ -45,7 +45,6 @@ class NotificationsService {
     _id = _prefs.get('id');
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('listened');
       final not.Notification _notif = not.Notification.fromMessage(message);
       FirebaseFirestore.instance
           .collection('users')
