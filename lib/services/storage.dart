@@ -26,33 +26,23 @@ class StorageService {
     String path,
   ) async {
     if (mediaFiles.length == 1) {
-      final Reference _storageRef = FirebaseStorage.instance.ref();
-      String _mediaId = Uuid().v4();
-
-      final UploadTask _uploadTask = _storageRef
-          .child(
-            getMediaFormatType(path, mediaFiles[0].path, _mediaId),
-          )
-          .putFile(mediaFiles[0]);
-      final UploadTask _storageSnap = _uploadTask;
-      final String _downloadUrl =
-          await _storageSnap.snapshot.ref.getDownloadURL();
-
+      final String _mediaId = Uuid().v4();
+      final String _path =
+          getMediaFormatType(path, mediaFiles[0].path, _mediaId);
+      final Reference _storageRef = FirebaseStorage.instance.ref().child(_path);
+      await _storageRef.putFile(mediaFiles[0]);
+      final _downloadUrl = await _storageRef.getDownloadURL();
       return [_downloadUrl];
     } else {
       List<String> mediaUrls = [];
       for (File mediaFile in mediaFiles) {
-        final Reference _storageRef = FirebaseStorage.instance.ref();
-        String _mediaId = Uuid().v4();
-
-        final UploadTask _uploadTask = _storageRef
-            .child(
-              getMediaFormatType(path, mediaFile.path, _mediaId),
-            )
-            .putFile(mediaFile);
-        final UploadTask _storageSnap = _uploadTask;
-        final String _downloadUrl =
-            await _storageSnap.snapshot.ref.getDownloadURL();
+        final String _mediaId = Uuid().v4();
+        final String _path =
+            getMediaFormatType(path, mediaFile.path, _mediaId);
+        final Reference _storageRef =
+            FirebaseStorage.instance.ref().child(_path);
+        await _storageRef.putFile(mediaFile);
+        final _downloadUrl = await _storageRef.getDownloadURL();
         mediaUrls.add(_downloadUrl);
       }
       return mediaUrls;
