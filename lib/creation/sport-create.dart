@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:looper/models/sportModel.dart';
 import 'package:looper/services/database.dart';
 import 'package:looper/services/notifications.dart';
@@ -223,8 +224,41 @@ class _SportCreationState extends State<SportCreation>
     return Align(
       alignment: Alignment.bottomCenter,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
+          Container(
+            height: 35,
+            width: 35,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.black.withOpacity(0.5),
+            ),
+            child: GestureDetector(
+              onTap: () async {
+                final ImagePicker _picker = ImagePicker();
+
+                final PickedFile _file =
+                    await _picker.getVideo(source: ImageSource.gallery);
+                if (_file != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SportVideoShowPage(
+                        sportCategory: _categoryItem,
+                        videoPath: _file.path,
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: Icon(
+                Icons.video_library_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
           GestureDetector(
             onTap: () {
               if (!_cameraController.value.isRecordingVideo) {
@@ -243,11 +277,7 @@ class _SportCreationState extends State<SportCreation>
               }
             },
             child: Container(
-              margin: EdgeInsets.only(
-                bottom: MediaQuery.of(context).size.height / 18,
-                left: MediaQuery.of(context).size.width / 3,
-                right: MediaQuery.of(context).size.width / 5,
-              ),
+              margin: EdgeInsets.only(bottom: 10),
               child: CircleAvatar(
                 radius: 40,
                 backgroundColor: Colors.white.withOpacity(0.2),
@@ -310,7 +340,7 @@ class _SportCreationState extends State<SportCreation>
               size: 30,
             ),
             onPressed: _onSwitchCamera,
-          )
+          ),
         ],
       ),
     );
