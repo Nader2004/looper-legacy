@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:looper/services/notifications.dart';
 import 'package:looper/services/personality.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -336,6 +337,42 @@ class _ChallengeCreationState extends State<ChallengeCreation>
                 Icons.repeat,
                 color: Colors.white,
                 size: 30,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment(0.9, 0.92),
+            child: Container(
+              height: 35,
+              width: 35,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black.withOpacity(0.5),
+              ),
+              child: GestureDetector(
+                onTap: () async {
+                  final ImagePicker _picker = ImagePicker();
+
+                  final PickedFile _file =
+                      await _picker.getVideo(source: ImageSource.gallery);
+                  if (_file != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VideoWidget(
+                          videoPath: _file.path,
+                          challengeName: _challengeNameController.text,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: Icon(
+                  Icons.video_library_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
             ),
           ),
