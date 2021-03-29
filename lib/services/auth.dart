@@ -71,8 +71,8 @@ class AuthService {
     Function enableLoading,
     Function disableLoading,
   }) async {
-    enableLoading();
     try {
+      enableLoading();
       final SharedPreferences _prefs = await SharedPreferences.getInstance();
       final UserCredential _result = await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -92,53 +92,13 @@ class AuthService {
           'username': username,
           'email': email,
           'searchKey': username.substring(0, 1),
+          'isTyping': false,
         });
       }
 
       Fluttertoast.showToast(msg: 'You are registered');
     } on PlatformException catch (e) {
-      switch (e.code) {
-        case 'ERROR_INVALID_EMAIL':
-          _showErrorDialog(
-            context,
-            'incorrect Email',
-            'Please check your Email! Maybe you wrote it wrong.',
-            disableLoading: disableLoading,
-          );
-          break;
-        case 'ERROR_EMAIL_ALREADY_IN_USE':
-          _showErrorDialog(
-            context,
-            'Email already exist',
-            'This Email exists already. You can login instead',
-            disableLoading: disableLoading,
-            addButton: true,
-          );
-          break;
-        case 'ERROR_WEAK_PASSWORD':
-          _showErrorDialog(
-            context,
-            'The Password is weak',
-            'Please write a stronger Password. Try to use numbers or symbols.',
-            disableLoading: disableLoading,
-          );
-          break;
-        case 'ERROR_NETWORK_ERROR':
-          _showErrorDialog(
-            context,
-            'poor Connection',
-            'Please check your Internet Connection',
-            disableLoading: disableLoading,
-          );
-          break;
-        default:
-          _showErrorDialog(
-            context,
-            'Something went wrong',
-            'Could not sign up',
-            disableLoading: disableLoading,
-          );
-      }
+      Fluttertoast.showToast(msg: e.message);
     }
   }
 
