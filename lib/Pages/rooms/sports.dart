@@ -17,9 +17,10 @@ class SportsRoom extends StatefulWidget {
   _SportsRoomState createState() => _SportsRoomState();
 }
 
-class _SportsRoomState extends State<SportsRoom> {
+class _SportsRoomState extends State<SportsRoom>
+    with AutomaticKeepAliveClientMixin<SportsRoom> {
   String _userId = 'empty';
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
   List<IconData> _icons = [
     MdiIcons.trophy,
     MdiIcons.soccer,
@@ -41,12 +42,13 @@ class _SportsRoomState extends State<SportsRoom> {
   Future<List<dynamic>> _future;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
-
     _firestore = FirebaseFirestore.instance;
     setPrefs();
-
     PersonalityService.analyzePersonality();
   }
 
@@ -184,16 +186,9 @@ class _SportsRoomState extends State<SportsRoom> {
                       setState(() {
                         _selectedIndex = index;
                       });
-                      if (index == 0) {
-                        Navigator.of(context).pop();
-                      }
                     },
                     labelType: NavigationRailLabelType.selected,
                     destinations: [
-                      NavigationRailDestination(
-                        icon: Icon(Icons.close),
-                        label: Text('Close'),
-                      ),
                       NavigationRailDestination(
                         icon: Icon(_icons[0]),
                         label: Text('Trending'),
