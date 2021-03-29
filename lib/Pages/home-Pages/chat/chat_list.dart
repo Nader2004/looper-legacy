@@ -15,13 +15,16 @@ class ChatList extends StatefulWidget {
   _ChatListState createState() => _ChatListState();
 }
 
-class _ChatListState extends State<ChatList> {
+class _ChatListState extends State<ChatList>
+    with AutomaticKeepAliveClientMixin<ChatList> {
   Future<QuerySnapshot> _future;
   int _selectedIndex = 0;
   String _id = 'empty';
   String _userName = '';
-
   String _groupId = '';
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -35,15 +38,61 @@ class _ChatListState extends State<ChatList> {
         .collection('users')
         .doc(_prefs.get('id'))
         .get();
-    setState(() {
-      _id = _prefs.get('id');
-      _userName = _user.data()['username'];
-      _future = FirebaseFirestore.instance
-          .collection('users')
-          .doc(_id)
-          .collection('following')
-          .get();
-    });
+    final QuerySnapshot _globalChatters = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(_prefs.get('id'))
+        .collection('global-chatters')
+        .get();
+
+    final QuerySnapshot _followingChatters = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(_prefs.get('id'))
+        .collection('following')
+        .get();
+
+    for (DocumentSnapshot doc in _globalChatters.docs) {
+      if (doc.data()['timestamp'] == null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(_prefs.get('id'))
+            .collection('global-chatters')
+            .doc(doc.id)
+            .set(
+          {
+            'timestamp': '',
+          },
+          SetOptions(merge: true),
+        );
+      }
+    }
+
+    for (DocumentSnapshot doc in _followingChatters.docs) {
+      if (doc.data()['timestamp'] == null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(_prefs.get('id'))
+            .collection('following')
+            .doc(doc.id)
+            .set(
+          {
+            'timestamp': '',
+          },
+          SetOptions(merge: true),
+        );
+      }
+    }
+    if (mounted) {
+      setState(() {
+        _id = _prefs.get('id');
+        _userName = _user.data()['username'];
+        _future = FirebaseFirestore.instance
+            .collection('users')
+            .doc(_id)
+            .collection('following')
+            .orderBy('timestamp', descending: true)
+            .get();
+      });
+    }
   }
 
   void _setGroupChatId(String followerId) {
@@ -114,82 +163,244 @@ class _ChatListState extends State<ChatList> {
                       return Container(
                         padding: EdgeInsets.symmetric(vertical: 5),
                         color: Colors.white,
-                        child: FutureBuilder(
-                            future: FirebaseFirestore.instance
+                        child: StreamBuilder(
+                            stream: FirebaseFirestore.instance
                                 .collection('users')
                                 .doc(_followingUser.id)
-                                .get(),
+                                .snapshots(),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return SizedBox.shrink();
                               }
-                              final User _user = User.fromDoc(snapshot.data);
+                              final DocumentSnapshot _doc = snapshot.data;
+                              final User _user = User.fromDoc(_doc);
+                              if (_user.isTyping == null) {
+                                FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(_followingUser.id)
+                                    .set(
+                                  {
+                                    'isTyping': false,
+                                  },
+                                  SetOptions(merge: true),
+                                );
+                              }
                               _setGroupChatId(_followingUser.id);
                               return ListTile(
-                                leading: ClipRRect(
-                                  borderRadius: BorderRadius.circular(40),
-                                  child: CachedNetworkImage(
-                                    imageUrl: _user.profileImageUrl,
-                                    height: 50,
-                                    width: 50,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
+                                leading: _user.isActive == null
+                                    ? FutureBuilder(
+                                        future: FirebaseFirestore.instance
+                                            .collection('users')
+                                            .doc(_user.id)
+                                            .set(
+                                          {
+                                            'isActive': false,
+                                          },
+                                          SetOptions(merge: true),
+                                        ),
+                                        builder:
+                                            (BuildContext context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return SizedBox.shrink();
+                                          }
+                                          return Stack(
+                                            clipBehavior: Clip.none,
+                                            children: [
+                                              ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(40),
+                                                child: CachedNetworkImage(
+                                                  imageUrl:
+                                                      _user.profileImageUrl,
+                                                  height: 50,
+                                                  width: 50,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              Positioned(
+                                                top: 32,
+                                                left: 35,
+                                                child: Container(
+                                                  height: 17,
+                                                  width: 17,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color:
+                                                        _user.isActive == true
+                                                            ? Colors.green
+                                                            : Colors.grey,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      )
+                                    : Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(40),
+                                            child: CachedNetworkImage(
+                                              imageUrl: _user.profileImageUrl,
+                                              height: 50,
+                                              width: 50,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 32,
+                                            left: 35,
+                                            child: Container(
+                                              height: 17,
+                                              width: 17,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: _user.isActive == true
+                                                    ? Colors.green
+                                                    : Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                 title: Text(
                                   _user.username,
                                 ),
-                                subtitle: StreamBuilder(
-                                    stream: FirebaseFirestore.instance
-                                        .collection(_selectedIndex == 0
-                                            ? 'chat'
-                                            : 'global-chat')
-                                        .doc(_groupId)
-                                        .collection('messages')
-                                        .snapshots(),
-                                    builder: (context,
-                                        AsyncSnapshot<QuerySnapshot>
-                                            docsnapshot) {
-                                      if (docsnapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return SizedBox.shrink();
-                                      }
-                                      return Text(
-                                        docsnapshot.data.docs.length == 0
-                                            ? 'Start chatting now'
-                                            : docsnapshot.data.docs.length == 1
-                                                ? docsnapshot.data.docs[0]
-                                                            .data()['type'] ==
-                                                        0
-                                                    ? docsnapshot.data.docs[0]
-                                                        .data()['content']
-                                                    : docsnapshot.data.docs[0].data()['type'] ==
-                                                            1
-                                                        ? 'Shared a photo'
+                                subtitle: _user.isTyping == true
+                                    ? Text(
+                                        'Typing..',
+                                        style: TextStyle(
+                                          fontStyle: FontStyle.italic,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.green,
+                                        ),
+                                      )
+                                    : StreamBuilder(
+                                        stream: FirebaseFirestore.instance
+                                            .collection(_selectedIndex == 0
+                                                ? 'chat'
+                                                : 'global-chat')
+                                            .doc(_groupId)
+                                            .collection('messages')
+                                            .snapshots(),
+                                        builder: (context,
+                                            AsyncSnapshot<QuerySnapshot>
+                                                docsnapshot) {
+                                          if (docsnapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return SizedBox.shrink();
+                                          }
+                                          return Text(
+                                            docsnapshot.data.docs.length == 0
+                                                ? 'Start chatting now'
+                                                : docsnapshot.data.docs.length ==
+                                                        1
+                                                    ? docsnapshot.data.docs[0].data()['type'] ==
+                                                            0
+                                                        ? docsnapshot.data.docs[0]
+                                                            .data()['content']
                                                         : docsnapshot.data.docs[0].data()['type'] ==
-                                                                2
-                                                            ? 'Shared a video'
-                                                            : 'Shared an audio'
-                                                : docsnapshot.data.docs[docsnapshot.data.docs.length - 1]
-                                                            .data()['type'] ==
-                                                        0
-                                                    ? docsnapshot
-                                                        .data
-                                                        .docs[docsnapshot.data
-                                                                .docs.length -
-                                                            1]
-                                                        .data()['content']
-                                                    : docsnapshot.data
-                                                                .docs[docsnapshot.data.docs.length - 1]
-                                                                .data()['type'] ==
-                                                            1
-                                                        ? 'Shared a photo'
-                                                        : docsnapshot.data.docs[docsnapshot.data.docs.length - 1].data()['type'] == 2
-                                                            ? 'Shared a video'
-                                                            : 'Shared an audio',
-                                        overflow: TextOverflow.ellipsis,
-                                      );
-                                    }),
+                                                                1
+                                                            ? 'Shared a photo'
+                                                            : docsnapshot.data.docs[0].data()['type'] ==
+                                                                    2
+                                                                ? 'Shared a video'
+                                                                : 'Shared an audio'
+                                                    : docsnapshot.data.docs[docsnapshot.data.docs.length - 1]
+                                                                    .data()[
+                                                                'type'] ==
+                                                            0
+                                                        ? docsnapshot
+                                                            .data
+                                                            .docs[docsnapshot
+                                                                    .data
+                                                                    .docs
+                                                                    .length -
+                                                                1]
+                                                            .data()['content']
+                                                        : docsnapshot.data
+                                                                    .docs[docsnapshot.data.docs.length - 1]
+                                                                    .data()['type'] ==
+                                                                1
+                                                            ? 'Shared a photo'
+                                                            : docsnapshot.data.docs[docsnapshot.data.docs.length - 1].data()['type'] == 2
+                                                                ? 'Shared a video'
+                                                                : 'Shared an audio',
+                                            style: TextStyle(
+                                              fontWeight: docsnapshot
+                                                          .data.docs.length ==
+                                                      0
+                                                  ? FontWeight.normal
+                                                  : docsnapshot
+                                                                      .data
+                                                                      .docs[docsnapshot
+                                                                              .data
+                                                                              .docs
+                                                                              .length -
+                                                                          1]
+                                                                      .data()[
+                                                                  'seen'] ==
+                                                              false &&
+                                                          docsnapshot
+                                                                      .data
+                                                                      .docs[docsnapshot
+                                                                              .data
+                                                                              .docs
+                                                                              .length -
+                                                                          1]
+                                                                      .data()[
+                                                                  'seenBy'] !=
+                                                              docsnapshot
+                                                                  .data
+                                                                  .docs[docsnapshot
+                                                                          .data
+                                                                          .docs
+                                                                          .length -
+                                                                      1]
+                                                                  .data()['to']
+                                                      ? FontWeight.bold
+                                                      : FontWeight.normal,
+                                              color: docsnapshot
+                                                          .data.docs.length ==
+                                                      0
+                                                  ? Colors.grey
+                                                  : docsnapshot
+                                                                      .data
+                                                                      .docs[docsnapshot
+                                                                              .data
+                                                                              .docs
+                                                                              .length -
+                                                                          1]
+                                                                      .data()[
+                                                                  'seen'] ==
+                                                              false &&
+                                                          docsnapshot
+                                                                      .data
+                                                                      .docs[docsnapshot
+                                                                              .data
+                                                                              .docs
+                                                                              .length -
+                                                                          1]
+                                                                      .data()[
+                                                                  'seenBy'] !=
+                                                              docsnapshot
+                                                                  .data
+                                                                  .docs[docsnapshot
+                                                                          .data
+                                                                          .docs
+                                                                          .length -
+                                                                      1]
+                                                                  .data()['to']
+                                                      ? Colors.black
+                                                      : Colors.grey,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          );
+                                        }),
                                 trailing: StreamBuilder(
                                     stream: FirebaseFirestore.instance
                                         .collection(_selectedIndex == 0
@@ -214,6 +425,59 @@ class _ChatListState extends State<ChatList> {
                                           : Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
+                                                docsnapshot
+                                                                    .data
+                                                                    .docs[docsnapshot
+                                                                            .data
+                                                                            .docs
+                                                                            .length -
+                                                                        1]
+                                                                    .data()[
+                                                                'seen'] ==
+                                                            false &&
+                                                        docsnapshot
+                                                                    .data
+                                                                    .docs[docsnapshot
+                                                                            .data
+                                                                            .docs
+                                                                            .length -
+                                                                        1]
+                                                                    .data()[
+                                                                'seenBy'] !=
+                                                            docsnapshot
+                                                                .data
+                                                                .docs[docsnapshot
+                                                                        .data
+                                                                        .docs
+                                                                        .length -
+                                                                    1]
+                                                                .data()['to']
+                                                    ? Container(
+                                                        margin: EdgeInsets.only(
+                                                            right: 5),
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                horizontal: 13),
+                                                        alignment:
+                                                            Alignment.center,
+                                                        height: 22,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.black,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(30),
+                                                        ),
+                                                        child: Text('new',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            )),
+                                                      )
+                                                    : SizedBox.shrink(),
                                                 Text(
                                                   docsnapshot.data.docs
                                                               .length ==
@@ -248,7 +512,6 @@ class _ChatListState extends State<ChatList> {
                                     }),
                                 onTap: () {
                                   _setGroupChatId(_followingUser.id);
-
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -294,12 +557,14 @@ class _ChatListState extends State<ChatList> {
                             .collection('users')
                             .doc(_id)
                             .collection('following')
+                            .orderBy('timestamp', descending: true)
                             .get();
                       } else {
                         _future = FirebaseFirestore.instance
                             .collection('users')
                             .doc(_id)
                             .collection('global-chatters')
+                            .orderBy('timestamp', descending: true)
                             .get();
                       }
                     },
