@@ -121,10 +121,12 @@ class _PersonalPageState extends State<PersonalPage> {
     if (validateGender() == true &&
         validateBirthdate() == true &&
         validateProfileImage() == true) {
+      print(profileImage.path);
       final List<String> imageUrl = await StorageService.uploadMediaFile(
         [profileImage],
         'profileImage',
       );
+      print(imageUrl.length);
       AuthService.registerUser(
         context,
         widget.username,
@@ -640,7 +642,7 @@ class _BioPageState extends State<BioPage> {
                             {'bio': bio},
                             SetOptions(merge: true),
                           );
-                          
+
                           Fluttertoast.showToast(msg: 'Bio saved');
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
@@ -836,7 +838,7 @@ class _RelationshipStatusState extends State<RelationshipStatus> {
                     child: Text('S K I P'),
                     onPressed: () => Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (context) => IntroPage(
+                        builder: (context) => TalentSurveyPage(
                           username: widget.username,
                           deviceWidth: MediaQuery.of(context).size.width,
                         ),
@@ -867,7 +869,7 @@ class _RelationshipStatusState extends State<RelationshipStatus> {
                           Fluttertoast.showToast(msg: 'your status is saved');
                           Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
-                              builder: (context) => IntroPage(
+                              builder: (context) => TalentSurveyPage(
                                 username: widget.username,
                                 deviceWidth: MediaQuery.of(context).size.width,
                               ),
@@ -875,6 +877,173 @@ class _RelationshipStatusState extends State<RelationshipStatus> {
                           );
                         } else {
                           Fluttertoast.showToast(msg: 'Add your status first');
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TalentSurveyPage extends StatefulWidget {
+  final String username;
+  final double deviceWidth;
+  TalentSurveyPage({Key key, this.username, this.deviceWidth})
+      : super(key: key);
+
+  @override
+  _TalentSurveyPageState createState() => _TalentSurveyPageState();
+}
+
+class _TalentSurveyPageState extends State<TalentSurveyPage> {
+  String _talent = '';
+
+  Widget _buildTalentType(String label, IconData icon) {
+    return Container(
+      child: ChoiceChip(
+        selected: _talent.contains(label),
+        onSelected: (bool selected) {
+          setState(() {
+            if (_talent.contains(label)) {
+              _talent = '';
+            } else {
+              _talent = label;
+            }
+          });
+        },
+        labelPadding: EdgeInsets.all(5.0),
+        avatar: Icon(
+          icon,
+          color: _talent == label ? Colors.white : Colors.black,
+        ),
+        label: Text(
+          label,
+          style: TextStyle(
+            color: _talent == label ? Colors.white : Colors.black,
+          ),
+        ),
+        backgroundColor: Colors.grey[100],
+        selectedColor: Colors.black,
+        elevation: 6.0,
+        shadowColor: Colors.grey[60],
+        padding: EdgeInsets.all(10),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        margin: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height / 3,
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Center(
+                child: Text(
+                  'Do you have a Talent ',
+                  style: TextStyle(
+                    fontFamily: 'Montserrat',
+                    fontSize: 30,
+                  ),
+                ),
+              ),
+              SizedBox(height: 25),
+              Center(
+                child: Icon(
+                  MdiIcons.starShooting,
+                  color: Colors.black,
+                  size: 45,
+                ),
+              ),
+              SizedBox(height: 25),
+              Center(
+                child: Padding(
+                  padding: EdgeInsets.all(5.0),
+                  child: Text(
+                    'Let Looper know if you have any to help you 😉',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontSize: 17,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                children: [
+                  _buildTalentType('Singing', Icons.music_note),
+                  _buildTalentType('Dancing', MdiIcons.walk),
+                  _buildTalentType('Acting', MdiIcons.dramaMasks),
+                  _buildTalentType('Tricks', MdiIcons.autoFix),
+                  _buildTalentType('Painting', MdiIcons.brush),
+                  _buildTalentType('Other', Icons.star),
+                ],
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 7,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: Colors.white,
+                    textColor: Colors.black,
+                    child: Text('S K I P'),
+                    onPressed: () => Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => IntroPage(
+                          username: widget.username,
+                          deviceWidth: MediaQuery.of(context).size.width,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      color: Colors.black,
+                      textColor: Colors.white,
+                      child: Text('N E X T'),
+                      onPressed: () async {
+                        if (_talent.isNotEmpty) {
+                          SharedPreferences _prefs =
+                              await SharedPreferences.getInstance();
+                          String _id = _prefs.getString('id');
+                          FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(_id)
+                              .set(
+                            {'talent': _talent},
+                            SetOptions(merge: true),
+                          );
+                          Fluttertoast.showToast(msg: 'your talent is saved');
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => IntroPage(
+                                username: widget.username,
+                                deviceWidth: MediaQuery.of(context).size.width,
+                              ),
+                            ),
+                          );
+                        } else {
+                          Fluttertoast.showToast(msg: 'Add your talent first');
                         }
                       },
                     ),
@@ -957,23 +1126,6 @@ class _IntroPageState extends State<IntroPage> {
                       child: Icon(
                         Icons.favorite,
                         size: 24,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  height: widget.deviceWidth / 5.2,
-                  width: widget.deviceWidth / 5.2,
-                  child: Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        MdiIcons.dramaMasks,
-                        size: 26,
                         color: Colors.black,
                       ),
                     ),
@@ -1099,27 +1251,6 @@ class _IntroPageState extends State<IntroPage> {
         ),
         description:
             'Here you can upload short video clips about different types of sports like : swimming, basketball, football, soccer and even more',
-        styleDescription: GoogleFonts.aBeeZee(
-          color: Colors.white,
-          fontSize: 22,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-    _slides.add(
-      Slide(
-        title: 'C O M E D Y',
-        backgroundColor: Colors.yellow[700],
-        centerWidget: Padding(
-          padding: EdgeInsets.only(top: widget.deviceWidth / 8),
-          child: Icon(
-            MdiIcons.dramaMasks,
-            size: widget.deviceWidth / 2.5,
-            color: Colors.white,
-          ),
-        ),
-        description:
-            'Here you can upload jokes, images and videos . You can even create your own comedy shows where other people could join the show and comment on it',
         styleDescription: GoogleFonts.aBeeZee(
           color: Colors.white,
           fontSize: 22,
