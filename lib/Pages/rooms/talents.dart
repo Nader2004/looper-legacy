@@ -19,7 +19,8 @@ class TalentRoom extends StatefulWidget {
   _TalentRoomState createState() => _TalentRoomState();
 }
 
-class _TalentRoomState extends State<TalentRoom> {
+class _TalentRoomState extends State<TalentRoom>
+    with AutomaticKeepAliveClientMixin<TalentRoom> {
   String _userId = 'empty';
   int _selectedIndex = 0;
   FirebaseFirestore _firestore;
@@ -28,6 +29,9 @@ class _TalentRoomState extends State<TalentRoom> {
   List<String> _followIds = [];
   List<String> _ids = [];
   Future<List<dynamic>> _future;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -49,23 +53,25 @@ class _TalentRoomState extends State<TalentRoom> {
     for (DocumentSnapshot doc in _querySnapshot.docs) {
       _followIds.add(doc.data()['creatorId']);
     }
-    setState(() {
-      _userId = _prefs.get('id');
-      _personalityType = _user.data()['personality-type'];
-      _future = Future.wait([
-        DatabaseService.getFollowedContentFeed(
-          'talents',
-          'creatorId',
-          _querySnapshot,
-        ),
-        PersonalityService.getCompatibleContentStream(
-          _personalityType,
-          _firestore,
-          'talents',
-          'creator-personality',
-        ),
-      ]);
-    });
+    if (mounted) {
+      setState(() {
+        _userId = _prefs.get('id');
+        _personalityType = _user.data()['personality-type'];
+        _future = Future.wait([
+          DatabaseService.getFollowedContentFeed(
+            'talents',
+            'creatorId',
+            _querySnapshot,
+          ),
+          PersonalityService.getCompatibleContentStream(
+            _personalityType,
+            _firestore,
+            'talents',
+            'creator-personality',
+          ),
+        ]);
+      });
+    }
   }
 
   Future<DocumentSnapshot> getUserData() async {
@@ -181,18 +187,6 @@ class _TalentRoomState extends State<TalentRoom> {
                 snapshot.data[1].docs.isEmpty) {
               return Stack(
                 children: [
-                  Positioned(
-                    top: 25,
-                    left: 15,
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        size: 25,
-                        color: Colors.white,
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
                   Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
