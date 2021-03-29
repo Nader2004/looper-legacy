@@ -17,7 +17,8 @@ class ChallengeRoom extends StatefulWidget {
   _ChallengeRoomState createState() => _ChallengeRoomState();
 }
 
-class _ChallengeRoomState extends State<ChallengeRoom> {
+class _ChallengeRoomState extends State<ChallengeRoom>
+    with AutomaticKeepAliveClientMixin<ChallengeRoom> {
   String _userId = 'empty';
   FirebaseFirestore _firestore;
   Map<String, dynamic> _personalityType;
@@ -25,6 +26,9 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
   List<String> _ids = [];
   List<String> _followIds = [];
   Future<List<dynamic>> _future;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -46,23 +50,25 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
     for (DocumentSnapshot doc in _querySnapshot.docs) {
       _followIds.add(doc.data()['creatorId']);
     }
-    setState(() {
-      _userId = _prefs.get('id');
-      _personalityType = _user.data()['personality-type'];
-      _future = Future.wait([
-        DatabaseService.getFollowedContentFeed(
-          'challenge',
-          'creatorId',
-          _querySnapshot,
-        ),
-        PersonalityService.getCompatibleContentStream(
-          _personalityType,
-          _firestore,
-          'challenge',
-          'creator-personality',
-        ),
-      ]);
-    });
+    if (mounted) {
+      setState(() {
+        _userId = _prefs.get('id');
+        _personalityType = _user.data()['personality-type'];
+        _future = Future.wait([
+          DatabaseService.getFollowedContentFeed(
+            'challenge',
+            'creatorId',
+            _querySnapshot,
+          ),
+          PersonalityService.getCompatibleContentStream(
+            _personalityType,
+            _firestore,
+            'challenge',
+            'creator-personality',
+          ),
+        ]);
+      });
+    }
   }
 
   @override
@@ -88,113 +94,80 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
           if (snapshot.data == null) {
             return SizedBox.shrink();
           }
-          if (snapshot.data[0].docs.isEmpty &&
-              snapshot.data[1].docs.isEmpty) {
-            return Stack(
-              children: [
-                Positioned(
-                  top: 25,
-                  left: 15,
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.close,
-                      size: 25,
-                      color: Colors.white,
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
+          if (snapshot.data[0].docs.isEmpty && snapshot.data[1].docs.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    MdiIcons.flagPlus,
+                    color: Colors.white,
+                    size: 60,
                   ),
-                ),
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        MdiIcons.flagPlus,
+                  SizedBox(height: 8),
+                  Text(
+                    'No Challenges uploaded yet',
+                    style: GoogleFonts.aBeeZee(
+                      textStyle: TextStyle(
                         color: Colors.white,
-                        size: 60,
+                        fontSize: 20,
                       ),
-                      SizedBox(height: 8),
-                      Text(
-                        'No Challenges uploaded yet',
-                        style: GoogleFonts.aBeeZee(
-                          textStyle: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      OutlineButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        borderSide: BorderSide(color: Colors.white),
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => ChallengeCreation(),
-                            ),
-                          );
-                        },
-                        textColor: Colors.white,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.add,
-                              color: Colors.white,
-                            ),
-                            SizedBox(width: 5),
-                            Text('create one now'),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 10),
+                  OutlineButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    borderSide: BorderSide(color: Colors.white),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ChallengeCreation(),
+                        ),
+                      );
+                    },
+                    textColor: Colors.white,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.add,
+                          color: Colors.white,
+                        ),
+                        SizedBox(width: 5),
+                        Text('create one now'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             );
           }
           for (DocumentSnapshot doc in snapshot.data[0].docs) {
             _ids.add(doc.data()['creatorId']);
           }
           if (_followIds != _ids) {
-            return Stack(
-              children: [
-                Positioned(
-                  top: 25,
-                  left: 15,
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.close,
-                      size: 25,
-                      color: Colors.white,
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-                PageView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: snapshot.data[1].docs.length,
-                    itemBuilder: (context, index) {
-                      if (index % 3 == 0 || index % 10 == 0) {
-                        return Column(
-                          children: [
-                            Flexible(
-                              child: Challenge(
-                                data: snapshot.data[1].docs[index],
-                              ),
-                            ),
-                            MinimizedNativeAd(),
-                          ],
-                        );
-                      }
-                      return Challenge(
-                        data: snapshot.data[1].docs[index],
-                      );
-                    }),
-              ],
-            );
+            return PageView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: snapshot.data[1].docs.length,
+                itemBuilder: (context, index) {
+                  if (index % 3 == 0 || index % 10 == 0) {
+                    return Column(
+                      children: [
+                        Flexible(
+                          child: Challenge(
+                            data: snapshot.data[1].docs[index],
+                          ),
+                        ),
+                        MinimizedNativeAd(),
+                      ],
+                    );
+                  }
+                  return Challenge(
+                    data: snapshot.data[1].docs[index],
+                  );
+                });
           }
           int lengthOfDocs = 0;
           int querySnapShotCounter = 0;
@@ -202,70 +175,54 @@ class _ChallengeRoomState extends State<ChallengeRoom> {
             lengthOfDocs = lengthOfDocs + snap.docs.length;
           });
           int counter = 0;
-          return Stack(
-            children: [
-              Positioned(
-                top: 25,
-                left: 15,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.close,
-                    size: 25,
-                    color: Colors.white,
-                  ),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ),
-              PageView.builder(
-                itemCount: lengthOfDocs,
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, int index) {
-                  try {
-                    final DocumentSnapshot doc = snapshot
-                        .data[querySnapShotCounter].docs.reversed
-                        .toList()[counter];
-                    counter = counter + 1;
-                    if (index % 3 == 0 || index % 10 == 0) {
-                      return Column(
-                        children: [
-                          Flexible(
-                            child: Challenge(
-                              data: doc,
-                            ),
-                          ),
-                          MinimizedNativeAd(),
-                        ],
-                      );
-                    }
-                    return Challenge(
-                      data: doc,
-                    );
-                  } catch (RangeError) {
-                    querySnapShotCounter = querySnapShotCounter + 1;
-                    counter = 0;
-                    final DocumentSnapshot doc = snapshot
-                        .data[querySnapShotCounter].docs.reversed
-                        .toList()[counter];
-                    counter = counter + 1;
-                    if (index % 3 == 0 || index % 10 == 0) {
-                      return Column(
-                        children: [
-                          Flexible(
-                            child: Challenge(
-                              data: doc,
-                            ),
-                          ),
-                          MinimizedNativeAd(),
-                        ],
-                      );
-                    }
-                    return Challenge(
-                      data: doc,
-                    );
-                  }
-                },
-              ),
-            ],
+          return PageView.builder(
+            itemCount: lengthOfDocs,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, int index) {
+              try {
+                final DocumentSnapshot doc = snapshot
+                    .data[querySnapShotCounter].docs.reversed
+                    .toList()[counter];
+                counter = counter + 1;
+                if (index % 3 == 0 || index % 10 == 0) {
+                  return Column(
+                    children: [
+                      Flexible(
+                        child: Challenge(
+                          data: doc,
+                        ),
+                      ),
+                      MinimizedNativeAd(),
+                    ],
+                  );
+                }
+                return Challenge(
+                  data: doc,
+                );
+              } catch (RangeError) {
+                querySnapShotCounter = querySnapShotCounter + 1;
+                counter = 0;
+                final DocumentSnapshot doc = snapshot
+                    .data[querySnapShotCounter].docs.reversed
+                    .toList()[counter];
+                counter = counter + 1;
+                if (index % 3 == 0 || index % 10 == 0) {
+                  return Column(
+                    children: [
+                      Flexible(
+                        child: Challenge(
+                          data: doc,
+                        ),
+                      ),
+                      MinimizedNativeAd(),
+                    ],
+                  );
+                }
+                return Challenge(
+                  data: doc,
+                );
+              }
+            },
           );
         },
       ),
