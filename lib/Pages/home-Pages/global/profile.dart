@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:superellipse_shape/superellipse_shape.dart';
 import 'package:looper/models/userModel.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter_toggle_tab/flutter_toggle_tab.dart';
@@ -13,7 +15,6 @@ import 'package:looper/Pages/home-Pages/chat/chat_page.dart';
 import 'package:looper/services/database.dart';
 import 'package:looper/services/notifications.dart';
 import 'package:looper/widgets/post.dart';
-import 'package:looper/widgets/comedy-joke.dart';
 
 class ProfilePage extends StatefulWidget {
   final String userId;
@@ -349,54 +350,58 @@ class _ProfilePageState extends State<ProfilePage> {
                     );
                   }),
               actions: [
-                StreamBuilder(
-                    stream: _blockedUsers,
-                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return SizedBox.shrink();
-                      }
-                      final List<String> blockedUsers =
-                          snapshot.data.docs.map((e) => e.id).toList();
-
-                      return FlatButton(
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.block,
-                              color: blockedUsers.contains(widget.userId)
-                                  ? Colors.red
-                                  : Colors.blue,
-                              size: 18,
-                            ),
-                            SizedBox(width: 5),
-                            Text(
-                              blockedUsers.contains(widget.userId)
-                                  ? 'Unblock'
-                                  : 'Block',
-                              style: TextStyle(
-                                color: blockedUsers.contains(widget.userId)
-                                    ? Colors.red
-                                    : Colors.blue,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                        onPressed: () {
-                          if (!blockedUsers.contains(widget.userId)) {
-                            DatabaseService.blockUser(
-                              _id,
-                              widget.userId,
-                            );
-                          } else {
-                            DatabaseService.unBlockUser(
-                              _id,
-                              widget.userId,
-                            );
+                _id == widget.userId
+                    ? SizedBox.shrink()
+                    : StreamBuilder(
+                        stream: _blockedUsers,
+                        builder:
+                            (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return SizedBox.shrink();
                           }
-                        },
-                      );
-                    }),
+                          final List<String> blockedUsers =
+                              snapshot.data.docs.map((e) => e.id).toList();
+
+                          return FlatButton(
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.block,
+                                  color: blockedUsers.contains(widget.userId)
+                                      ? Colors.red
+                                      : Colors.blue,
+                                  size: 18,
+                                ),
+                                SizedBox(width: 5),
+                                Text(
+                                  blockedUsers.contains(widget.userId)
+                                      ? 'Unblock'
+                                      : 'Block',
+                                  style: TextStyle(
+                                    color: blockedUsers.contains(widget.userId)
+                                        ? Colors.red
+                                        : Colors.blue,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onPressed: () {
+                              if (!blockedUsers.contains(widget.userId)) {
+                                DatabaseService.blockUser(
+                                  _id,
+                                  widget.userId,
+                                );
+                              } else {
+                                DatabaseService.unBlockUser(
+                                  _id,
+                                  widget.userId,
+                                );
+                              }
+                            },
+                          );
+                        }),
               ],
             ),
             body: StreamBuilder(
@@ -493,9 +498,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   : 16,
                                         ),
                                         _userBio != '' && _userBio != null
-                                            ? Text(
-                                                _userBio,
-                                                style: TextStyle(fontSize: 18),
+                                            ? SelectableLinkify(
+                                                onOpen: (link) async {
+                                                  if (await canLaunch(
+                                                      link.url)) {
+                                                    await launch(link.url);
+                                                  } else {
+                                                    Fluttertoast.showToast(
+                                                      msg:
+                                                          'can not launch this link',
+                                                    );
+                                                  }
+                                                },
+                                                text: _userBio,
+                                                textAlign: TextAlign.center,
                                               )
                                             : SizedBox.shrink(),
                                         _userBio != '' || _userBio != null
@@ -701,14 +717,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                                             .collection(
                                                                 'global-chatters')
                                                             .doc(widget.userId)
-                                                            .set({});
+                                                            .set(
+                                                          {
+                                                            'timestamp': '',
+                                                          },
+                                                          SetOptions(
+                                                            merge: true,
+                                                          ),
+                                                        );
                                                         _setGroupChatId();
-                                                        FirebaseFirestore
-                                                            .instance
-                                                            .collection(
-                                                                'global-chat')
-                                                            .doc(_groupId)
-                                                            .set({});
                                                         Navigator.of(context)
                                                             .push(
                                                           MaterialPageRoute(
@@ -951,28 +968,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                                   );
                                                 }
                                                 return _creationSelectedIndex ==
-                                                            0 ||
-                                                        _creationSelectedIndex ==
-                                                            2
+                                                        0
                                                     ? ListView.builder(
                                                         itemCount: snapshot
                                                             .data.docs.length,
                                                         itemBuilder:
                                                             (context, index) {
-                                                          if (_creationSelectedIndex ==
-                                                              0) {
-                                                            return PostWidget(
-                                                              snapshot: snapshot
-                                                                  .data
-                                                                  .docs[index],
-                                                            );
-                                                          } else {
-                                                            return ComedyJoke(
-                                                              data: snapshot
-                                                                  .data
-                                                                  .docs[index],
-                                                            );
-                                                          }
+                                                          return PostWidget(
+                                                            snapshot: snapshot
+                                                                .data
+                                                                .docs[index],
+                                                          );
                                                         },
                                                       )
                                                     : GridView.builder(
@@ -1102,28 +1108,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                                     ),
                                                   );
                                                 }
-                                                return _likesSelectedIndex ==
-                                                            0 ||
-                                                        _likesSelectedIndex == 2
+                                                return _likesSelectedIndex == 0
                                                     ? ListView.builder(
                                                         itemCount: snapshot
                                                             .data.docs.length,
                                                         itemBuilder:
                                                             (context, index) {
-                                                          if (_creationSelectedIndex ==
-                                                              0) {
-                                                            return PostWidget(
-                                                              snapshot: snapshot
-                                                                  .data
-                                                                  .docs[index],
-                                                            );
-                                                          } else {
-                                                            return ComedyJoke(
-                                                              data: snapshot
-                                                                  .data
-                                                                  .docs[index],
-                                                            );
-                                                          }
+                                                          return PostWidget(
+                                                            snapshot: snapshot
+                                                                .data
+                                                                .docs[index],
+                                                          );
                                                         },
                                                       )
                                                     : GridView.builder(
