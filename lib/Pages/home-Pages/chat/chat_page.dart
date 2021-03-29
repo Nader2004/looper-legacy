@@ -8,6 +8,7 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bounce/flutter_bounce.dart';
 import 'package:flutter_chat_bubble/clippers/chat_bubble_clipper_5.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
@@ -24,7 +25,9 @@ import 'package:looper/services/storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 enum PlayerState { stopped, playing, paused }
 
@@ -54,10 +57,8 @@ class _ChatPageState extends State<ChatPage> {
   TextEditingController _editController;
   ScrollController _scrollController;
   FlutterSoundRecorder _recorder;
-  List<QueryDocumentSnapshot> _retrievedSnapshots =
-      List<QueryDocumentSnapshot>();
-  List<QueryDocumentSnapshot> _messagesSnapshots =
-      List<QueryDocumentSnapshot>();
+  List<QueryDocumentSnapshot> _retrievedSnapshots = [];
+  List<QueryDocumentSnapshot> _messagesSnapshots = [];
   StopWatchTimer _stopWatchTimer;
 
   @override
@@ -161,6 +162,20 @@ class _ChatPageState extends State<ChatPage> {
       ),
       widget.isGlobal,
     );
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.id)
+        .collection(
+          widget.isGlobal == false ? 'following' : 'global-chatters',
+        )
+        .doc(widget.followerId)
+        .update({'timestamp': _messageDate});
+    NotificationsService.sendNotification(
+      'New Message',
+      '${widget.followerName} sent a voice note',
+      widget.followerId,
+      'chat',
+    );
     PersonalityService.setAudioInput(_audioUrl);
   }
 
@@ -214,8 +229,20 @@ class _ChatPageState extends State<ChatPage> {
             ),
             widget.isGlobal,
           );
-          NotificationsService.sendNotification('New Message',
-              '${widget.followerName} sent a video', widget.followerId, 'chat');
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.id)
+              .collection(
+                widget.isGlobal == false ? 'following' : 'global-chatters',
+              )
+              .doc(widget.followerId)
+              .update({'timestamp': _messageDate});
+          NotificationsService.sendNotification(
+            'New Message',
+            '${widget.followerName} sent a video',
+            widget.followerId,
+            'chat',
+          );
         }
       },
     );
@@ -249,11 +276,20 @@ class _ChatPageState extends State<ChatPage> {
             ),
             widget.isGlobal,
           );
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(widget.id)
+              .collection(
+                widget.isGlobal == false ? 'following' : 'global-chatters',
+              )
+              .doc(widget.followerId)
+              .update({'timestamp': _messageDate});
           NotificationsService.sendNotification(
-              'New Message',
-              '${widget.followerName} sent an image',
-              widget.followerId,
-              'chat');
+            'New Message',
+            '${widget.followerName} sent an image',
+            widget.followerId,
+            'chat',
+          );
         }
       },
     );
@@ -358,6 +394,10 @@ class _ChatPageState extends State<ChatPage> {
     _scrollController.dispose();
     _textEditingController.dispose();
     _stopWatchTimer.dispose();
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.followerId)
+        .update({'isTyping': false});
     super.dispose();
   }
 
@@ -370,11 +410,11 @@ class _ChatPageState extends State<ChatPage> {
         backgroundColor: Colors.white,
         iconTheme: IconThemeData.fallback(),
         automaticallyImplyLeading: false,
-        title: FutureBuilder(
-            future: FirebaseFirestore.instance
+        title: StreamBuilder(
+            stream: FirebaseFirestore.instance
                 .collection('users')
                 .doc(widget.followerId)
-                .get(),
+                .snapshots(),
             builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Container();
@@ -413,10 +453,16 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                     SizedBox(width: 16),
                     Text(
-                      _user.username,
+                      _user.isTyping == true ? 'Typing..' : _user.username,
                       style: TextStyle(
-                        color: Colors.black,
+                        color: _user.isTyping == true
+                            ? Colors.green
+                            : Colors.black,
                         fontWeight: FontWeight.w600,
+                        fontStyle: _user.isTyping == true
+                            ? FontStyle.italic
+                            : FontStyle.normal,
+                        fontSize: _user.isTyping == true ? 17 : 22,
                       ),
                     ),
                   ],
@@ -475,266 +521,839 @@ class _ChatPageState extends State<ChatPage> {
                     .limit(25)
                     .snapshots(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  print(widget.groupId);
                   if (!snapshot.hasData)
                     return Center(child: CircularProgressIndicator());
                   _retrievedSnapshots = snapshot.data.docs;
                   _retrievedSnapshots.addAll(
                     _messagesSnapshots.length == 0 ? [] : _messagesSnapshots,
                   );
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: _retrievedSnapshots.length,
-                    itemBuilder: (context, index) {
-                      final QueryDocumentSnapshot _snapshot =
-                          _retrievedSnapshots[index];
-                      final Message _receivedMessage = Message.fromDoc(
-                        _snapshot,
-                      );
-                      return Row(
-                        mainAxisAlignment: _receivedMessage.author == widget.id
-                            ? MainAxisAlignment.end
-                            : MainAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            margin: EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 10,
-                            ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                _receivedMessage.author == widget.id
-                                    ? GestureDetector(
-                                        onTap: () {
-                                          FirebaseFirestore.instance
-                                              .collection(
-                                                widget.isGlobal == true
-                                                    ? 'global-chat'
-                                                    : 'chat',
-                                              )
-                                              .doc(widget.groupId)
-                                              .collection('messages')
-                                              .doc(
-                                                _retrievedSnapshots[index].id,
-                                              )
-                                              .delete();
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.grey[200],
-                                          ),
-                                          child: Icon(
-                                            Icons.delete,
-                                            color: Colors.grey[700],
-                                            size: 14,
-                                          ),
-                                        ),
-                                      )
-                                    : Container(),
-                                _receivedMessage.author == widget.id &&
-                                        _receivedMessage.type == 0
-                                    ? SizedBox(width: 10)
-                                    : SizedBox.shrink(),
-                                _receivedMessage.author == widget.id &&
-                                        _receivedMessage.type == 0
-                                    ? GestureDetector(
-                                        onTap: () {
-                                          _showEditDialog(index);
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.grey[200],
-                                          ),
-                                          child: Icon(
-                                            Icons.edit,
-                                            color: Colors.grey[700],
-                                            size: 14,
-                                          ),
-                                        ),
-                                      )
-                                    : Container(),
-                                SizedBox(width: 10),
-                                ChatBubble(
-                                  backGroundColor:
-                                      _receivedMessage.author == widget.id
-                                          ? Colors.black
-                                          : Colors.white,
-                                  clipper: ChatBubbleClipper5(
-                                    type: _receivedMessage.author == widget.id
-                                        ? BubbleType.sendBubble
-                                        : BubbleType.receiverBubble,
-                                  ),
-                                  child: Container(
-                                    constraints: BoxConstraints(
-                                      minWidth:
-                                          MediaQuery.of(context).size.width /
-                                              10,
-                                      maxWidth:
-                                          MediaQuery.of(context).size.width /
-                                              2.5,
+                  return _retrievedSnapshots.length == 0
+                      ? Container(
+                          margin: EdgeInsets.only(
+                            top: MediaQuery.of(context).size.height / 14,
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                'You\'re starting a new conversation',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 20,
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Text(
+                                'Get started with a 👋',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          controller: _scrollController,
+                          itemCount: _retrievedSnapshots.length,
+                          itemBuilder: (context, index) {
+                            final QueryDocumentSnapshot _snapshot =
+                                _retrievedSnapshots[index];
+                            final Message _receivedMessage = Message.fromDoc(
+                              _snapshot,
+                            );
+                            return _receivedMessage.seen == null
+                                ? FutureBuilder(
+                                    future: FirebaseFirestore.instance
+                                        .collection(
+                                          widget.isGlobal == true
+                                              ? 'global-chat'
+                                              : 'chat',
+                                        )
+                                        .doc(widget.groupId)
+                                        .collection('messages')
+                                        .doc(_receivedMessage.id)
+                                        .set(
+                                      {
+                                        'seen': false,
+                                        'seenBy': '',
+                                      },
+                                      SetOptions(merge: true),
                                     ),
-                                    child: _receivedMessage.type == 2
-                                        ? Stack(
-                                            children: [
-                                              VideoWidget(
-                                                videoUrl:
-                                                    _receivedMessage.content,
-                                              ),
-                                              Positioned.fill(
-                                                child: Align(
-                                                  alignment:
-                                                      Alignment.bottomRight,
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Text(
-                                                      DatabaseService
-                                                          .getMessageTiming(
-                                                        _receivedMessage
-                                                            .timestamp,
-                                                      ),
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        : _receivedMessage.type == 1
-                                            ? Stack(
-                                                children: [
-                                                  ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                    child: CachedNetworkImage(
-                                                      imageUrl: _receivedMessage
-                                                          .content,
-                                                      fit: BoxFit.cover,
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width /
-                                                              1.8,
-                                                      height:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width /
-                                                              1.8,
-                                                      progressIndicatorBuilder:
-                                                          (context, url,
-                                                                  downloadProgress) =>
-                                                              Padding(
-                                                        padding:
-                                                            EdgeInsets.all(8.0),
-                                                        child: Center(
-                                                          child: SizedBox(
-                                                            height: 40,
-                                                            width: 40,
-                                                            child: CircularProgressIndicator(
-                                                                backgroundColor:
-                                                                    Colors.grey,
-                                                                valueColor:
-                                                                    AlwaysStoppedAnimation(
-                                                                        Colors
-                                                                            .black),
-                                                                strokeWidth:
-                                                                    1.5,
-                                                                value: downloadProgress
-                                                                    .progress),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return SizedBox.shrink();
+                                      }
+                                      return Row(
+                                        mainAxisAlignment:
+                                            _receivedMessage.author == widget.id
+                                                ? MainAxisAlignment.end
+                                                : MainAxisAlignment.start,
+                                        children: <Widget>[
+                                          Container(
+                                            margin: EdgeInsets.symmetric(
+                                              vertical: 10,
+                                              horizontal: 10,
+                                            ),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                _receivedMessage.author ==
+                                                        widget.id
+                                                    ? GestureDetector(
+                                                        onTap: () {
+                                                          FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                widget.isGlobal ==
+                                                                        true
+                                                                    ? 'global-chat'
+                                                                    : 'chat',
+                                                              )
+                                                              .doc(widget
+                                                                  .groupId)
+                                                              .collection(
+                                                                  'messages')
+                                                              .doc(
+                                                                _retrievedSnapshots[
+                                                                        index]
+                                                                    .id,
+                                                              )
+                                                              .delete();
+                                                        },
+                                                        child: Container(
+                                                          padding:
+                                                              EdgeInsets.all(4),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            color: Colors
+                                                                .grey[200],
+                                                          ),
+                                                          child: Icon(
+                                                            Icons.delete,
+                                                            color: Colors
+                                                                .grey[700],
+                                                            size: 14,
                                                           ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Positioned.fill(
-                                                    child: Align(
-                                                      alignment:
-                                                          Alignment.bottomRight,
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(8.0),
-                                                        child: Text(
-                                                          DatabaseService
-                                                              .getMessageTiming(
-                                                            _receivedMessage
-                                                                .timestamp,
+                                                      )
+                                                    : Container(),
+                                                _receivedMessage.author ==
+                                                            widget.id &&
+                                                        _receivedMessage.type ==
+                                                            0
+                                                    ? SizedBox(width: 10)
+                                                    : SizedBox.shrink(),
+                                                _receivedMessage.author ==
+                                                            widget.id &&
+                                                        _receivedMessage.type ==
+                                                            0
+                                                    ? GestureDetector(
+                                                        onTap: () {
+                                                          _showEditDialog(
+                                                              index);
+                                                        },
+                                                        child: Container(
+                                                          padding:
+                                                              EdgeInsets.all(4),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            shape:
+                                                                BoxShape.circle,
+                                                            color: Colors
+                                                                .grey[200],
                                                           ),
-                                                          style: TextStyle(
-                                                            fontSize: 12,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            color: Colors.white,
+                                                          child: Icon(
+                                                            Icons.edit,
+                                                            color: Colors
+                                                                .grey[700],
+                                                            size: 14,
                                                           ),
                                                         ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            : _receivedMessage.type == 0
-                                                ? Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.end,
+                                                      )
+                                                    : Container(),
+                                                SizedBox(width: 10),
+                                                VisibilityDetector(
+                                                  key: Key(_receivedMessage.id),
+                                                  onVisibilityChanged:
+                                                      (VisibilityInfo info) {
+                                                    if (info.visibleFraction ==
+                                                        1) {
+                                                      FirebaseFirestore.instance
+                                                          .collection(
+                                                            widget.isGlobal ==
+                                                                    true
+                                                                ? 'global-chat'
+                                                                : 'chat',
+                                                          )
+                                                          .doc(widget.groupId)
+                                                          .collection(
+                                                              'messages')
+                                                          .doc(_receivedMessage
+                                                              .id)
+                                                          .update({
+                                                        'seen': true,
+                                                        'seenBy': widget.id,
+                                                      });
+                                                    }
+                                                  },
+                                                  child: Column(
                                                     children: [
-                                                      Text(
-                                                        _receivedMessage
-                                                            .content,
-                                                        style: TextStyle(
-                                                          fontSize: 16,
-                                                          color: _receivedMessage
+                                                      ChatBubble(
+                                                        backGroundColor:
+                                                            _receivedMessage
+                                                                        .author ==
+                                                                    widget.id
+                                                                ? Colors.black
+                                                                : Colors.white,
+                                                        clipper:
+                                                            ChatBubbleClipper5(
+                                                          type: _receivedMessage
                                                                       .author ==
                                                                   widget.id
-                                                              ? Colors.white
-                                                              : Colors.black,
+                                                              ? BubbleType
+                                                                  .sendBubble
+                                                              : BubbleType
+                                                                  .receiverBubble,
+                                                        ),
+                                                        child: Container(
+                                                          constraints:
+                                                              BoxConstraints(
+                                                            minWidth: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width /
+                                                                10,
+                                                            maxWidth: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width /
+                                                                2.5,
+                                                          ),
+                                                          child: _receivedMessage
+                                                                      .type ==
+                                                                  2
+                                                              ? Stack(
+                                                                  children: [
+                                                                    VideoWidget(
+                                                                      videoUrl:
+                                                                          _receivedMessage
+                                                                              .content,
+                                                                    ),
+                                                                    Positioned
+                                                                        .fill(
+                                                                      child:
+                                                                          Align(
+                                                                        alignment:
+                                                                            Alignment.bottomRight,
+                                                                        child:
+                                                                            Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.all(8.0),
+                                                                          child:
+                                                                              Text(
+                                                                            DatabaseService.getMessageTiming(
+                                                                              _receivedMessage.timestamp,
+                                                                            ),
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 12,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.white,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                )
+                                                              : _receivedMessage
+                                                                          .type ==
+                                                                      1
+                                                                  ? Stack(
+                                                                      children: [
+                                                                        ClipRRect(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                          child:
+                                                                              CachedNetworkImage(
+                                                                            imageUrl:
+                                                                                _receivedMessage.content,
+                                                                            fit:
+                                                                                BoxFit.cover,
+                                                                            width:
+                                                                                MediaQuery.of(context).size.width / 1.8,
+                                                                            height:
+                                                                                MediaQuery.of(context).size.width / 1.8,
+                                                                            progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                                                                Padding(
+                                                                              padding: EdgeInsets.all(8.0),
+                                                                              child: Center(
+                                                                                child: SizedBox(
+                                                                                  height: 40,
+                                                                                  width: 40,
+                                                                                  child: CircularProgressIndicator(backgroundColor: Colors.grey, valueColor: AlwaysStoppedAnimation(Colors.black), strokeWidth: 1.5, value: downloadProgress.progress),
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        Positioned
+                                                                            .fill(
+                                                                          child:
+                                                                              Align(
+                                                                            alignment:
+                                                                                Alignment.bottomRight,
+                                                                            child:
+                                                                                Padding(
+                                                                              padding: const EdgeInsets.all(8.0),
+                                                                              child: Text(
+                                                                                DatabaseService.getMessageTiming(
+                                                                                  _receivedMessage.timestamp,
+                                                                                ),
+                                                                                style: TextStyle(
+                                                                                  fontSize: 12,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  color: Colors.white,
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    )
+                                                                  : _receivedMessage
+                                                                              .type ==
+                                                                          0
+                                                                      ? Column(
+                                                                          crossAxisAlignment:
+                                                                              CrossAxisAlignment.end,
+                                                                          children: [
+                                                                            SelectableLinkify(
+                                                                              onOpen: (link) async {
+                                                                                if (await canLaunch(link.url)) {
+                                                                                  await launch(link.url);
+                                                                                } else {
+                                                                                  Fluttertoast.showToast(
+                                                                                    msg: 'can not launch this link',
+                                                                                  );
+                                                                                }
+                                                                              },
+                                                                              text: _receivedMessage.content,
+                                                                              style: TextStyle(
+                                                                                fontSize: 16,
+                                                                                color: _receivedMessage.author == widget.id ? Colors.white : Colors.black,
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(height: 6),
+                                                                            Text(
+                                                                              DatabaseService.getMessageTiming(
+                                                                                _receivedMessage.timestamp,
+                                                                              ),
+                                                                              style: TextStyle(
+                                                                                fontSize: 10,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                color: Colors.white,
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        )
+                                                                      : AudioPlayerWidget(
+                                                                          audioUrl:
+                                                                              _receivedMessage.content,
+                                                                          timestamp:
+                                                                              DatabaseService.getMessageTiming(
+                                                                            _receivedMessage.timestamp,
+                                                                          ),
+                                                                        ),
                                                         ),
                                                       ),
-                                                      SizedBox(height: 6),
-                                                      Text(
-                                                        DatabaseService
-                                                            .getMessageTiming(
-                                                          _receivedMessage
-                                                              .timestamp,
-                                                        ),
-                                                        style: TextStyle(
-                                                          fontSize: 10,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          color: Colors.white,
-                                                        ),
+                                                      SizedBox(height: 5),
+                                                      StreamBuilder(
+                                                        stream: FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                              widget.isGlobal ==
+                                                                      true
+                                                                  ? 'global-chat'
+                                                                  : 'chat',
+                                                            )
+                                                            .doc(widget.groupId)
+                                                            .collection(
+                                                                'messages')
+                                                            .doc(
+                                                                _receivedMessage
+                                                                    .id)
+                                                            .snapshots(),
+                                                        builder: (BuildContext
+                                                                context,
+                                                            AsyncSnapshot<
+                                                                    DocumentSnapshot>
+                                                                snapshot) {
+                                                          if (snapshot
+                                                                  .connectionState ==
+                                                              ConnectionState
+                                                                  .waiting) {
+                                                            return SizedBox
+                                                                .shrink();
+                                                          }
+
+                                                          final Message
+                                                              _message =
+                                                              Message.fromDoc(
+                                                                  snapshot
+                                                                      .data);
+                                                          return _receivedMessage
+                                                                      .author !=
+                                                                  widget.id
+                                                              ? Container()
+                                                              : _message.seen ==
+                                                                          true &&
+                                                                      _message.seenBy ==
+                                                                          _message
+                                                                              .peerId
+                                                                  ? Row(
+                                                                      children: [
+                                                                        Icon(
+                                                                          Icons
+                                                                              .check,
+                                                                          color:
+                                                                              Colors.green,
+                                                                        ),
+                                                                        Text(
+                                                                          'seen',
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                Colors.grey,
+                                                                          ),
+                                                                        )
+                                                                      ],
+                                                                    )
+                                                                  : Row(
+                                                                      children: [
+                                                                        Icon(
+                                                                          Icons
+                                                                              .check,
+                                                                          color:
+                                                                              Colors.grey,
+                                                                        ),
+                                                                        Text(
+                                                                          'sent',
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                Colors.grey,
+                                                                          ),
+                                                                        )
+                                                                      ],
+                                                                    );
+                                                        },
                                                       ),
                                                     ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  )
+                                : Row(
+                                    mainAxisAlignment:
+                                        _receivedMessage.author == widget.id
+                                            ? MainAxisAlignment.end
+                                            : MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Container(
+                                        margin: EdgeInsets.symmetric(
+                                          vertical: 10,
+                                          horizontal: 10,
+                                        ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            _receivedMessage.author == widget.id
+                                                ? GestureDetector(
+                                                    onTap: () {
+                                                      FirebaseFirestore.instance
+                                                          .collection(
+                                                            widget.isGlobal ==
+                                                                    true
+                                                                ? 'global-chat'
+                                                                : 'chat',
+                                                          )
+                                                          .doc(widget.groupId)
+                                                          .collection(
+                                                              'messages')
+                                                          .doc(
+                                                            _retrievedSnapshots[
+                                                                    index]
+                                                                .id,
+                                                          )
+                                                          .delete();
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(4),
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Colors.grey[200],
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.delete,
+                                                        color: Colors.grey[700],
+                                                        size: 14,
+                                                      ),
+                                                    ),
                                                   )
-                                                : AudioPlayerWidget(
-                                                    audioUrl: _receivedMessage
-                                                        .content,
-                                                    timestamp: DatabaseService
-                                                        .getMessageTiming(
-                                                      _receivedMessage
-                                                          .timestamp,
+                                                : Container(),
+                                            _receivedMessage.author ==
+                                                        widget.id &&
+                                                    _receivedMessage.type == 0
+                                                ? SizedBox(width: 10)
+                                                : SizedBox.shrink(),
+                                            _receivedMessage.author ==
+                                                        widget.id &&
+                                                    _receivedMessage.type == 0
+                                                ? GestureDetector(
+                                                    onTap: () {
+                                                      _showEditDialog(index);
+                                                    },
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(4),
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Colors.grey[200],
+                                                      ),
+                                                      child: Icon(
+                                                        Icons.edit,
+                                                        color: Colors.grey[700],
+                                                        size: 14,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Container(),
+                                            SizedBox(width: 10),
+                                            VisibilityDetector(
+                                              key: Key(_receivedMessage.id),
+                                              onVisibilityChanged:
+                                                  (VisibilityInfo info) {
+                                                if (info.visibleFraction == 1) {
+                                                  FirebaseFirestore.instance
+                                                      .collection(
+                                                        widget.isGlobal == true
+                                                            ? 'global-chat'
+                                                            : 'chat',
+                                                      )
+                                                      .doc(widget.groupId)
+                                                      .collection('messages')
+                                                      .doc(_receivedMessage.id)
+                                                      .update({
+                                                    'seen': true,
+                                                    'seenBy': widget.id,
+                                                  });
+                                                }
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  ChatBubble(
+                                                    backGroundColor:
+                                                        _receivedMessage
+                                                                    .author ==
+                                                                widget.id
+                                                            ? Colors.blue
+                                                            : Colors.white,
+                                                    clipper: ChatBubbleClipper5(
+                                                      type: _receivedMessage
+                                                                  .author ==
+                                                              widget.id
+                                                          ? BubbleType
+                                                              .sendBubble
+                                                          : BubbleType
+                                                              .receiverBubble,
+                                                    ),
+                                                    child: Container(
+                                                      constraints:
+                                                          BoxConstraints(
+                                                        minWidth: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width /
+                                                            10,
+                                                        maxWidth: _receivedMessage
+                                                                    .type ==
+                                                                3
+                                                            ? MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width /
+                                                                1.5
+                                                            : MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width /
+                                                                2.5,
+                                                      ),
+                                                      child: _receivedMessage
+                                                                  .type ==
+                                                              2
+                                                          ? Stack(
+                                                              children: [
+                                                                VideoWidget(
+                                                                  videoUrl:
+                                                                      _receivedMessage
+                                                                          .content,
+                                                                ),
+                                                                Positioned.fill(
+                                                                  child: Align(
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .bottomRight,
+                                                                    child:
+                                                                        Padding(
+                                                                      padding:
+                                                                          const EdgeInsets.all(
+                                                                              8.0),
+                                                                      child:
+                                                                          Text(
+                                                                        DatabaseService
+                                                                            .getMessageTiming(
+                                                                          _receivedMessage
+                                                                              .timestamp,
+                                                                        ),
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              12,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                          color:
+                                                                              Colors.white,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            )
+                                                          : _receivedMessage
+                                                                      .type ==
+                                                                  1
+                                                              ? Stack(
+                                                                  children: [
+                                                                    ClipRRect(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              5),
+                                                                      child:
+                                                                          CachedNetworkImage(
+                                                                        imageUrl:
+                                                                            _receivedMessage.content,
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                        width: MediaQuery.of(context).size.width /
+                                                                            1.8,
+                                                                        height: MediaQuery.of(context).size.width /
+                                                                            1.8,
+                                                                        progressIndicatorBuilder: (context,
+                                                                                url,
+                                                                                downloadProgress) =>
+                                                                            Padding(
+                                                                          padding:
+                                                                              EdgeInsets.all(8.0),
+                                                                          child:
+                                                                              Center(
+                                                                            child:
+                                                                                SizedBox(
+                                                                              height: 40,
+                                                                              width: 40,
+                                                                              child: CircularProgressIndicator(backgroundColor: Colors.grey, valueColor: AlwaysStoppedAnimation(Colors.black), strokeWidth: 1.5, value: downloadProgress.progress),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                    Positioned
+                                                                        .fill(
+                                                                      child:
+                                                                          Align(
+                                                                        alignment:
+                                                                            Alignment.bottomRight,
+                                                                        child:
+                                                                            Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.all(8.0),
+                                                                          child:
+                                                                              Text(
+                                                                            DatabaseService.getMessageTiming(
+                                                                              _receivedMessage.timestamp,
+                                                                            ),
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 12,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              color: Colors.white,
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                )
+                                                              : _receivedMessage
+                                                                          .type ==
+                                                                      0
+                                                                  ? Column(
+                                                                      crossAxisAlignment:
+                                                                          CrossAxisAlignment
+                                                                              .end,
+                                                                      children: [
+                                                                        SelectableLinkify(
+                                                                          onOpen:
+                                                                              (link) async {
+                                                                            if (await canLaunch(link.url)) {
+                                                                              await launch(link.url);
+                                                                            } else {
+                                                                              Fluttertoast.showToast(
+                                                                                msg: 'can not launch this link',
+                                                                              );
+                                                                            }
+                                                                          },
+                                                                          text:
+                                                                              _receivedMessage.content,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            color: _receivedMessage.author == widget.id
+                                                                                ? Colors.white
+                                                                                : Colors.black,
+                                                                          ),
+                                                                        ),
+                                                                        SizedBox(
+                                                                            height:
+                                                                                6),
+                                                                        Text(
+                                                                          DatabaseService
+                                                                              .getMessageTiming(
+                                                                            _receivedMessage.timestamp,
+                                                                          ),
+                                                                          style:
+                                                                              TextStyle(
+                                                                            fontSize:
+                                                                                10,
+                                                                            fontWeight:
+                                                                                FontWeight.bold,
+                                                                            color:
+                                                                                Colors.white,
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    )
+                                                                  : AudioPlayerWidget(
+                                                                      audioUrl:
+                                                                          _receivedMessage
+                                                                              .content,
+                                                                      timestamp:
+                                                                          DatabaseService
+                                                                              .getMessageTiming(
+                                                                        _receivedMessage
+                                                                            .timestamp,
+                                                                      ),
+                                                                    ),
                                                     ),
                                                   ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
+                                                  SizedBox(height: 5),
+                                                  StreamBuilder(
+                                                    stream: FirebaseFirestore
+                                                        .instance
+                                                        .collection(
+                                                          widget.isGlobal ==
+                                                                  true
+                                                              ? 'global-chat'
+                                                              : 'chat',
+                                                        )
+                                                        .doc(widget.groupId)
+                                                        .collection('messages')
+                                                        .doc(
+                                                            _receivedMessage.id)
+                                                        .snapshots(),
+                                                    builder: (BuildContext
+                                                            context,
+                                                        AsyncSnapshot<
+                                                                DocumentSnapshot>
+                                                            snapshot) {
+                                                      if (snapshot
+                                                              .connectionState ==
+                                                          ConnectionState
+                                                              .waiting) {
+                                                        return SizedBox
+                                                            .shrink();
+                                                      }
+
+                                                      final Message _message =
+                                                          Message.fromDoc(
+                                                        snapshot.data,
+                                                      );
+                                                      return _message.seen ==
+                                                                  true &&
+                                                              _message.seenBy ==
+                                                                  _message
+                                                                      .peerId
+                                                          ? Row(
+                                                              children: [
+                                                                Icon(
+                                                                  Icons.check,
+                                                                  color: Colors
+                                                                      .green,
+                                                                ),
+                                                                Text(
+                                                                  'seen',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            )
+                                                          : Row(
+                                                              children: [
+                                                                Icon(
+                                                                  Icons.check,
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
+                                                                Text(
+                                                                  'sent',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                          },
+                        );
                 },
               ),
             ),
@@ -828,6 +1447,19 @@ class _ChatPageState extends State<ChatPage> {
                                       maxHeight: 300.0,
                                     ),
                                     child: TextField(
+                                      onChanged: (String text) {
+                                        if (text.isNotEmpty) {
+                                          FirebaseFirestore.instance
+                                              .collection('users')
+                                              .doc(widget.id)
+                                              .update({'isTyping': true});
+                                        } else {
+                                          FirebaseFirestore.instance
+                                              .collection('users')
+                                              .doc(widget.id)
+                                              .update({'isTyping': false});
+                                        }
+                                      },
                                       onTap: () {
                                         _scrollController.jumpTo(
                                           _scrollController
@@ -865,6 +1497,20 @@ class _ChatPageState extends State<ChatPage> {
                                       ),
                                       widget.isGlobal,
                                     );
+                                    FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(widget.id)
+                                        .collection(
+                                          widget.isGlobal == false
+                                              ? 'following'
+                                              : 'global-chatters',
+                                        )
+                                        .doc(widget.followerId)
+                                        .update({'timestamp': _messageDate});
+                                    FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(widget.id)
+                                        .update({'isTyping': false});
                                     PersonalityService.setTextInput(
                                         _textEditingController.text);
                                     NotificationsService.sendNotification(
@@ -872,6 +1518,7 @@ class _ChatPageState extends State<ChatPage> {
                                         '${widget.followerName} sent a message',
                                         widget.followerId,
                                         'chat');
+
                                     _textEditingController.clear();
                                   },
                                   icon: Icon(
@@ -978,13 +1625,29 @@ class _ChatPageState extends State<ChatPage> {
                             ),
                             widget.isGlobal,
                           );
+                          FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(widget.id)
+                              .collection(
+                                widget.isGlobal == false
+                                    ? 'following'
+                                    : 'global-chatters',
+                              )
+                              .doc(widget.followerId)
+                              .update({'timestamp': _messageDate});
+                          FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(widget.id)
+                              .update({'isTyping': false});
                           PersonalityService.setTextInput(
                               _textEditingController.text);
                           NotificationsService.sendNotification(
-                              'New Message',
-                              '${widget.followerName} sent a message',
-                              widget.followerId,
-                              'chat');
+                            'New Message',
+                            '${widget.followerName} sent a message',
+                            widget.followerId,
+                            'chat',
+                          );
+
                           _textEditingController.clear();
                         },
                         icon: Icon(
@@ -1353,7 +2016,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                 },
               ),
               Text(
-                _audioPosition != null ? '${_positionText ?? ''}' : '',
+                _audioPosition != null ? '${_positionText ?? ''}' : '00:00',
                 style: TextStyle(color: Colors.white, fontSize: 15.0),
               ),
               SliderTheme(
@@ -1362,32 +2025,35 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                     enabledThumbRadius: 5,
                   ),
                 ),
-                child: Slider(
-                  onChanged: (value) {
-                    setState(() {
-                      _seekToSecond(value.toInt());
-                      value = value;
-                    });
-                  },
-                  min: 0.0,
-                  max: (_audioDuration != null &&
-                          _audioPosition != null &&
-                          _audioPosition.inSeconds > 0 &&
-                          _audioPosition.inSeconds < _audioDuration.inSeconds)
-                      ? _audioDuration.inSeconds.toDouble()
-                      : 1.0,
-                  value: (_audioPosition != null &&
-                          _audioDuration != null &&
-                          _audioPosition.inSeconds > 0 &&
-                          _audioPosition.inSeconds < _audioDuration.inSeconds)
-                      ? _audioPosition.inSeconds.toDouble()
-                      : 0.0,
-                  activeColor: Colors.blue,
-                  inactiveColor: Colors.blue.withOpacity(0.3),
+                child: Container(
+                  width: MediaQuery.of(context).size.width / 3,
+                  child: Slider(
+                    onChanged: (value) {
+                      setState(() {
+                        _seekToSecond(value.toInt());
+                        value = value;
+                      });
+                    },
+                    min: 0.0,
+                    max: (_audioDuration != null &&
+                            _audioPosition != null &&
+                            _audioPosition.inSeconds > 0 &&
+                            _audioPosition.inSeconds < _audioDuration.inSeconds)
+                        ? _audioDuration.inSeconds.toDouble()
+                        : 1.0,
+                    value: (_audioPosition != null &&
+                            _audioDuration != null &&
+                            _audioPosition.inSeconds > 0 &&
+                            _audioPosition.inSeconds < _audioDuration.inSeconds)
+                        ? _audioPosition.inSeconds.toDouble()
+                        : 0.0,
+                    activeColor: Colors.white,
+                    inactiveColor: Colors.white.withOpacity(0.3),
+                  ),
                 ),
               ),
               Text(
-                _audioDuration != null ? '${_durationText ?? ''}' : '',
+                _audioDuration != null ? '${_durationText ?? ''}' : '00:00',
                 style: TextStyle(color: Colors.white, fontSize: 15.0),
               ),
             ],
