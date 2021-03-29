@@ -7,6 +7,8 @@ class User {
   final String gender;
   final String bio;
   final String status;
+  final bool isActive;
+  final bool isTyping;
   final dynamic birthdate;
   final List<dynamic> interestedPeople;
   final String profileImageUrl;
@@ -19,6 +21,8 @@ class User {
     this.gender,
     this.bio,
     this.status,
+    this.isActive,
+    this.isTyping,
     this.birthdate,
     this.interestedPeople,
     this.profileImageUrl,
@@ -33,6 +37,8 @@ class User {
       gender: doc.data()['gender'],
       bio: doc.data()['bio'],
       status: doc.data()['status'],
+      isActive: doc.data()['isActive'],
+      isTyping: doc.data()['isTyping'],
       birthdate: doc.data()['birthdate'],
       interestedPeople: doc.data()['interested-people'],
       profileImageUrl: doc.data()['profilePictureUrl'],
