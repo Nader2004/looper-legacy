@@ -4,12 +4,54 @@ import 'dart:convert';
 import 'package:export_video_frame/export_video_frame.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:looper/models/personality.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:stringprocess/stringprocess.dart';
 import 'package:http/http.dart' as http;
+
+Future<dynamic> _handleNotification() async {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  const AndroidNotificationDetails androidPlatformChannelSpecifics =
+      AndroidNotificationDetails(
+    '2021',
+    'Looper Channel',
+    'This is Looper\'s Notifications Channel',
+    importance: Importance.max,
+    priority: Priority.high,
+  );
+  const NotificationDetails platformChannelSpecifics =
+      NotificationDetails(android: androidPlatformChannelSpecifics);
+  FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  await flutterLocalNotificationsPlugin.show(
+    0,
+    'Wohohhoo 🎉🥳',
+    'Ayyyy, your personality is now recognized!!',
+    platformChannelSpecifics,
+  );
+  await flutterLocalNotificationsPlugin.show(
+    1,
+    'Now let\'s match 😎',
+    'Explore now a list of compatible people 🙆‍♀️',
+    platformChannelSpecifics,
+  );
+  await flutterLocalNotificationsPlugin.periodicallyShow(
+    2,
+    'Re-Check your compatible people list',
+    'Check if there are new compatible ones 😃',
+    RepeatInterval.weekly,
+    platformChannelSpecifics,
+  );
+}
 
 class PersonalityService {
   static const String PERSONALITY_API_KEY =
@@ -37,8 +79,7 @@ class PersonalityService {
       final File _persFile = await _localPersonalityFile;
       final String _persFileText = await _persFile.readAsString();
       final StringProcessor _tps = StringProcessor();
-      print(_persFileText);
-      if ((_tps.getWordCount(_persFileText) % 1500) == 0 &&
+      if ((_tps.getWordCount(_persFileText) % 100) == 0 &&
           _persFileText.isNotEmpty) {
         final http.Response _response = await http.post(
           Uri.parse(
@@ -81,6 +122,7 @@ class PersonalityService {
             'extroversion': _extroversion,
           },
         });
+        _handleNotification();
       }
     }
   }
@@ -306,7 +348,9 @@ class PersonalityService {
               .orderBy(
                 collectionName == 'talents'
                     ? 'yesCount'
-                    : collectionName == 'comedy' ? 'laughs' : 'likes',
+                    : collectionName == 'comedy'
+                        ? 'laughs'
+                        : 'likes',
                 descending: true,
               )
               .orderBy('commentCount', descending: true)
@@ -332,7 +376,9 @@ class PersonalityService {
               .orderBy(
                 collectionName == 'talents'
                     ? 'yesCount'
-                    : collectionName == 'comedy' ? 'laughs' : 'likes',
+                    : collectionName == 'comedy'
+                        ? 'laughs'
+                        : 'likes',
                 descending: true,
               )
               .orderBy('commentCount', descending: true)
@@ -583,7 +629,9 @@ class PersonalityService {
           .orderBy(
             collectionName == 'talents'
                 ? 'yesCount'
-                : collectionName == 'comedy' ? 'laughs' : 'likes',
+                : collectionName == 'comedy'
+                    ? 'laughs'
+                    : 'likes',
             descending: true,
           )
           .orderBy('commentCount', descending: true)
