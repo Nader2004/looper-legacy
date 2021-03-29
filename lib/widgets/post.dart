@@ -1354,7 +1354,20 @@ class _PostWidgetState extends State<PostWidget>
                                               Flexible(
                                                 child: Padding(
                                                   padding: EdgeInsets.all(8.0),
-                                                  child: Text(_comment.content),
+                                                  child: SelectableLinkify(
+                                                    onOpen: (link) async {
+                                                      if (await canLaunch(
+                                                          link.url)) {
+                                                        await launch(link.url);
+                                                      } else {
+                                                        Fluttertoast.showToast(
+                                                          msg:
+                                                              'can not launch this link',
+                                                        );
+                                                      }
+                                                    },
+                                                    text: _comment.content,
+                                                  ),
                                                 ),
                                               ),
                                               SizedBox(width: 5),
@@ -3015,7 +3028,18 @@ class _ReplyPageState extends State<ReplyPage> {
                                 child: IntrinsicHeight(
                                   child: Row(
                                     children: <Widget>[
-                                      Text(_comment.content),
+                                      SelectableLinkify(
+                                        onOpen: (link) async {
+                                          if (await canLaunch(link.url)) {
+                                            await launch(link.url);
+                                          } else {
+                                            Fluttertoast.showToast(
+                                              msg: 'can not launch this link',
+                                            );
+                                          }
+                                        },
+                                        text: _comment.content,
+                                      ),
                                       SizedBox(width: 5),
                                       Text(
                                         _comment.timestamp,
