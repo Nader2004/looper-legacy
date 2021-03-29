@@ -7,13 +7,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bounce/flutter_bounce.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:looper/models/commentModel.dart';
 import 'package:looper/services/notifications.dart';
 import 'package:looper/services/personality.dart';
 import 'package:looper/services/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/database.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:video_player/video_player.dart';
@@ -350,7 +353,20 @@ class _TalentState extends State<Talent> {
                                               Flexible(
                                                 child: Padding(
                                                   padding: EdgeInsets.all(8.0),
-                                                  child: Text(_comment.content),
+                                                  child: SelectableLinkify(
+                                                    onOpen: (link) async {
+                                                      if (await canLaunch(
+                                                          link.url)) {
+                                                        await launch(link.url);
+                                                      } else {
+                                                        Fluttertoast.showToast(
+                                                          msg:
+                                                              'can not launch this link',
+                                                        );
+                                                      }
+                                                    },
+                                                    text: _comment.content,
+                                                  ),
                                                 ),
                                               ),
                                               SizedBox(width: 5),
@@ -1312,7 +1328,18 @@ class _ReplyPageState extends State<ReplyPage> {
                                 child: IntrinsicHeight(
                                   child: Row(
                                     children: <Widget>[
-                                      Text(_comment.content),
+                                      SelectableLinkify(
+                                        onOpen: (link) async {
+                                          if (await canLaunch(link.url)) {
+                                            await launch(link.url);
+                                          } else {
+                                            Fluttertoast.showToast(
+                                              msg: 'can not launch this link',
+                                            );
+                                          }
+                                        },
+                                        text: _comment.content,
+                                      ),
                                       SizedBox(width: 5),
                                       Text(
                                         _comment.timestamp,
