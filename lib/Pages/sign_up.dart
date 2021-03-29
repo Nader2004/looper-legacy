@@ -199,7 +199,7 @@ class _SignUpPageState extends State<SignUpPage> {
             }
           },
           validator: (String value) {
-            if ((value.isEmpty || value.length <= 5) ||
+            if ((value.isEmpty || value.length <= 7) ||
                 !isAlphanumeric(value)) {
               return 'invalid password and should contain numbers';
             } else {
