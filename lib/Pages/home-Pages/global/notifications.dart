@@ -9,7 +9,6 @@ import 'package:looper/widgets/post.dart';
 import 'package:looper/widgets/talent.dart';
 import 'package:looper/widgets/sport.dart';
 import 'package:looper/widgets/challenge.dart';
-import 'package:looper/widgets/comedy-joke.dart';
 import 'package:looper/Pages/home-Pages/chat/chat_list.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -294,9 +293,7 @@ class _NotificationViewPageState extends State<NotificationViewPage> {
       return Sport(data: _documentSnapshot);
     } else if (widget.navigator.contains('challenge')) {
       return Challenge(data: _documentSnapshot);
-    } else if (widget.navigator.contains('comedy')) {
-      return ComedyJoke(data: _documentSnapshot);
-    } else {
+    }  else {
       return SizedBox.shrink();
     }
   }
