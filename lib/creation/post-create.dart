@@ -498,7 +498,7 @@ class _PostCreationPageState extends State<PostCreationPage> {
                           builder: (context) => Camera(),
                         ),
                       )
-                          .then((String media) {
+                          .then((String media) {          
                         if (media == null) {
                           if (_mediaUrl.length == 0) {
                             _pageController.animateToPage(
@@ -555,6 +555,7 @@ class _PostCreationPageState extends State<PostCreationPage> {
                             mediaUrl: media,
                             type: media.endsWith('.mp4') ? '1' : '0',
                           );
+                          print(_newValue.mediaUrl == null);
                           setState(() {
                             _mediaUrl.add(_newValue);
                             if (_audioUrl != null ||
@@ -652,7 +653,7 @@ class _PostCreationPageState extends State<PostCreationPage> {
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintStyle: TextStyle(fontSize: 20),
-                hintText: 'What do you think ?',
+                hintText: 'Share your thoughts with the world..',
               ),
             ),
           ),
