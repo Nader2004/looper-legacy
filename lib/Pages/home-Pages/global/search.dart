@@ -48,7 +48,7 @@ class _SearchPageState extends State<SearchPage> {
     final double _deviceWidth = MediaQuery.of(context).size.width;
     return Container(
       margin: EdgeInsets.only(
-        top: 40,
+        top: 15,
         left: 2,
         bottom: 20,
       ),
