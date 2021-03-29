@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:looper/services/notifications.dart';
 import 'package:looper/services/personality.dart';
 import 'package:looper/services/storage.dart';
@@ -820,6 +821,50 @@ class _TalentCreationState extends State<TalentCreation>
                     ),
                   )
                 : Container(),
+            Align(
+              alignment: Alignment(0.93, -0.5),
+              child: AnimatedOpacity(
+                opacity: _opacity,
+                duration: Duration(milliseconds: 300),
+                child: Container(
+                  height: 35,
+                  width: 35,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black.withOpacity(0.5),
+                  ),
+                  child: GestureDetector(
+                    onTap: () async {
+                      final ImagePicker _picker = ImagePicker();
+
+                      final PickedFile _file =
+                          await _picker.getVideo(source: ImageSource.gallery);
+                      if (_file != null) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => TalentViewPage(
+                              movieFilter:
+                                  _filterName == 'normal' || _filterName == ''
+                                      ? ''
+                                      : _filterName,
+                              talent: _talentName,
+                              talentName: _title != '' ? _title : '',
+                              videoUrl: _file.path,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                    child: Icon(
+                      Icons.video_library_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
             Align(
               alignment: Alignment(0.0, 0.75),
               child: Row(
