@@ -10,7 +10,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:looper/models/personality.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:stringprocess/stringprocess.dart';
 import 'package:http/http.dart' as http;
 
 Future<dynamic> _handleNotification() async {
@@ -78,8 +77,8 @@ class PersonalityService {
     if (File('$path/personality.txt').existsSync()) {
       final File _persFile = await _localPersonalityFile;
       final String _persFileText = await _persFile.readAsString();
-      final StringProcessor _tps = StringProcessor();
-      if ((_tps.getWordCount(_persFileText) % 100) == 0 &&
+      
+      if ((_persFileText.split(' ').length % 100) == 0 &&
           _persFileText.isNotEmpty) {
         final http.Response _response = await http.post(
           Uri.parse(
