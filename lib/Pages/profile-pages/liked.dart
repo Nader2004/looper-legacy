@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_toggle_tab/flutter_toggle_tab.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:looper/widgets/comedy-joke.dart';
 import 'package:looper/widgets/post.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -78,19 +77,13 @@ class _LikedListPageState extends State<LikedListPage> {
                           ),
                         );
                       }
-                      return _selectedIndex == 0 || _selectedIndex == 2
+                      return _selectedIndex == 0
                           ? ListView.builder(
                               itemCount: snapshot.data.docs.length,
                               itemBuilder: (context, index) {
-                                if (_selectedIndex == 0) {
-                                  return PostWidget(
-                                    snapshot: snapshot.data.docs[index],
-                                  );
-                                } else {
-                                  return ComedyJoke(
-                                    data: snapshot.data.docs[index],
-                                  );
-                                }
+                                return PostWidget(
+                                  snapshot: snapshot.data.docs[index],
+                                );
                               },
                             )
                           : GridView.builder(
@@ -146,12 +139,6 @@ class _LikedListPageState extends State<LikedListPage> {
                                   .collection('talents')
                                   .where('yes-counted-people',
                                       arrayContains: _id)
-                                  .orderBy('timestamp', descending: true)
-                                  .snapshots();
-                            } else if (_selectedIndex == 2) {
-                              _stream = FirebaseFirestore.instance
-                                  .collection('comedy')
-                                  .where('laughed-people', arrayContains: _id)
                                   .orderBy('timestamp', descending: true)
                                   .snapshots();
                             } else if (_selectedIndex == 3) {
