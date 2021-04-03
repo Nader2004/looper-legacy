@@ -585,13 +585,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
-  html_unescape:
-    dependency: transitive
-    description:
-      name: html_unescape
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.2"
   http:
     dependency: "direct main"
     description:
@@ -725,6 +718,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0-nullsafety.1"
+  package_info:
+    dependency: transitive
+    description:
+      name: package_info
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.3+4"
   path:
     dependency: transitive
     description:
@@ -872,6 +872,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.26.0"
+  sentry:
+    dependency: transitive
+    description:
+      name: sentry
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.1.0-nullsafety.1"
+  sentry_flutter:
+    dependency: "direct main"
+    description:
+      name: sentry_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.0.6"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -925,7 +939,7 @@ packages:
       name: source_span
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.0"
+    version: "1.8.1"
   sqflite:
     dependency: transitive
     description:
@@ -982,13 +996,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.4"
-  stringprocess:
-    dependency: "direct main"
-    description:
-      name: stringprocess
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.10"
   superellipse_shape:
     dependency: "direct main"
     description:

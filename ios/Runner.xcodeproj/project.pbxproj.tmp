@@ -148,11 +148,11 @@
 				<key>CODE_SIGN_IDENTITY[sdk=iphoneos*]</key>
 				<string>iPhone Distribution: Sahar Ahmed (JT28P8YMBN)</string>
 				<key>CODE_SIGN_STYLE</key>
-				<string>Automatic</string>
+				<string>Manual</string>
 				<key>CURRENT_PROJECT_VERSION</key>
 				<string>$(FLUTTER_BUILD_NUMBER)</string>
 				<key>DEVELOPMENT_TEAM</key>
-				<string></string>
+				<string>JT28P8YMBN</string>
 				<key>ENABLE_BITCODE</key>
 				<string>NO</string>
 				<key>FRAMEWORK_SEARCH_PATHS</key>
@@ -174,7 +174,7 @@
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>PROVISIONING_PROFILE_SPECIFIER</key>
-				<string></string>
+				<string>com app looper ios_app_store 1603952262</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
 				<string>Runner/Runner-Bridging-Header.h</string>
 				<key>SWIFT_VERSION</key>
@@ -464,7 +464,7 @@
 						<key>DevelopmentTeam</key>
 						<string>JT28P8YMBN</string>
 						<key>ProvisioningStyle</key>
-						<string>Automatic</string>
+						<string>Manual</string>
 					</dict>
 				</dict>
 			</dict>
@@ -987,11 +987,11 @@
 				<key>CODE_SIGN_IDENTITY[sdk=iphoneos*]</key>
 				<string>iPhone Distribution: Sahar Ahmed (JT28P8YMBN)</string>
 				<key>CODE_SIGN_STYLE</key>
-				<string>Automatic</string>
+				<string>Manual</string>
 				<key>CURRENT_PROJECT_VERSION</key>
 				<string>$(FLUTTER_BUILD_NUMBER)</string>
 				<key>DEVELOPMENT_TEAM</key>
-				<string></string>
+				<string>JT28P8YMBN</string>
 				<key>ENABLE_BITCODE</key>
 				<string>NO</string>
 				<key>FRAMEWORK_SEARCH_PATHS</key>
@@ -1013,7 +1013,7 @@
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>PROVISIONING_PROFILE_SPECIFIER</key>
-				<string></string>
+				<string>com app looper ios_app_store 1603952262</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
 				<string>Runner/Runner-Bridging-Header.h</string>
 				<key>SWIFT_VERSION</key>
@@ -1041,11 +1041,11 @@
 				<key>CODE_SIGN_IDENTITY[sdk=iphoneos*]</key>
 				<string>iPhone Distribution: Sahar Ahmed (JT28P8YMBN)</string>
 				<key>CODE_SIGN_STYLE</key>
-				<string>Automatic</string>
+				<string>Manual</string>
 				<key>CURRENT_PROJECT_VERSION</key>
 				<string>$(FLUTTER_BUILD_NUMBER)</string>
 				<key>DEVELOPMENT_TEAM</key>
-				<string></string>
+				<string>JT28P8YMBN</string>
 				<key>ENABLE_BITCODE</key>
 				<string>NO</string>
 				<key>FRAMEWORK_SEARCH_PATHS</key>
@@ -1067,7 +1067,7 @@
 				<key>PRODUCT_NAME</key>
 				<string>$(TARGET_NAME)</string>
 				<key>PROVISIONING_PROFILE_SPECIFIER</key>
-				<string></string>
+				<string>com app looper ios_app_store 1603952262</string>
 				<key>SWIFT_OBJC_BRIDGING_HEADER</key>
 				<string>Runner/Runner-Bridging-Header.h</string>
 				<key>SWIFT_VERSION</key>
