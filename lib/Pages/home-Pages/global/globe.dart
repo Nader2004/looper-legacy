@@ -28,7 +28,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
-import 'package:stringprocess/stringprocess.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import '../../../widgets/post.dart';
@@ -127,6 +126,7 @@ class _GlobePageState extends State<GlobePage>
   String _userGender = '';
   String _userStatus = '';
   String _userTalent = '';
+  String _text = '';
   String _groupId = '';
   int _yearOfBirth = 0;
   int _bottomIndex = 0;
@@ -157,9 +157,9 @@ class _GlobePageState extends State<GlobePage>
   void initState() {
     super.initState();
     _firestore = FirebaseFirestore.instance;
-
     setPrefs();
     PersonalityService.analyzePersonality();
+    getUserPersonalityFile();
     if (widget.firstTime != false) {
       _targets.add(
         TargetFocus(
@@ -336,6 +336,14 @@ class _GlobePageState extends State<GlobePage>
       );
       WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
     }
+  }
+
+  Future<void> getUserPersonalityFile() async {
+    final File file = await _localPersonalityFile;
+    final String _personalityText = await file.readAsString();
+    setState(() {
+      _text = _personalityText;
+    });
   }
 
   void _afterLayout(_) {
@@ -714,6 +722,9 @@ class _GlobePageState extends State<GlobePage>
   }
 
   Widget _buildTopSimilaritiesText() {
+    final int _textWordCount = _text.split(' ').length;
+    final double _percentage = (_textWordCount / 100) * 100;
+    final double _percentageLeft = 100 - _percentage;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -735,29 +746,12 @@ class _GlobePageState extends State<GlobePage>
               right: _personalityType == null ? 20 : 10,
               top: _personalityType == null ? 16 : 6),
           child: _personalityType.isEmpty
-              ? FutureBuilder(
-                  future: _localPersonalityFile,
-                  builder: (
-                    context,
-                    AsyncSnapshot<File> file,
-                  ) {
-                    if (file.connectionState == ConnectionState.waiting) {
-                      return SizedBox.shrink();
-                    }
-                    final StringProcessor _tps = StringProcessor();
-                    final String _text = file.data.readAsStringSync();
-                    final int _textWordCount = _tps.getWordCount(_text);
-                    final double _percentage = (_textWordCount / 100) * 100;
-                    final double _percentageLeft = 100 - _percentage;
-                    print(_percentage);
-                    return Text(
-                      '${_percentageLeft.toStringAsFixed(1)}% left',
-                      key: progressKey,
-                      style: GoogleFonts.abel(
-                        fontSize: 24,
-                      ),
-                    );
-                  },
+              ? Text(
+                  '${_percentageLeft.toStringAsFixed(1)}% left',
+                  key: progressKey,
+                  style: GoogleFonts.abel(
+                    fontSize: 24,
+                  ),
                 )
               : Shimmer.fromColors(
                   baseColor: Colors.red,
@@ -854,6 +848,9 @@ class _GlobePageState extends State<GlobePage>
         stream: _compatableUsers,
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.data == null) {
+            final int _textWordCount = _text.split(' ').length;
+            final double _percentage = ((_textWordCount / 1000)) * 10;
+            final double _textPercentage = (_textWordCount / 100) * 100;
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -875,30 +872,12 @@ class _GlobePageState extends State<GlobePage>
                       ),
                     ),
                     SizedBox(height: 12),
-                    FutureBuilder(
-                      future: _localPersonalityFile,
-                      builder: (
-                        context,
-                        AsyncSnapshot<File> file,
-                      ) {
-                        if (file.connectionState == ConnectionState.waiting) {
-                          return SizedBox.shrink();
-                        }
-                        final StringProcessor _tps = StringProcessor();
-                        final String _text = file.data.readAsStringSync();
-                        final int _textWordCount = _tps.getWordCount(_text);
-                        final double _percentage = (_textWordCount / 100);
-                        final double _textPercentage =
-                            (_textWordCount / 100) * 100;
-                        return CircularPercentIndicator(
-                          radius: 60.0,
-                          lineWidth: 5.0,
-                          center:
-                              Text(_textPercentage.toStringAsFixed(2) + '%'),
-                          percent: _percentage,
-                          progressColor: Colors.black,
-                        );
-                      },
+                    CircularPercentIndicator(
+                      radius: 60.0,
+                      lineWidth: 5.0,
+                      center: Text(_textPercentage.toStringAsFixed(2) + '%'),
+                      percent: _percentage,
+                      progressColor: Colors.black,
                     ),
                   ],
                 ),
