@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -1331,10 +1331,9 @@ class _GlobePageState extends State<GlobePage>
                       ),
                       child: OutlineButton(
                         onPressed: () {
-                          Share.text(
-                            'Invite your friends to Looper via..',
+                          Share.share(
                             'Hello there. You are invited to Looper. A new social media app that will connect you to amazing people. To download the app you can use the following link https://play.google.com/store/apps/details?id=com.app.looper&hl=en-GB&ah=gndMBVH4KxJfvz1x85LPq04vnaw (for android) , https://apps.apple.com/eg/app/looper-social/id1537223572 (for ios), Hope you enjoy it 👌',
-                            'text/plain',
+                            subject: 'Invite your friends to Looper via..',
                           );
                         },
                         shape: RoundedRectangleBorder(
