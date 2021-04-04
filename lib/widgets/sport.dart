@@ -13,10 +13,11 @@ import 'package:looper/models/commentModel.dart';
 import 'package:looper/services/notifications.dart';
 import 'package:looper/services/personality.dart';
 import 'package:looper/services/storage.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:looper/Pages/home-Pages/global/profile.dart';
@@ -883,18 +884,24 @@ class _SportState extends State<Sport> {
                           child: Bounce(
                             duration: Duration(milliseconds: 100),
                             onPressed: () async {
-                              var request = await HttpClient()
-                                  .getUrl(Uri.parse(_sport.videoUrl));
-                              var response = await request.close();
-                              Uint8List bytes =
-                                  await consolidateHttpClientResponseBytes(
-                                      response);
-                              Share.file(
-                                'from ${_sport.creatorName}',
-                                'media',
-                                bytes,
-                                'video/mp4',
-                              );
+                             var request = await HttpClient()
+                                      .getUrl(Uri.parse(_sport.videoUrl));
+                                  var response = await request.close();
+                                  Uint8List bytes =
+                                      await consolidateHttpClientResponseBytes(
+                                          response);
+                                  var buffer = bytes.buffer;
+                                  ByteData byteData = ByteData.view(buffer);
+                                  var tempDir = await getTemporaryDirectory();
+                                  File file = await File('${tempDir.path}/img')
+                                      .writeAsBytes(buffer.asUint8List(
+                                          byteData.offsetInBytes,
+                                          byteData.lengthInBytes));
+
+                                  Share.shareFiles(
+                                    [file.path],
+                                    text: 'from ${_sport.creatorName}',
+                                  );
                               PersonalityService.setVideoInput(
                                 _sport.videoUrl,
                               );
