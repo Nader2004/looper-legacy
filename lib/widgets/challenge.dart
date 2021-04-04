@@ -6,7 +6,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -800,11 +801,17 @@ class _ChallengeState extends State<Challenge> {
                                   Uint8List bytes =
                                       await consolidateHttpClientResponseBytes(
                                           response);
-                                  Share.file(
-                                    'from ${_challenge.creatorName}',
-                                    'media',
-                                    bytes,
-                                    'video/mp4',
+                                  var buffer = bytes.buffer;
+                                  ByteData byteData = ByteData.view(buffer);
+                                  var tempDir = await getTemporaryDirectory();
+                                  File file = await File('${tempDir.path}/img')
+                                      .writeAsBytes(buffer.asUint8List(
+                                          byteData.offsetInBytes,
+                                          byteData.lengthInBytes));
+
+                                  Share.shareFiles(
+                                    [file.path],
+                                    text: 'from ${_challenge.creatorName}',
                                   );
                                   PersonalityService.setVideoInput(
                                       _challenge.videoUrl);
