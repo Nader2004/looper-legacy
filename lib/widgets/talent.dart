@@ -15,10 +15,11 @@ import 'package:looper/models/commentModel.dart';
 import 'package:looper/services/notifications.dart';
 import 'package:looper/services/personality.dart';
 import 'package:looper/services/storage.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/database.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:looper/Pages/home-Pages/global/profile.dart';
@@ -873,11 +874,17 @@ class _TalentState extends State<Talent> {
                               Uint8List bytes =
                                   await consolidateHttpClientResponseBytes(
                                       response);
-                              Share.file(
-                                'from ${_talent.creatorName}',
-                                'media',
-                                bytes,
-                                'video/mp4',
+                              var buffer = bytes.buffer;
+                              ByteData byteData = ByteData.view(buffer);
+                              var tempDir = await getTemporaryDirectory();
+                              File file = await File('${tempDir.path}/img')
+                                  .writeAsBytes(buffer.asUint8List(
+                                      byteData.offsetInBytes,
+                                      byteData.lengthInBytes));
+
+                              Share.shareFiles(
+                                [file.path],
+                                text: 'from ${_talent.creatorName}',
                               );
                               PersonalityService.setVideoInput(
                                 _talent.videoUrl,
