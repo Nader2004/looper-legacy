@@ -9,7 +9,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dots_indicator/dots_indicator.dart';
-import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
@@ -20,6 +19,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:looper/services/notifications.dart';
 import 'package:looper/services/personality.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/storage.dart';
 import '../services/database.dart';
@@ -408,10 +409,9 @@ class _PostWidgetState extends State<PostWidget>
                                       _post.text,
                                     );
                                   }
-                                  Share.text(
-                                    'from ${_post.authorName}',
+                                  Share.share(
                                     _post.text,
-                                    'text/plain',
+                                    subject: 'from ${_post.authorName}',
                                   );
                                 } else if (_post.type == 2) {
                                   if (_post.authorName != _userName) {
@@ -419,10 +419,9 @@ class _PostWidgetState extends State<PostWidget>
                                       '${_post.question['question']}? ${_post.question['option1']} or ${_post.question['option2f']}',
                                     );
                                   }
-                                  Share.text(
-                                    'from ${_post.authorName}',
+                                  Share.share(
                                     _post.question['question'],
-                                    'text/plain',
+                                    subject: 'from ${_post.authorName}',
                                   );
                                 } else if (_post.type == 3) {
                                   if (_post.mediaUrl.length == 1) {
@@ -434,14 +433,18 @@ class _PostWidgetState extends State<PostWidget>
                                     Uint8List bytes =
                                         await consolidateHttpClientResponseBytes(
                                             response);
-                                    Share.file(
-                                      'from ${_post.authorName}',
-                                      'media',
-                                      bytes,
-                                      _post.mediaUrl.first['media']
-                                              .contains('.mp4')
-                                          ? 'video/mp4'
-                                          : 'image/jpg',
+                                    var buffer = bytes.buffer;
+                                    ByteData byteData = ByteData.view(buffer);
+                                    var tempDir = await getTemporaryDirectory();
+                                    File file =
+                                        await File('${tempDir.path}/img')
+                                            .writeAsBytes(buffer.asUint8List(
+                                                byteData.offsetInBytes,
+                                                byteData.lengthInBytes));
+
+                                    Share.shareFiles(
+                                      [file.path],
+                                      text: 'from ${_post.authorName}',
                                     );
                                     if (_post.authorName != _userName) {
                                       if (_post.mediaUrl.first['media']
@@ -489,11 +492,17 @@ class _PostWidgetState extends State<PostWidget>
                                   Uint8List bytes =
                                       await consolidateHttpClientResponseBytes(
                                           response);
-                                  Share.file(
-                                    'from ${_post.authorName}',
-                                    'gif',
-                                    bytes,
-                                    'gif',
+                                  var buffer = bytes.buffer;
+                                  ByteData byteData = ByteData.view(buffer);
+                                  var tempDir = await getTemporaryDirectory();
+                                  File file = await File('${tempDir.path}/img')
+                                      .writeAsBytes(buffer.asUint8List(
+                                          byteData.offsetInBytes,
+                                          byteData.lengthInBytes));
+
+                                  Share.shareFiles(
+                                    [file.path],
+                                    text: 'from ${_post.authorName}',
                                   );
                                 } else {
                                   if (_post.authorName != _userName) {
@@ -507,11 +516,17 @@ class _PostWidgetState extends State<PostWidget>
                                   Uint8List bytes =
                                       await consolidateHttpClientResponseBytes(
                                           response);
-                                  Share.file(
-                                    'from ${_post.authorName}',
-                                    'audio',
-                                    bytes,
-                                    'audio/*',
+                                  var buffer = bytes.buffer;
+                                  ByteData byteData = ByteData.view(buffer);
+                                  var tempDir = await getTemporaryDirectory();
+                                  File file = await File('${tempDir.path}/img')
+                                      .writeAsBytes(buffer.asUint8List(
+                                          byteData.offsetInBytes,
+                                          byteData.lengthInBytes));
+
+                                  Share.shareFiles(
+                                    [file.path],
+                                    text: 'from ${_post.authorName}',
                                   );
                                 }
                               },
