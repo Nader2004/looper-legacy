@@ -34,7 +34,6 @@ use_modular_headers!
 flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
 target 'Runner'
-target 'AppClip'
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
