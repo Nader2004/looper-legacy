@@ -108,14 +108,6 @@ dev_dependencies:
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
-dependency_overrides:
-  plugin_platform_interface: '>=2.0.0'
-  uuid: '>=2.0.0'
-  path_provider: '>=2.0.0'
-  flutter_cache_manager: '>=2.0.0'
-  synchronized: '>=2.2.0'
-  markdown: '>=2.0.2'
-
 # The following section is specific to Flutter.
 flutter:
   # The following line ensures that the Material Icons font is
