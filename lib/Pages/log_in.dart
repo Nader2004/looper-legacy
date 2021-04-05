@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import 'package:validators/validators.dart';
-
 import '../services/auth.dart';
 
 import '../Pages/sign_up.dart';
@@ -101,8 +99,7 @@ class _LogInPageState extends State<LogInPage> {
             }
           },
           validator: (String value) {
-            if ((value.isEmpty || value.length <= 5) ||
-                !isAlphanumeric(value)) {
+            if ((value.isEmpty || value.length <= 5)) {
               return 'incorrect password and should contain numbers';
             } else {
               return null;
@@ -112,6 +109,8 @@ class _LogInPageState extends State<LogInPage> {
       ),
     );
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
