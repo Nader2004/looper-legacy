@@ -2650,7 +2650,7 @@ class _VideoWidgetState extends State<VideoWidget> {
           margin: EdgeInsets.only(bottom: 15, left: 10, right: 10),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: !_videoController.value.initialized
+            child: !_videoController.value.isInitialized
                 ? Container(color: Colors.grey[400])
                 : OverflowBox(
                     alignment: Alignment.center,
@@ -2909,7 +2909,7 @@ class _VideoQuestionThumbWidgetState extends State<VideoQuestionThumbWidget> {
           height: MediaQuery.of(context).size.width / 2,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: !_videoController.value.initialized
+            child: !_videoController.value.isInitialized
                 ? Container(color: Colors.grey[400])
                 : OverflowBox(
                     alignment: Alignment.center,
