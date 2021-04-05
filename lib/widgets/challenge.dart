@@ -689,7 +689,7 @@ class _ChallengeState extends State<Challenge> {
               },
               child: Stack(
                 children: <Widget>[
-                  !_controller.value.initialized
+                  !_controller.value.isInitialized
                       ? Center(
                           child: CircularProgressIndicator(
                             strokeWidth: 1.2,
@@ -706,7 +706,7 @@ class _ChallengeState extends State<Challenge> {
                             ),
                           ),
                         ),
-                  !_controller.value.initialized
+                  !_controller.value.isInitialized
                       ? Container()
                       : Positioned.fill(
                           child: BackdropFilter(
@@ -1139,7 +1139,7 @@ class _ChallengeState extends State<Challenge> {
                       ],
                     ),
                   ),
-                  !_controller.value.initialized
+                  !_controller.value.isInitialized
                       ? Container()
                       : Center(
                           child: ClipRRect(
