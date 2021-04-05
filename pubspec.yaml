@@ -87,7 +87,7 @@ dependencies:
   dotted_border: ^2.0.0-nullsafety.0
   video_thumbnail: ^0.3.3
   file_picker: ^3.0.1
-  photo_manager: ^0.5.3
+  photo_manager: ^1.0.6
   audioplayers: ^0.18.3
   export_video_frame: ^0.0.5+4
   http: ^0.13.1
