@@ -674,7 +674,7 @@ class _TalentState extends State<Talent> {
               },
               child: Stack(
                 children: <Widget>[
-                  !_playerController.value.initialized
+                  !_playerController.value.isInitialized
                       ? Center(
                           child: CircularProgressIndicator(
                             strokeWidth: 1.2,
