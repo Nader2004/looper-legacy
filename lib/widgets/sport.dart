@@ -692,12 +692,12 @@ class _SportState extends State<Sport> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
-                    color: !_videoController.value.initialized
+                    color: !_videoController.value.isInitialized
                         ? Colors.black
                         : Colors.transparent,
                     child: Stack(
                       children: <Widget>[
-                        !_videoController.value.initialized
+                        !_videoController.value.isInitialized
                             ? Center(
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(
