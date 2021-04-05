@@ -1256,7 +1256,7 @@ class _VideoWidgetState extends State<VideoWidget> {
         Container(
           width: MediaQuery.of(context).size.width / 2,
           height: MediaQuery.of(context).size.width / 2,
-          child: !_videoController.value.initialized
+          child: !_videoController.value.isInitialized
               ? Container(color: Colors.grey[400])
               : OverflowBox(
                   alignment: Alignment.center,
