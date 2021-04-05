@@ -1698,7 +1698,7 @@ class _VideoWidgetState extends State<VideoWidget> {
           height: MediaQuery.of(context).size.width / 1.8,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(5),
-            child: !_videoController.value.initialized
+            child: !_videoController.value.isInitialized
                 ? Container(color: Colors.grey[400])
                 : OverflowBox(
                     alignment: Alignment.center,
