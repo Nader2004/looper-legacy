@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Copyright 2020
 /// Developer : Nader Khaled
@@ -33,7 +34,13 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
   await Firebase.initializeApp();
-  runApp(Looper());
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://7c2f92fe888d48af974782b181060e2b@o479859.ingest.sentry.io/5700694';
+    },
+    appRunner: () => runApp(Looper()),
+  );
 }
 
 class Looper extends StatelessWidget {
@@ -64,18 +71,18 @@ class Looper extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
-        '/': (BuildContext context) => _screenId(),
-        HomePage.id: (BuildContext context) => HomePage(),
+        '/': (BuildContext context) => Container(),//_screenId(),
+     /*   HomePage.id: (BuildContext context) => HomePage(),
         PersonalPage.id: (BuildContext context) => PersonalPage(),
         SignUpPage.id: (BuildContext context) => SignUpPage(),
         LogInPage.id: (BuildContext context) => LogInPage(),
         WelcomePage.id: (BuildContext context) => WelcomePage(),
-        PostCreationPage.pageId: (BuildContext context) => PostCreationPage(),
+        PostCreationPage.pageId: (BuildContext context) => PostCreationPage(),*/
       },
-      onUnknownRoute: (RouteSettings settings) =>
+   /*   onUnknownRoute: (RouteSettings settings) =>
           MaterialPageRoute(builder: (context) {
         return ErrorPage();
-      }),
+      }),*/
     );
   }
 }
