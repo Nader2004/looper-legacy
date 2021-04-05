@@ -78,6 +78,8 @@ dependencies:
   audioplayers: ^0.18.3
   permission_handler: ^6.1.1
   flutter_local_notifications: ^5.0.0+1
+  flutter_native_admob: ^2.1.0+3
+  file_picker: ^3.0.1
   visibility_detector: ^0.2.0-nullsafety.1 
   dotted_border: ^2.0.0-nullsafety.0
   video_thumbnail: ^0.3.3
