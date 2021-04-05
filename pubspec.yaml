@@ -47,7 +47,7 @@ dependencies:
   flutter_svg: ^0.21.0-nullsafety.0
   shimmer: ^2.0.0-nullsafety.0
   bubble: ^1.1.9+1
-  badges: ^1.2.1
+  badges: ^2.0.0-nullsafety.1
   intro_slider: ^2.3.4
   superellipse_shape: ^0.2.0-nullsafety.0
   carousel_slider: ^4.0.0-nullsafety.0
