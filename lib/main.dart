@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Copyright 2020
@@ -33,6 +34,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  MobileAds.instance.initialize();
   await Firebase.initializeApp();
   await SentryFlutter.init(
     (options) {
@@ -71,18 +73,18 @@ class Looper extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       routes: {
-        '/': (BuildContext context) => Container(),//_screenId(),
-     /*   HomePage.id: (BuildContext context) => HomePage(),
+        '/': (BuildContext context) => _screenId(),
+        HomePage.id: (BuildContext context) => HomePage(),
         PersonalPage.id: (BuildContext context) => PersonalPage(),
         SignUpPage.id: (BuildContext context) => SignUpPage(),
         LogInPage.id: (BuildContext context) => LogInPage(),
         WelcomePage.id: (BuildContext context) => WelcomePage(),
-        PostCreationPage.pageId: (BuildContext context) => PostCreationPage(),*/
+        PostCreationPage.pageId: (BuildContext context) => PostCreationPage(),
       },
-   /*   onUnknownRoute: (RouteSettings settings) =>
+      onUnknownRoute: (RouteSettings settings) =>
           MaterialPageRoute(builder: (context) {
         return ErrorPage();
-      }),*/
+      }),
     );
   }
 }
