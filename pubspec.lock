@@ -442,13 +442,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.0"
-  flutter_native_admob:
-    dependency: "direct main"
-    description:
-      name: flutter_native_admob
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.1.0+3"
   flutter_page_indicator:
     dependency: transitive
     description:
@@ -571,6 +564,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+  google_mobile_ads:
+    dependency: "direct main"
+    description:
+      name: google_mobile_ads
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.12.1"
   http:
     dependency: "direct main"
     description:
