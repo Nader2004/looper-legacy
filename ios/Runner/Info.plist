@@ -64,6 +64,10 @@
 	<string>Looper needs access to the photo library to use pictures or videos for profile pictures or other content created by you</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Looper needs to access Speech Recognition for some PND Operations</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Looper needs access to Bluetooth for transfering data within chat or posts</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Looper needs access to Bluetooth for transfering data within chat or posts</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
