@@ -2554,9 +2554,9 @@ class _PostWidgetState extends State<PostWidget>
                                       }
                                     },
                                     text: _post.text,
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                    ),
+                                    style: GoogleFonts.nunitoSans(
+                                      fontSize: 18,
+                                     ),
                                   ),
                                 )
                               : _buildPostMediaContent(
