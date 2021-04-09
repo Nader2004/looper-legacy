@@ -1,4 +1,20 @@
- bool _isLoaded = false;
+import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+
+class PostNativeAd extends StatefulWidget {
+  PostNativeAd({Key key}) : super(key: key);
+
+  @override
+  _PostNativeAdState createState() => _PostNativeAdState();
+}
+
+class _PostNativeAdState extends State<PostNativeAd> {
+  static const String AndroidAdUnitId = 'ca-app-pub-9448985372006294/2961269368';
+  static const String IOSAdUnitId = 'ca-app-pub-9448985372006294/6816753892';
+  NativeAd nativeAd; 
+  bool _isLoaded = false;
 
   @override
   void initState() {
@@ -50,3 +66,4 @@
             ),
           );
   }
+}
