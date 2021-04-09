@@ -78,7 +78,6 @@ dependencies:
   connectivity: ^3.0.3
   flutter_email_sender: ^5.0.0
   giphy_picker: ^2.0.0
-  flutter_linkify: ^5.0.0
   dots_indicator: ^2.0.0
   percent_indicator: ^3.3.0-nullsafety.1
   url_launcher: ^6.0.3
@@ -102,7 +101,12 @@ dev_dependencies:
     sdk: flutter
   flutter_datetime_picker:
    git:
-     url: https://github.com/espresso3389/flutter_datetime_picker # Repo
+     url: https://github.com/espresso3389/flutter_datetime_picker
+  
+  flutter_linkify:
+    git:
+      url: https://github.com/MohamedEL-Torky/flutter_linkify
+
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
