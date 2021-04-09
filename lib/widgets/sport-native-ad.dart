@@ -15,6 +15,7 @@ class _SportNativeAdState extends State<SportNativeAd> {
       'ca-app-pub-9448985372006294/2961269368';
   static const String IOSAdUnitId = 'ca-app-pub-9448985372006294/6816753892';
   NativeAd nativeAd;
+  bool _isLoaded = false;
 
   @override
   void initState() {
@@ -22,6 +23,11 @@ class _SportNativeAdState extends State<SportNativeAd> {
       adUnitId: Platform.isIOS ? IOSAdUnitId : AndroidAdUnitId,
       factoryId: 'native-ad',
       listener: AdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isLoaded = true;
+          });
+        },
         onAdFailedToLoad: (ad, error) {
           nativeAd.dispose();
         },
@@ -44,7 +50,7 @@ class _SportNativeAdState extends State<SportNativeAd> {
   @override
   Widget build(BuildContext context) {
     final AdWidget adWidget = AdWidget(ad: nativeAd);
-    return Container(
+    return _isLoaded == false ? SizedBox.shrink() : Container(
       height: MediaQuery.of(context).size.height / 1.8,
       margin: EdgeInsets.symmetric(horizontal: 10),
       child: ClipRRect(
