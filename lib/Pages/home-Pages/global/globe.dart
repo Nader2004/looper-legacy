@@ -341,9 +341,11 @@ class _GlobePageState extends State<GlobePage>
   Future<void> getUserPersonalityFile() async {
     final File file = await _localPersonalityFile;
     final String _personalityText = await file.readAsString();
-    setState(() {
-      _text = _personalityText;
-    });
+    if (mounted) {
+      setState(() {
+        _text = _personalityText;
+      });
+    }
   }
 
   void _afterLayout(_) {
@@ -560,35 +562,38 @@ class _GlobePageState extends State<GlobePage>
     for (DocumentSnapshot doc in _querySnapshot.docs) {
       _followIds.add(doc.data()['creatorId']);
     }
-    setState(() {
-      _userId = _prefs.get('id');
-      _userImage = _user.data()['profilePictureUrl'];
-      _personalityType = _user?.data()['personality-type'];
-      _compatableUsers = PersonalityService.setUserPersonalityStream(
-        _personalityType,
-        _firestore,
-      );
-
-      _numberOfAccounts = FirebaseFirestore.instance.collection('users').get();
-      _future = Future.wait([
-        DatabaseService.getFollowedContentFeed(
-          'posts',
-          'author',
-          _querySnapshot,
-        ),
-        PersonalityService.getCompatibleContentStream(
+    if (mounted) {
+      setState(() {
+        _userId = _prefs.get('id');
+        _userImage = _user.data()['profilePictureUrl'];
+        _personalityType = _user?.data()['personality-type'];
+        _compatableUsers = PersonalityService.setUserPersonalityStream(
           _personalityType,
           _firestore,
-          'posts',
-          'author-personality',
-        ),
-      ]);
-      _handleNotification(
-        widget.firstTime,
-        doChatSuggestions(),
-      );
-      _setUserNotifications();
-    });
+        );
+
+        _numberOfAccounts =
+            FirebaseFirestore.instance.collection('users').get();
+        _future = Future.wait([
+          DatabaseService.getFollowedContentFeed(
+            'posts',
+            'author',
+            _querySnapshot,
+          ),
+          PersonalityService.getCompatibleContentStream(
+            _personalityType,
+            _firestore,
+            'posts',
+            'author-personality',
+          ),
+        ]);
+        _handleNotification(
+          widget.firstTime,
+          doChatSuggestions(),
+        );
+        _setUserNotifications();
+      });
+    }
   }
 
   doChatSuggestions() async {
