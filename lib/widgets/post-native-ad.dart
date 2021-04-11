@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -11,24 +12,25 @@ class PostNativeAd extends StatefulWidget {
 }
 
 class _PostNativeAdState extends State<PostNativeAd> {
-  static const String AndroidAdUnitId = 'ca-app-pub-9448985372006294/2961269368';
-  static const String IOSAdUnitId = 'ca-app-pub-9448985372006294/6816753892';
-  NativeAd nativeAd; 
-  bool _isLoaded = false;
+  static const String AndroidAdUnitId =
+      'ca-app-pub-3940256099942544/2247696110'; // 'ca-app-pub-9448985372006294/2961269368';
+  static const String IOSAdUnitId =
+      'ca-app-pub-3940256099942544/3986624511'; //'ca-app-pub-9448985372006294/6816753892';
+  NativeAd nativeAd;
+  final Completer<NativeAd> nativeAdCompleter = Completer<NativeAd>();
 
   @override
-  void initState() {
+  void initState() {  
     nativeAd = NativeAd(
       adUnitId: Platform.isIOS ? IOSAdUnitId : AndroidAdUnitId,
       factoryId: 'native-ad',
       listener: AdListener(
         onAdLoaded: (ad) {
-          setState(() {
-            _isLoaded = true;
-          });
+          nativeAdCompleter.complete(ad as NativeAd);
         },
         onAdFailedToLoad: (ad, error) {
           nativeAd.dispose();
+          nativeAdCompleter.completeError(error);
         },
         onApplicationExit: (ad) {
           nativeAd.dispose();
@@ -36,7 +38,7 @@ class _PostNativeAdState extends State<PostNativeAd> {
       ),
       request: AdRequest(),
     );
-    nativeAd.load();
+    Future<void>.delayed(Duration(seconds: 1), () => nativeAd.load());
     super.initState();
   }
 
@@ -48,10 +50,26 @@ class _PostNativeAdState extends State<PostNativeAd> {
 
   @override
   Widget build(BuildContext context) {
-    final AdWidget adWidget = AdWidget(ad: nativeAd);
-    return _isLoaded == false
-        ? SizedBox.shrink()
-        : Container(
+    return FutureBuilder<NativeAd>(
+        future: nativeAdCompleter.future,
+        builder: (context, snapshot) {
+          Widget child;
+
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+            case ConnectionState.active:
+              child = Container();
+              break;
+            case ConnectionState.done:
+              if (snapshot.hasData) {
+                child = AdWidget(ad: nativeAd);
+              } else {
+                child = Text('Error loading $NativeAd');
+              }
+          }
+
+          return Container(
             height: MediaQuery.of(context).size.height / 3,
             margin: EdgeInsets.symmetric(horizontal: 10),
             child: Card(
@@ -61,9 +79,10 @@ class _PostNativeAdState extends State<PostNativeAd> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: adWidget,
+                child: child,
               ),
             ),
           );
+        });
   }
 }
