@@ -1377,7 +1377,8 @@ class _GlobePageState extends State<GlobePage>
                         ),
                       ),
                     ),
-                    FutureBuilder(
+                    PostNativeAd(),
+                    /*FutureBuilder(
                       future: _future,
                       builder:
                           (context, AsyncSnapshot<List<dynamic>> snapshot) {
@@ -1454,16 +1455,16 @@ class _GlobePageState extends State<GlobePage>
                                   physics: ScrollPhysics(),
                                   itemCount: snapshot.data[1].docs.length,
                                   separatorBuilder: (context, index) {
-                                   /* if (index % 3 == 0 || index % 10 == 0) {
+                                    if (index % 3 == 0 || index % 10 == 0) {
                                       return PostNativeAd();
-                                    } else {*/
+                                    } else {
                                       return SizedBox.shrink();
-                                   // }
+                                    }
                                   },
                                   itemBuilder: (context, index) {
-                                    return /*PostWidget(
+                                    return PostWidget(
                                       snapshot: snapshot.data[1].docs[index],
-                                    )*/ PostNativeAd();
+                                    );
                                   }),
                             );
                           }
@@ -1478,15 +1479,14 @@ class _GlobePageState extends State<GlobePage>
                               physics: ScrollPhysics(),
                               itemCount: lengthOfDocs,
                               separatorBuilder: (context, index) {
-                                /*if (index % 3 == 0 || index % 10 == 0) {
+                                if (index % 3 == 0 || index % 10 == 0) {
                                   return PostNativeAd();
-                                } else {*/
+                                } else {
                                   return SizedBox.shrink();
-                                //}
+                                }
                               },
                               itemBuilder: (context, index) {
-                               return PostNativeAd();
-                                /*try {
+                                try {
                                   final DocumentSnapshot doc = snapshot
                                       .data[querySnapShotCounter].docs
                                       .toList()[counter];
@@ -1505,11 +1505,11 @@ class _GlobePageState extends State<GlobePage>
                                   return PostWidget(
                                     snapshot: doc,
                                   );
-                                }*/
+                                }
                               });
                         }
                       },
-                    ),
+                    ),*/
                   ],
                 ),
               ),
