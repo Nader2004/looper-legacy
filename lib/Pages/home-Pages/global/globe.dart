@@ -1377,7 +1377,14 @@ class _GlobePageState extends State<GlobePage>
                         ),
                       ),
                     ),
-                    PostNativeAd(),
+                    ListView(
+                      children: [
+                        PostNativeAd(),
+                        PostNativeAd(),
+                        PostNativeAd(),
+                        PostNativeAd(),
+                      ],
+                    ),
                     /*FutureBuilder(
                       future: _future,
                       builder:
