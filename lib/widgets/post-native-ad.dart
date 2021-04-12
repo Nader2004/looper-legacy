@@ -72,8 +72,7 @@ class _PostNativeAdState extends State<PostNativeAd> {
 
         return Container(
           width: 250,
-          height: 350,
-          color: Colors.blueGrey,
+          height: 250,
           child: child,
         );
       },
