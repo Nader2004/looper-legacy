@@ -294,6 +294,169 @@
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 		</dict>
+		<key>5AD858BB262259D100E03CC8</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>file.xib</string>
+			<key>path</key>
+			<string>UnifiedNativeAdView.xib</string>
+			<key>sourceTree</key>
+			<string>&lt;group&gt;</string>
+		</dict>
+		<key>5AD858BC262259D100E03CC8</key>
+		<dict>
+			<key>fileRef</key>
+			<string>5AD858BB262259D100E03CC8</string>
+			<key>isa</key>
+			<string>PBXBuildFile</string>
+		</dict>
+		<key>785170C88A3E954511356108</key>
+		<dict>
+			<key>buildActionMask</key>
+			<string>2147483647</string>
+			<key>files</key>
+			<array/>
+			<key>inputPaths</key>
+			<array>
+				<string>${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh</string>
+				<string>${BUILT_PRODUCTS_DIR}/BoringSSL-GRPC/openssl_grpc.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/DKImagePickerController/DKImagePickerController.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/DKPhotoGallery/DKPhotoGallery.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/FMDB/FMDB.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/FirebaseAuth/FirebaseAuth.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/FirebaseCore/FirebaseCore.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/FirebaseCoreDiagnostics/FirebaseCoreDiagnostics.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/FirebaseFirestore/FirebaseFirestore.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/FirebaseInstallations/FirebaseInstallations.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/FirebaseInstanceID/FirebaseInstanceID.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/FirebaseMessaging/FirebaseMessaging.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/FirebaseStorage/FirebaseStorage.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/GoogleAPIClientForREST/GoogleAPIClientForREST.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/GoogleDataTransport/GoogleDataTransport.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/Mantle/Mantle.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/Reachability/Reachability.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/Regift/Regift.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/SDWebImageWebPCoder/SDWebImageWebPCoder.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/Sentry/Sentry.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/SwiftyGif/SwiftyGif.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/Toast/Toast.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/abseil/absl.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/audioplayers/audioplayers.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/camera/camera.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/connectivity/connectivity.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/export_video_frame/export_video_frame.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/file_picker/file_picker.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/flashy_tab_bar/flashy_tab_bar.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/flutter_chat_bubble/flutter_chat_bubble.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/flutter_email_sender/flutter_email_sender.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/flutter_image_compress/flutter_image_compress.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/flutter_local_notifications/flutter_local_notifications.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/flutter_video_compress/flutter_video_compress.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/fluttertoast/fluttertoast.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/gRPC-C++/grpcpp.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/gRPC-Core/grpc.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/geocoder/geocoder.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/image_picker/image_picker.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/leveldb-library/leveldb.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/libwebp/libwebp.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/location/location.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/package_info_plus/package_info_plus.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/path_provider/path_provider.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/photo_manager/photo_manager.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/sentry_flutter/sentry_flutter.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/share_plus/share_plus.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/shared_preferences/shared_preferences.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/sqflite/sqflite.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/tau_sound_core/tau_sound_core.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/url_launcher/url_launcher.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/video_player/video_player.framework</string>
+				<string>${BUILT_PRODUCTS_DIR}/video_thumbnail/video_thumbnail.framework</string>
+			</array>
+			<key>isa</key>
+			<string>PBXShellScriptBuildPhase</string>
+			<key>name</key>
+			<string>[CP] Embed Pods Frameworks</string>
+			<key>outputPaths</key>
+			<array>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/openssl_grpc.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DKImagePickerController.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/DKPhotoGallery.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FMDB.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseAuth.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCore.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseCoreDiagnostics.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseFirestore.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstallations.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseInstanceID.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseMessaging.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FirebaseStorage.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleAPIClientForREST.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleDataTransport.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mantle.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBLPromises.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Reachability.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Regift.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImageWebPCoder.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sentry.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyGif.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Toast.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/absl.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/audioplayers.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/camera.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/connectivity.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/export_video_frame.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/file_picker.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flashy_tab_bar.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_chat_bubble.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_email_sender.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_image_compress.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_local_notifications.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/flutter_video_compress.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/fluttertoast.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpcpp.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/grpc.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/geocoder.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/image_picker.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/leveldb.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libwebp.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/location.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/package_info_plus.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/path_provider.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/photo_manager.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/sentry_flutter.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/share_plus.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/shared_preferences.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/sqflite.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/tau_sound_core.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/url_launcher.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/video_player.framework</string>
+				<string>${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/video_thumbnail.framework</string>
+			</array>
+			<key>runOnlyForDeploymentPostprocessing</key>
+			<string>0</string>
+			<key>shellPath</key>
+			<string>/bin/sh</string>
+			<key>shellScript</key>
+			<string>"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh"
+</string>
+			<key>showEnvVarsInLog</key>
+			<string>0</string>
+		</dict>
 		<key>7AFA3C8E1D35360C0083082E</key>
 		<dict>
 			<key>isa</key>
@@ -549,6 +712,7 @@
 			<array>
 				<string>97C147011CF9000F007C117D</string>
 				<string>3B3967161E833CAA004F5970</string>
+				<string>5AD858BC262259D100E03CC8</string>
 				<string>9740EEB41CF90195004384FC</string>
 				<string>97C146FE1CF9000F007C117D</string>
 				<string>97C146FC1CF9000F007C117D</string>
@@ -572,6 +736,7 @@
 				<string>97C146EC1CF9000F007C117D</string>
 				<string>9705A1C41CF9048500538489</string>
 				<string>3B06AD1E1E4923F5004D2608</string>
+				<string>785170C88A3E954511356108</string>
 			</array>
 			<key>buildRules</key>
 			<array/>
@@ -629,6 +794,7 @@
 				<string>97C146F11CF9000F007C117D</string>
 				<string>1498D2321E8E86230040F4C2</string>
 				<string>1498D2331E8E89220040F4C2</string>
+				<string>5AD858BB262259D100E03CC8</string>
 			</array>
 			<key>isa</key>
 			<string>PBXGroup</string>
