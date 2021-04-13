@@ -566,13 +566,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
-  google_mobile_ads:
-    dependency: "direct main"
-    description:
-      name: google_mobile_ads
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.12.1"
   http:
     dependency: "direct main"
     description:
@@ -699,6 +692,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  native_ads:
+    dependency: "direct main"
+    description:
+      name: native_ads
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.0"
   nested:
     dependency: transitive
     description:
