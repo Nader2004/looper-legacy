@@ -1,5 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:native_ads/native_ads.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Copyright 2020
@@ -12,7 +12,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 /// IBM Cloud Account Password : *UyAdgQ$KY82&w#
 /// Giphy API Key : UhvOlgZPcbRwN490PThaYgBlNy7N5rIx
 /// Google Maps API Key : AIzaSyAk6x-mEiibVC7NamZ0owHRzQthVDhXRuA
-
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,7 +33,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  NativeAds.initialize();
+  MobileAds.instance.initialize();
   await Firebase.initializeApp();
   await SentryFlutter.init(
     (options) {
