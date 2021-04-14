@@ -90,7 +90,7 @@ dependencies:
   photo_manager: ^1.0.6
   audioplayers: ^0.18.3
   export_video_frame: ^0.0.5+4
-  http: ^0.13.0
+  http: ^0.12.2
 
 flutter_icons:
   android: "launcher_icon"
