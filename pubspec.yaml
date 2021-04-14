@@ -61,6 +61,7 @@ dependencies:
   flutter_chat_bubble: ^1.0.2
   flutter_toggle_tab: ^1.0.0
   flushbar: ^1.10.4
+  flutter_linkify: ^4.1.0
   flutter_bounce: ^1.0.8
   string_validator: ^0.3.0
   email_validator: ^2.0.1
@@ -101,11 +102,7 @@ dev_dependencies:
     sdk: flutter
   flutter_datetime_picker:
    git:
-     url: https://github.com/espresso3389/flutter_datetime_picker
-  
-  flutter_linkify:
-    git:
-      url: https://github.com/MohamedEL-Torky/flutter_linkify
+     url: https://github.com/espresso3389/flutter_datetime_picker  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
