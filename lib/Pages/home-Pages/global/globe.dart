@@ -1377,15 +1377,7 @@ class _GlobePageState extends State<GlobePage>
                         ),
                       ),
                     ),
-                    ListView(
-                      children: [
-                        PostNativeAd(),
-                        PostNativeAd(),
-                        PostNativeAd(),
-                        PostNativeAd(),
-                      ],
-                    ),
-                    /*FutureBuilder(
+                    FutureBuilder(
                       future: _future,
                       builder:
                           (context, AsyncSnapshot<List<dynamic>> snapshot) {
@@ -1516,7 +1508,7 @@ class _GlobePageState extends State<GlobePage>
                               });
                         }
                       },
-                    ),*/
+                    ),
                   ],
                 ),
               ),
