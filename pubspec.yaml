@@ -84,7 +84,7 @@ dependencies:
   url_launcher: ^6.0.3
   intl: ^0.17.0
   visibility_detector: ^0.2.0-nullsafety.1 
-  dotted_border: ^0.2.5+1
+  dotted_border: ^1.0.7
   video_thumbnail: ^0.2.5+1
   file_picker: ^2.1.7
   photo_manager: ^1.0.6
