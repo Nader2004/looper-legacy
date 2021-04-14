@@ -37,7 +37,7 @@ dependencies:
   firebase_ml_vision: ^0.11.0
   camera: ^0.8.1
   video_player: ^2.0.1
-  path_provider: ^2.0.0
+  path_provider: ^1.6.28
   image_picker: ^0.7.4
   fluttertoast: ^8.0.3
   permission_handler: ^6.1.1
