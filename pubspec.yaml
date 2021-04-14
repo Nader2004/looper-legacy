@@ -88,7 +88,7 @@ dependencies:
   video_thumbnail: ^0.3.3
   file_picker: ^3.0.1
   photo_manager: ^1.0.6
-  audioplayers: ^0.18.3
+  audioplayers: ^0.17.4
   export_video_frame: ^0.0.5+4
   http: ^0.12.2
 
