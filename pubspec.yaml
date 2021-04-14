@@ -80,7 +80,7 @@ dependencies:
   flutter_email_sender: ^5.0.0
   giphy_picker: ^2.0.0
   dots_indicator: ^2.0.0
-  percent_indicator: ^3.3.0-nullsafety.1
+  percent_indicator: ^2.1.8
   url_launcher: ^5.7.10
   intl: ^0.16.0 
   visibility_detector: ^0.1.5 
