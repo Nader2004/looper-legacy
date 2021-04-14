@@ -83,7 +83,7 @@ dependencies:
   percent_indicator: ^3.3.0-nullsafety.1
   url_launcher: ^6.0.3
   intl: ^0.17.0
-  visibility_detector: ^0.2.0-nullsafety.1 
+  visibility_detector: ^0.1.5 
   dotted_border: ^1.0.7
   video_thumbnail: ^0.2.5+1
   file_picker: ^2.1.7
