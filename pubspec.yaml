@@ -37,13 +37,13 @@ dependencies:
   firebase_ml_vision: ^0.11.0
   camera: ^0.8.1
   video_player: ^2.0.1
-  path_provider: ^1.6.28
+  path_provider: ^2.0.0
   image_picker: ^0.7.4
   fluttertoast: ^8.0.3
   permission_handler: ^6.1.1
   flutter_local_notifications: ^5.0.0+1
   flutter_launcher_icons: ^0.9.0
-  uuid: ^2.2.2
+  uuid: ^3.0.1
   flutter_svg: ^0.21.0-nullsafety.0
   shimmer: ^2.0.0-nullsafety.0
   bubble: ^1.1.9+1
@@ -55,42 +55,42 @@ dependencies:
   shifting_tabbar: ^1.0.1
   fab_circular_menu: ^1.0.2
   flutter_snake_navigationbar: ^0.5.0
-  flutter_spinkit: "^4.0.0"
+  flutter_spinkit: "^5.0.0"
   cool_nav: ^0.0.3  
   flashy_tab_bar: ^0.0.3
   flutter_chat_bubble: ^1.0.2
   flutter_toggle_tab: ^1.0.0
   flushbar: ^1.10.4
-  flutter_linkify: ^4.1.0
+  flutter_linkify: ^5.0.2
   flutter_bounce: ^1.0.8
-  string_validator: ^0.1.4
-  email_validator: ^1.0.6
-  stop_watch_timer: ^0.7.0
-  shared_preferences: ^0.5.12+4
+  string_validator: ^0.3.0
+  email_validator: ^2.0.1
+  stop_watch_timer: ^1.1.0+1
+  shared_preferences: ^2.0.5
   enhanced_future_builder: ^1.0.3
-  cached_network_image: ^2.5.1
-  flutter_image_compress: ^0.7.0
+  cached_network_image: ^3.0.0
+  flutter_image_compress: ^1.0.0
   flutter_video_compress: ^0.3.7+8
   tutorial_coach_mark: ^0.6.0+1
-  flutter_sound: ^7.7.0+1
+  flutter_sound: ^8.0.0+6
   share_plus: ^2.0.0
-  location: ^3.2.4
+  location: ^4.1.1
   geocoder: ^0.2.1
-  connectivity: ^2.0.2
-  flutter_email_sender: ^4.0.0
-  giphy_picker: ^1.0.8
-  dots_indicator: ^1.2.0
-  percent_indicator: ^2.1.8
-  url_launcher: ^5.7.10
-  intl: ^0.16.0 
-  visibility_detector: ^0.1.5 
-  dotted_border: ^1.0.7
-  video_thumbnail: ^0.2.5+1
-  file_picker: ^2.1.7
+  connectivity: ^3.0.3
+  flutter_email_sender: ^5.0.0
+  giphy_picker: ^2.0.0
+  dots_indicator: ^2.0.0
+  percent_indicator: ^3.3.0-nullsafety.1
+  url_launcher: ^6.0.3
+  intl: ^0.17.0
+  visibility_detector: ^0.2.0-nullsafety.1 
+  dotted_border: ^2.0.0-nullsafety.0
+  video_thumbnail: ^0.3.3
+  file_picker: ^3.0.1
   photo_manager: ^1.0.6
-  audioplayers: ^0.17.4
+  audioplayers: ^0.18.3
   export_video_frame: ^0.0.5+4
-  http: ^0.12.2
+  http: ^0.13.1
 
 flutter_icons:
   android: "launcher_icon"
@@ -102,8 +102,8 @@ dev_dependencies:
     sdk: flutter
   flutter_datetime_picker:
    git:
-     url: https://github.com/espresso3389/flutter_datetime_picker  
-
+     url: https://github.com/espresso3389/flutter_datetime_picker
+  
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
