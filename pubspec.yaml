@@ -72,7 +72,7 @@ dependencies:
   flutter_image_compress: ^1.0.0
   flutter_video_compress: ^0.3.7+8
   tutorial_coach_mark: ^0.6.0+1
-  flutter_sound: ^8.0.0+6
+  flutter_sound: ^7.7.0+1
   share_plus: ^2.0.0
   location: ^3.2.4
   geocoder: ^0.2.1
