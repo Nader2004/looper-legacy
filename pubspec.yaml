@@ -76,7 +76,7 @@ dependencies:
   share_plus: ^2.0.0
   location: ^4.1.1
   geocoder: ^0.2.1
-  connectivity: ^2.0.3
+  connectivity: ^2.0.2
   flutter_email_sender: ^4.0.0
   giphy_picker: ^1.0.8
   dots_indicator: ^1.2.0
