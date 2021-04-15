@@ -74,7 +74,7 @@ dependencies:
   tutorial_coach_mark: ^0.6.0+1
   flutter_sound: ^8.0.0+6
   share_plus: ^2.0.0
-  location: ^4.1.1
+  location: ^3.2.4
   geocoder: ^0.2.1
   connectivity: ^2.0.2
   flutter_email_sender: ^4.0.0
