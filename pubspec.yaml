@@ -65,7 +65,7 @@ dependencies:
   flutter_bounce: ^1.0.8
   string_validator: ^0.3.0
   email_validator: ^2.0.1
-  stop_watch_timer: ^1.1.0+1
+  stop_watch_timer: ^0.7.0
   shared_preferences: ^0.5.12+4
   enhanced_future_builder: ^1.0.3
   cached_network_image: ^2.5.1
