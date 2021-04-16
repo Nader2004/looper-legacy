@@ -1,5 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:admob_flutter/admob_flutter.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// Copyright 2020
@@ -33,7 +33,7 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  MobileAds.instance.initialize();
+  Admob.initialize();
   await Firebase.initializeApp();
   await SentryFlutter.init(
     (options) {
