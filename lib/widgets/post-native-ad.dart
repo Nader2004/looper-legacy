@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:admob_flutter/admob_flutter.dart';
 
@@ -22,20 +24,21 @@ class _PostNativeAdState extends State<PostNativeAd> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height / 3,
       margin: EdgeInsets.symmetric(horizontal: 10),
       child: Card(
         elevation: 10,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            margin: EdgeInsets.only(bottom: 20.0),
-            child: AdmobBanner(
-              adUnitId: 'ca-app-pub-3940256099942544/2934735716',
-              adSize: AdmobBannerSize.BANNER,
+        child: IntrinsicHeight(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              margin: EdgeInsets.only(bottom: 20.0),
+              child: AdmobBanner(
+                adUnitId: Platform.isIOS ? IOSAdUnitId : AndroidAdUnitId,
+                adSize: AdmobBannerSize.BANNER,
+              ),
             ),
           ),
         ),
