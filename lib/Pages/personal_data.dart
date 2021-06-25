@@ -1286,7 +1286,7 @@ class _IntroPageState extends State<IntroPage> {
     return IntroSlider(
       slides: _slides,
       colorDoneBtn: Colors.black,
-      isShowSkipBtn: false,
+      showSkipBtn: false,
       onDonePress: () => Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => HomePage(firstTime: true),
